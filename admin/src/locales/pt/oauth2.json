@@ -1,0 +1,45 @@
+{
+  "title": "Credenciais API",
+  "description": "Gerencie credenciais OAuth2 para integrações de terceiros",
+  "createNew": "Criar Novo Cliente",
+  "noClients": "Nenhum cliente API criado ainda",
+  "save": "Salve seu segredo do cliente agora - você não conseguirá vê-lo novamente!",
+  "copy": "Copiar para Clipboard",
+  "copied": "Segredo do cliente copiado para a área de transferência",
+  "delete": "Deletar",
+  "confirmDelete": "Tem certeza de que deseja deletar este cliente OAuth2?",
+  "form": {
+    "title": "Criar Cliente API",
+    "description": "Descrição",
+    "descriptionPlaceholder": "ex: Acesso API da Aplicação Móvel",
+    "scopes": "Escopos",
+    "scopesRequired": "Por favor, selecione pelo menos um escopo",
+    "create": "Criar Cliente",
+    "cancel": "Cancelar"
+  },
+  "scopes": {
+    "vehiclesRead": "Ler dados de veículos",
+    "vehiclesWrite": "Criar e atualizar veículos",
+    "vehiclesDelete": "Deletar veículos",
+    "certificationsRead": "Ler certificações",
+    "certificationsWrite": "Criar e atualizar certificações",
+    "certificationsDelete": "Deletar certificações",
+    "entitiesRead": "Ler informações da entidade",
+    "eventsRead": "Ler eventos de veículos",
+    "eventsWrite": "Criar e atualizar eventos de veículos",
+    "documentsRead": "Ler documentos",
+    "documentsWrite": "Carregar e deletar documentos"
+  },
+  "fields": {
+    "clientId": "ID do Cliente",
+    "description": "Descrição",
+    "scopes": "Escopos",
+    "createdAt": "Criado em",
+    "actions": "Ações"
+  },
+  "errors": {
+    "loading": "Erro ao carregar clientes API",
+    "creating": "Erro ao criar cliente API",
+    "deleting": "Erro ao deletar cliente API"
+  }
+}

@@ -1,0 +1,9 @@
+.idea
+.vscode
+.claude
+.DS_Store
+backend/bin
+node_modules
+.env
+.envrc
+.mcp.json

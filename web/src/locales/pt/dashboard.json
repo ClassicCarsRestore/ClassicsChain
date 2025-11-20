@@ -1,0 +1,93 @@
+{
+  "welcome": "Bem-vindo ao Seu Painel",
+  "welcomeWithName": "Bem-vindo, {{name}}",
+  "actions": {
+    "addVehicle": "Adicionar Veículo",
+    "addVehicleDescription": "Registar um novo veículo clássico"
+  },
+  "vehicles": {
+    "title": "Os Meus Veículos",
+    "empty": {
+      "title": "Ainda sem veículos",
+      "description": "Comece por registar o seu primeiro veículo clássico para acompanhar o seu histórico e autenticidade.",
+      "action": "Adicionar o Seu Primeiro Veículo"
+    }
+  },
+  "vehicleForm": {
+    "title": "Registar Novo Veículo",
+    "subtitle": "Adicione um veículo clássico à sua coleção",
+    "fields": {
+      "make": "Marca",
+      "makePlaceholder": "ex: Ford, Chevrolet, Mercedes-Benz",
+      "model": "Modelo",
+      "modelPlaceholder": "ex: Mustang, Corvette, 300SL",
+      "year": "Ano",
+      "yearPlaceholder": "ex: 1965",
+      "color": "Cor",
+      "colorPlaceholder": "ex: Vermelho, Preto, Prateado",
+      "engineNumber": "Número do Motor",
+      "engineNumberPlaceholder": "Número de identificação do motor",
+      "licensePlate": "Matrícula",
+      "licensePlatePlaceholder": "Matrícula do veículo",
+      "chassisNumber": "Número do Chassis",
+      "chassisNumberPlaceholder": "Número de identificação do chassis ou chassis",
+      "transmissionNumber": "Número da Transmissão",
+      "transmissionNumberPlaceholder": "Número de identificação da transmissão",
+      "bodyType": "Tipo de Carroçaria",
+      "selectBodyType": "Selecione o tipo de carroçaria",
+      "driveType": "Tipo de Tração",
+      "selectDriveType": "Selecione o tipo de tração",
+      "gearType": "Tipo de Câmbio",
+      "selectGearType": "Selecione o tipo de câmbio",
+      "suspensionType": "Tipo de Suspensão",
+      "selectSuspensionType": "Selecione o tipo de suspensão",
+      "engineNumberOrLicensePlateHint": "Pelo menos um destes campos é obrigatório para identificação do veículo"
+    },
+    "bodyTypes": {
+      "sedan": "Sedan",
+      "coupe": "Coupé",
+      "convertible": "Conversível",
+      "wagon": "Perua/Station Wagon",
+      "suv": "SUV",
+      "truck": "Camião/Pickup",
+      "van": "Carrinha",
+      "hatchback": "Hatchback",
+      "roadster": "Roadster"
+    },
+    "driveTypes": {
+      "fwd": "Tração Dianteira (FWD)",
+      "rwd": "Tração Traseira (RWD)",
+      "awd": "Tração Integral (AWD)",
+      "4wd": "Tração 4x4 (4WD)"
+    },
+    "gearTypes": {
+      "manual": "Manual",
+      "automatic": "Automático",
+      "cvt": "CVT (Transmissão Continuamente Variável)",
+      "dct": "DCT (Transmissão de Dupla Embraiagem)",
+      "sequential": "Sequencial"
+    },
+    "suspensionTypes": {
+      "independent": "Independente",
+      "dependent": "Dependente",
+      "macpherson": "MacPherson",
+      "double_wishbone": "Duplo Triângulo",
+      "multi_link": "Multi-Braço",
+      "air_suspension": "Suspensão Pneumática"
+    },
+    "buttons": {
+      "submit": "Registar Veículo",
+      "cancel": "Cancelar",
+      "submitting": "A registar..."
+    },
+    "validation": {
+      "makeRequired": "Marca é obrigatória",
+      "modelRequired": "Modelo é obrigatório",
+      "yearRequired": "Ano é obrigatório",
+      "yearInvalid": "O ano deve estar entre 1800 e 9999",
+      "engineNumberOrLicensePlateRequired": "Número do Motor ou Matrícula é obrigatório"
+    },
+    "success": "Veículo registado com sucesso!",
+    "error": "Falha ao registar veículo. Por favor tente novamente."
+  }
+}

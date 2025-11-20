@@ -1,0 +1,16 @@
+{
+  "title": "Users",
+  "inviteAdmin": "Invite Admin",
+  "inviteNewAdmin": "Invite New Admin",
+  "usersList": "Users List",
+  "fields": {
+    "name": "Name",
+    "email": "Email",
+    "createdAt": "Created At"
+  },
+  "messages": {
+    "loadingUsers": "Loading users...",
+    "errorLoading": "Error loading users: {{error}}",
+    "noUsers": "No users found."
+  }
+}

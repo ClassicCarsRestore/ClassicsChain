@@ -1,0 +1,191 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: cc-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: classics_chain
+    ports:
+      - "5433:5432"
+    volumes:
+      - app_postgres_data:/var/lib/postgresql/data
+    networks:
+      - intranet
+
+  kratos-db:
+    image: postgres:17-alpine
+    container_name: cc-kratos-db
+    environment:
+      POSTGRES_DB: kratos
+      POSTGRES_USER: kratos
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - intranet
+
+  kratos-migrate:
+    image: oryd/kratos:v25.4.0
+    container_name: cc-kratos-migrate
+    environment:
+      DSN: postgres://kratos:secret@cc-kratos-db:5432/kratos?sslmode=disable
+    volumes:
+      - type: bind
+        source: ../kratos
+        target: /etc/config/kratos
+    command: -c /etc/config/kratos/kratos.yaml migrate sql -e --yes
+    depends_on:
+      - kratos-db
+    networks:
+      - intranet
+
+  kratos:
+    image: oryd/kratos:v25.4.0
+    container_name: cc-kratos
+    ports:
+      - "4433:4433" # public
+      - "4434:4434" # admin
+    environment:
+      DSN: postgres://kratos:secret@cc-kratos-db:5432/kratos?sslmode=disable
+      LOG_LEVEL: trace
+    volumes:
+      - type: bind
+        source: ../kratos
+        target: /etc/config/kratos
+    command: serve -c /etc/config/kratos/kratos.yaml --dev --watch-courier
+    depends_on:
+      - kratos-migrate
+    networks:
+      - intranet
+
+  hydra-db:
+    image: postgres:17-alpine
+    container_name: cc-hydra-db
+    environment:
+      POSTGRES_DB: hydra
+      POSTGRES_USER: hydra
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5434:5432"
+    volumes:
+      - hydra_postgres_data:/var/lib/postgresql/data
+    networks:
+      - intranet
+
+  hydra-migrate:
+    image: oryd/hydra:v25.4.0
+    container_name: cc-hydra-migrate
+    environment:
+      DSN: postgres://hydra:secret@cc-hydra-db:5432/hydra?sslmode=disable
+      SECRETS_SYSTEM: this-is-a-very-insecure-secret-change-me-in-production
+    command: migrate sql -e --yes
+    depends_on:
+      - hydra-db
+    networks:
+      - intranet
+
+  hydra:
+    image: oryd/hydra:v25.4.0
+    container_name: cc-hydra
+    ports:
+      - "4444:4444" # public
+      - "4445:4445" # admin
+    environment:
+      DSN: postgres://hydra:secret@cc-hydra-db:5432/hydra?sslmode=disable
+      HYDRA_SERVE_PUBLIC_BASE_URL: http://localhost:4444
+      HYDRA_SERVE_ADMIN_BASE_URL: http://localhost:4445
+      HYDRA_LOG_LEVEL: trace
+      SECRETS_SYSTEM: this-is-a-very-insecure-secret-change-me-in-production
+    command: serve all --dev
+    depends_on:
+      - hydra-migrate
+    networks:
+      - intranet
+
+  mailslurper:
+    image: oryd/mailslurper:smtps-latest
+    container_name: cc-mailslurper
+    ports:
+      - '4436:4436'
+      - '4437:4437'
+    networks:
+      - intranet
+
+#  ipfs:
+#    image: ipfs/kubo:latest
+#    container_name: cc-ipfs
+#    ports:
+#      - "5001:5001" # API
+#      - "8080:8080" # Gateway
+#    volumes:
+#      - ipfs_data:/data/ipfs
+#    networks:
+#      - intranet
+
+  garage:
+    image: dxflrs/garage:v2.1.0
+    container_name: cc-garage
+    ports:
+      - "3900:3900"  # S3 api
+#      - "3901:3901"  # rpc
+      - "3902:3902"  # S3 web
+      - "3903:3903"  # admin
+    volumes:
+      - ../garage/garage.toml:/etc/garage.toml
+      - garage_meta:/var/lib/garage/meta
+      - garage_data:/var/lib/garage/data
+    environment:
+      GARAGE_ADMIN_TOKEN: ${GARAGE_ADMIN_TOKEN}
+      GARAGE_RPC_SECRET: ${GARAGE_RPC_SECRET}
+      GARAGE_METRICS_TOKEN: ${GARAGE_METRICS_TOKEN}
+    networks:
+      - intranet
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3901/"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  garage-ui:
+    image: khairul169/garage-webui:latest
+    container_name: cc-garage-ui
+    restart: unless-stopped
+    volumes:
+      - ../garage/garage.toml:/etc/garage.toml:ro
+    ports:
+      - 3909:3909
+    environment:
+      API_BASE_URL: "http://cc-garage:3903"
+      S3_ENDPOINT_URL: "http://cc-garage:3900"
+    networks:
+      - intranet
+    depends_on:
+      - garage
+
+  caddy:
+    image: caddy:latest
+    container_name: cc-caddy
+    ports:
+      - "8081:8081"
+    volumes:
+      - type: bind
+        source: ./Caddyfile
+        target: /etc/caddy/Caddyfile
+    depends_on:
+      - kratos
+    networks:
+      - intranet
+
+volumes:
+  app_postgres_data:
+  postgres_data:
+  hydra_postgres_data:
+  ipfs_data:
+  garage_data:
+  garage_meta:
+
+networks:
+  intranet:

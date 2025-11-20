@@ -1,0 +1,30 @@
+{
+  "welcome": "Welcome",
+  "welcomeWithName": "Welcome, {{name}}",
+  "adminSubtitle": "Manage admin users, entities, and system settings.",
+  "entityUserSubtitle": "Access your entity information and resources.",
+  "adminUsers": {
+    "title": "Admin Users",
+    "description": "Manage system administrators and their permissions",
+    "goTo": "Go to Admin Users"
+  },
+  "entities": {
+    "title": "Entities",
+    "description": "Manage certifiers, partners, and their members",
+    "goTo": "Go to Entities",
+    "yourEntities": "Your Entities",
+    "viewDetails": "View Details"
+  },
+  "types": {
+    "certifier": "Certifier",
+    "partner": "Partner"
+  },
+  "roles": {
+    "admin": "Admin",
+    "member": "Member"
+  },
+  "noAccess": {
+    "title": "No Entities Assigned",
+    "description": "You haven't been assigned to any entities yet. Contact your administrator for access."
+  }
+}

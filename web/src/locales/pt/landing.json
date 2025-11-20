@@ -1,0 +1,50 @@
+{
+  "hero": {
+    "title": "Classics Chain",
+    "subheading": "Registos baseados em blockchain para proveniência verificada e valor duradouro.",
+    "cta": {
+      "primary": "Criar o Seu Registo Digital",
+      "secondary": "Como Funciona"
+    },
+    "signIn": "Entrar"
+  },
+  "features": {
+    "title": "Porquê Classics Chain",
+    "subtitle": "Construído para colecionadores, restauradores e entusiastas que querem que as histórias dos seus veículos sejam permanentes e verificáveis.",
+    "authentic": {
+      "title": "Autêntico por Design",
+      "description": "Verificação blockchain imutável para cada certificado e evento."
+    },
+    "history": {
+      "title": "Histórico Completo do Veículo",
+      "description": "Um passaporte digital vivo — cada restauração, evento e marco preservado."
+    },
+    "network": {
+      "title": "Rede Global de Confiança",
+      "description": "Conectado com especialistas e organizações certificadas em todo o mundo."
+    }
+  },
+  "howItWorks": {
+    "title": "Como Funciona",
+    "steps": [
+      {
+        "title": "Registe ou Reivindique o Seu Veículo",
+        "description": "Comece o seu registo digital com detalhes ou documentos-chave."
+      },
+      {
+        "title": "Adicione Histórico Verificado",
+        "description": "Parceiros certificados e especialistas reconhecidos podem contribuir com relatórios de restauração, participação em eventos e marcos de inspeção."
+      },
+      {
+        "title": "Registo Imutável",
+        "description": "Cada evento verificado é ancorado de forma segura na blockchain — permanente, transparente e à prova de adulteração."
+      }
+    ],
+    "learnMore": "Saiba Mais"
+  },
+  "cta": {
+    "title": "Pronto para começar o legado digital do seu veículo?",
+    "subtitle": "Junte-se à Classics Chain e comece a construir o seu registo verificável hoje.",
+    "button": "Criar Conta"
+  }
+}

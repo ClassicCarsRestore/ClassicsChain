@@ -1,0 +1,177 @@
+{
+  "loading": "Loading vehicle details...",
+  "buttons": {
+    "backToDashboard": "Back to Dashboard",
+    "addEvent": "Add Event"
+  },
+  "fields": {
+    "year": "Year",
+    "color": "Color",
+    "engineNumber": "Engine Number",
+    "licensePlate": "License Plate",
+    "chassisNumber": "Chassis Number",
+    "transmissionNumber": "Transmission Number",
+    "bodyType": "Body Type",
+    "driveType": "Drive Type",
+    "gearType": "Gear Type",
+    "suspensionType": "Suspension Type"
+  },
+  "sections": {
+    "photos": "Vehicle Photos",
+    "documents": "Documents",
+    "history": "Vehicle History"
+  },
+  "documentation": {
+    "comingSoon": "Document Upload Coming Soon",
+    "description": "Soon you'll be able to upload photos, certificates, and other documentation for your vehicle."
+  },
+  "events": {
+    "empty": {
+      "title": "No history events yet",
+      "description": "Start adding events to document your vehicle's journey, restorations, and participation in events."
+    }
+  },
+  "eventTypes": {
+    "certification": "Vehicle Certification",
+    "carShow": "Car Show & Concours d'Elegance",
+    "classicMeet": "Classic Car Meet / Cruise-In",
+    "rally": "Rally & Tour",
+    "vintageRacing": "Vintage Racing & Track Day",
+    "auction": "Auction & Sales Event",
+    "workshop": "Restoration Workshop & Seminar",
+    "clubCompetition": "Club Competition & Award",
+    "roadTrip": "Road Trip & Heritage Drive",
+    "festival": "Classic Car Festival",
+    "raceParticipation": "Race Participation",
+    "showParticipation": "Show Participation",
+    "maintenance": "Maintenance",
+    "restoration": "Restoration",
+    "modification": "Modification",
+    "ownershipTransfer": "Ownership Transfer"
+  },
+  "eventBadges": {
+    "certified": "Certified",
+    "ownerProvided": "Owner Provided"
+  },
+  "eventForm": {
+    "title": "Add Event Record",
+    "fields": {
+      "type": "Event Type",
+      "title": "Event Title",
+      "titlePlaceholder": "e.g., Major Restoration, Engine Overhaul",
+      "description": "Description",
+      "descriptionPlaceholder": "Add details about this event",
+      "eventDate": "Date",
+      "eventTime": "Time",
+      "location": "Location",
+      "locationPlaceholder": "Where did this event occur?"
+    },
+    "buttons": {
+      "create": "Create Event",
+      "creating": "Creating...",
+      "cancel": "Cancel"
+    },
+    "validation": {
+      "titleRequired": "Event title is required",
+      "dateRequired": "Event date is required"
+    },
+    "error": "Failed to create event. Please try again."
+  },
+  "photos": {
+    "photosCount": "photos",
+    "uploadButton": "Upload Photo",
+    "uploading": "Uploading...",
+    "viewButton": "View",
+    "deleteButton": "Delete",
+    "confirmDelete": "Are you sure you want to delete this photo?",
+    "deleteTitle": "Delete Photo",
+    "deleteMessage": "Are you sure you want to delete this photo? This action cannot be undone.",
+    "deleteConfirm": "Delete",
+    "deleteCancel": "Cancel",
+    "empty": {
+      "title": "No photos yet",
+      "description": "Upload photos to showcase your vehicle"
+    },
+    "errors": {
+      "fileTooLarge": "File is too large. Maximum size is 5MB.",
+      "invalidFileType": "Invalid file type. Only JPEG, PNG, and WebP images are allowed.",
+      "maxPhotosExceeded": "Vehicle has reached the maximum number of photos (10).",
+      "uploadFailed": "Failed to upload photo. Please try again.",
+      "deleteFailed": "Failed to delete photo. Please try again."
+    }
+  },
+  "documents": {
+    "documentsCount": "documents",
+    "uploadButton": "Upload Document",
+    "uploading": "Uploading...",
+    "downloadButton": "Download",
+    "deleteButton": "Delete",
+    "confirmDelete": "Are you sure you want to delete this document?",
+    "deleteTitle": "Delete Document",
+    "deleteMessage": "Are you sure you want to delete this document? This action cannot be undone.",
+    "deleteConfirm": "Delete",
+    "deleteCancel": "Cancel",
+    "empty": {
+      "title": "No documents yet",
+      "description": "Upload PDF documents such as certificates and maintenance records"
+    },
+    "errors": {
+      "fileTooLarge": "File is too large. Maximum size is 50MB.",
+      "invalidFileType": "Invalid file type. Only PDF files are allowed.",
+      "maxDocumentsExceeded": "Vehicle has reached the maximum number of documents (20).",
+      "uploadFailed": "Failed to upload document. Please try again.",
+      "deleteFailed": "Failed to delete document. Please try again."
+    }
+  },
+  "shareLinks": {
+    "title": "Share Links",
+    "createButton": "Create Share Link",
+    "empty": "No active share links",
+    "noData": "No data available for this shared vehicle",
+    "invalidToken": "Invalid or missing share token",
+    "accessDenied": "Access Denied",
+    "backHome": "Back to Home",
+    "expired": "Expired",
+    "expiresAt": "Expires",
+    "accessedCount": "Accessed {{ count }} time",
+    "accessedCount_plural": "Accessed {{ count }} times",
+    "confirmRevoke": "Are you sure you want to revoke this share link?",
+    "revokeTitle": "Revoke Share Link",
+    "revokeMessage": "Are you sure you want to revoke this share link? The recipient will no longer be able to access the shared vehicle.",
+    "revokeConfirm": "Revoke",
+    "revokeCancel": "Cancel",
+    "copyUrl": "Copy share URL",
+    "revoke": "Revoke",
+    "permissions": {
+      "details": "View Details",
+      "photos": "View Photos",
+      "documents": "View Documents",
+      "history": "View History"
+    },
+    "createModal": {
+      "title": "Create Share Link",
+      "permissions": "Select Permissions",
+      "duration": "Link Expiration",
+      "recipientEmail": "Recipient Email",
+      "optional": "(optional)",
+      "emailPlaceholder": "user@example.com",
+      "emailNote": "Email notifications are not yet implemented",
+      "cancel": "Cancel",
+      "create": "Create",
+      "creating": "Creating..."
+    },
+    "validation": {
+      "atLeastOnePermission": "At least one permission must be selected",
+      "invalidEmail": "Please enter a valid email address"
+    },
+    "errors": {
+      "createFailed": "Failed to create share link",
+      "loadFailed": "Failed to load shared vehicle data",
+      "linkExpired": "This share link has expired and is no longer valid.",
+      "linkNotFound": "This share link does not exist or has been revoked."
+    }
+  },
+  "error": {
+    "notFound": "Vehicle not found"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "welcome": "Bem-vindo",
+  "welcomeWithName": "Bem-vindo, {{name}}",
+  "adminSubtitle": "Gerir utilizadores administradores, entidades e configurações do sistema.",
+  "entityUserSubtitle": "Aceder à informação e recursos da sua entidade.",
+  "adminUsers": {
+    "title": "Utilizadores Administradores",
+    "description": "Gerir administradores do sistema e as suas permissões",
+    "goTo": "Ir para Utilizadores Administradores"
+  },
+  "entities": {
+    "title": "Entidades",
+    "description": "Gerir certificadores, parceiros e os seus membros",
+    "goTo": "Ir para Entidades",
+    "yourEntities": "As Suas Entidades",
+    "viewDetails": "Ver Detalhes"
+  },
+  "types": {
+    "certifier": "Certificador",
+    "partner": "Parceiro"
+  },
+  "roles": {
+    "admin": "Administrador",
+    "member": "Membro"
+  },
+  "noAccess": {
+    "title": "Sem Entidades Atribuídas",
+    "description": "Ainda não foi atribuído a nenhuma entidade. Contacte o seu administrador para obter acesso."
+  }
+}

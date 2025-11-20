@@ -1,0 +1,9 @@
+{
+  "title": "Admin",
+  "home": "Home",
+  "users": "Users",
+  "entities": "Entities",
+  "vehicles": "Vehicles",
+  "eventCertificates": "Event Certificates",
+  "logout": "Logout"
+}

@@ -1,0 +1,29 @@
+{
+  "title": "Entities",
+  "description": "Explore our network of certified entities and partners",
+  "loading": "Loading entities...",
+  "resultsCount": "Showing {{count}} entities",
+  "visitWebsite": "Visit website",
+  "filters": {
+    "name": "Name",
+    "namePlaceholder": "Search by name...",
+    "type": "Type",
+    "typeOptions": {
+      "all": "All Types",
+      "certifier": "Certifiers",
+      "partner": "Partners"
+    },
+    "city": "City",
+    "cityPlaceholder": "Filter by city...",
+    "country": "Country",
+    "countryPlaceholder": "Filter by country..."
+  },
+  "entityTypes": {
+    "certifier": "Certifier",
+    "partner": "Partner"
+  },
+  "empty": {
+    "title": "No entities found",
+    "description": "Try adjusting your filters to find entities"
+  }
+}

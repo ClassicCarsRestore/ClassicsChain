@@ -1,0 +1,2596 @@
+openapi: 3.0.1
+info:
+  title: Classics Chain Backend API
+  description: API for classical vehicle history preservation and authenticity verification
+  version: 1.0.0
+  contact:
+    name: Classics Chain Team
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:8080
+    description: Development server
+
+security:
+  - BearerAuth: []
+
+paths:
+  # Health
+  /health:
+    get:
+      operationId: getHealth
+      summary: Health check endpoint
+      description: Returns the health status of the API
+      tags:
+        - Health
+      security: []
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  # User Profile
+  /me:
+    get:
+      operationId: getMe
+      summary: Get current user profile
+      description: Get the authenticated user's profile including role and entity memberships
+      tags:
+        - User
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # Invitations
+  /invitations/validate:
+    get:
+      operationId: validateInvitation
+      summary: Validate invitation token
+      description: Validates an invitation token and returns the email and list of vehicles
+      tags:
+        - Invitations
+      security: []
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
+          description: The invitation token
+      responses:
+        '200':
+          description: Valid invitation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvitationValidationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /invitations/claim:
+    post:
+      operationId: claimInvitations
+      summary: Claim pending invitations
+      description: Claims all pending vehicle invitations for the authenticated user's email and assigns ownership
+      tags:
+        - Invitations
+      responses:
+        '200':
+          description: Invitations claimed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClaimInvitationsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # Admin Users
+  /admin/users:
+    get:
+      operationId: getAdminUsers
+      summary: List admin users
+      description: Get a paginated list of admin users. Requires admin role.
+      tags:
+        - Admin
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: List of admin users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUserListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      operationId: createAdminUser
+      summary: Invite a new admin user
+      description: Create a new admin user with Kratos identity. Requires admin role.
+      tags:
+        - Admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAdminUserRequest'
+      responses:
+        '201':
+          description: Admin user created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUser'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/users/{userId}:
+    get:
+      operationId: getAdminUser
+      summary: Get admin user by ID
+      description: Retrieve a specific admin user by their ID. Requires admin role.
+      tags:
+        - Admin
+      parameters:
+        - $ref: '#/components/parameters/UserIdParam'
+      responses:
+        '200':
+          description: Admin user details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUser'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: deleteAdminUser
+      summary: Remove admin privileges
+      description: Remove admin privileges from a user. Requires admin role.
+      tags:
+        - Admin
+      parameters:
+        - $ref: '#/components/parameters/UserIdParam'
+      responses:
+        '204':
+          description: Admin privileges removed successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # Entities
+  /entities:
+    get:
+      operationId: getEntities
+      summary: List entities
+      description: Get a paginated list of entities (certifiers, clubs, event organizers)
+      tags:
+        - Entities
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: type
+          in: query
+          description: Filter by entity type
+          schema:
+            $ref: '#/components/schemas/EntityType'
+      responses:
+        '200':
+          description: List of entities
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityListResponse'
+    post:
+      operationId: createEntity
+      summary: Create a new entity
+      description: Create a new entity (certifier, club, or event organizer). Requires entity_manager or admin role.
+      tags:
+        - Entities
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEntityRequest'
+      responses:
+        '201':
+          description: Entity created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entity'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /entities/{entityId}:
+    get:
+      operationId: getEntity
+      summary: Get entity by ID
+      description: Retrieve a specific entity by its ID
+      tags:
+        - Entities
+      parameters:
+        - $ref: '#/components/parameters/EntityIdParam'
+      responses:
+        '200':
+          description: Entity details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entity'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      operationId: updateEntity
+      summary: Update entity
+      description: Update entity information.
+      tags:
+        - Entities
+      parameters:
+        - $ref: '#/components/parameters/EntityIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEntityRequest'
+      responses:
+        '200':
+          description: Entity updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entity'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /entities/{entityId}/members:
+    get:
+      operationId: getEntityMembers
+      summary: List entity members
+      description: Get all members of an entity. Requires admin role.
+      tags:
+        - Entities
+      parameters:
+        - $ref: '#/components/parameters/EntityIdParam'
+      responses:
+        '200':
+          description: List of entity members
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EntityMember'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      operationId: addEntityMember
+      summary: Add member to entity
+      description: Add a user as a member of an entity. Requires admin role.
+      tags:
+        - Entities
+      parameters:
+        - $ref: '#/components/parameters/EntityIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddEntityMemberRequest'
+      responses:
+        '201':
+          description: Member added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityMember'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /entities/{entityId}/members/{userId}:
+    delete:
+      operationId: removeEntityMember
+      summary: Remove member from entity
+      description: Remove a user from an entity. Requires admin role.
+      tags:
+        - Entities
+      parameters:
+        - $ref: '#/components/parameters/EntityIdParam'
+        - $ref: '#/components/parameters/UserIdParam'
+      responses:
+        '204':
+          description: Member removed successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      operationId: updateEntityMemberRole
+      summary: Update member role
+      description: Update the role of an entity member. Requires admin role.
+      tags:
+        - Entities
+      parameters:
+        - $ref: '#/components/parameters/EntityIdParam'
+        - $ref: '#/components/parameters/UserIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEntityMemberRoleRequest'
+      responses:
+        '200':
+          description: Member role updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityMember'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /entities/{entityId}/oauth2/clients:
+    get:
+      operationId: listEntityOAuth2Clients
+      summary: List OAuth2 clients for entity
+      description: Get a list of OAuth2 clients for an entity. Requires entity admin or system admin role.
+      tags:
+        - Entities
+      parameters:
+        - $ref: '#/components/parameters/EntityIdParam'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: List of OAuth2 clients
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuth2ClientListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      operationId: createEntityOAuth2Client
+      summary: Create a new OAuth2 client for entity
+      description: Create a new OAuth2 client for API access. Requires entity admin or system admin role.
+      tags:
+        - Entities
+      parameters:
+        - $ref: '#/components/parameters/EntityIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEntityOAuth2ClientRequest'
+      responses:
+        '201':
+          description: OAuth2 client created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuth2ClientWithSecret'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /entities/{entityId}/oauth2/clients/{clientId}:
+    get:
+      operationId: getEntityOAuth2Client
+      summary: Get OAuth2 client details
+      description: Retrieve details of a specific OAuth2 client. Requires entity admin or system admin role.
+      tags:
+        - Entities
+      parameters:
+        - $ref: '#/components/parameters/EntityIdParam'
+        - $ref: '#/components/parameters/ClientIdParam'
+      responses:
+        '200':
+          description: OAuth2 client details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuth2Client'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: deleteEntityOAuth2Client
+      summary: Delete OAuth2 client
+      description: Delete/revoke an OAuth2 client. Requires entity admin or system admin role.
+      tags:
+        - Entities
+      parameters:
+        - $ref: '#/components/parameters/EntityIdParam'
+        - $ref: '#/components/parameters/ClientIdParam'
+      responses:
+        '204':
+          description: OAuth2 client deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /public/entities:
+    get:
+      operationId: getPublicEntities
+      summary: List public entities
+      description: Get a paginated list of entities for public display (excludes contact email)
+      tags:
+        - Public
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: type
+          in: query
+          description: Filter by entity type
+          schema:
+            $ref: '#/components/schemas/EntityType'
+      responses:
+        '200':
+          description: List of public entities
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicEntityListResponse'
+
+  # Vehicles
+  /vehicles:
+    get:
+      operationId: getVehicles
+      summary: List vehicles
+      description: List vehicles. If an `ownerId` query parameter is provided, returns vehicles for that user (requires user to be the owner or admin). If no `ownerId` is provided, returns the current user's vehicles.
+      tags:
+        - Vehicles
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: ownerId
+          in: query
+          description: Optional filter by owner ID. If provided, user must be the owner or admin.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of vehicles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      operationId: createVehicle
+      summary: Register a new vehicle
+      description: Register a new classical vehicle. Only authenticated users can register vehicles, and they can only register vehicles for themselves. The owner is determined from the authenticated user's identity.
+      tags:
+        - Vehicles
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateVehicleRequest'
+      responses:
+        '201':
+          description: Vehicle registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /vehicles/{vehicleId}:
+    get:
+      operationId: getVehicle
+      summary: Get vehicle by ID
+      description: Retrieve a specific vehicle by its ID
+      tags:
+        - Vehicles
+      parameters:
+        - $ref: '#/components/parameters/VehicleIdParam'
+      responses:
+        '200':
+          description: Vehicle details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      operationId: updateVehicle
+      summary: Update vehicle
+      description: Update vehicle information
+      tags:
+        - Vehicles
+      parameters:
+        - $ref: '#/components/parameters/VehicleIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateVehicleRequest'
+      responses:
+        '200':
+          description: Vehicle updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /certifiers/vehicles:
+    post:
+      operationId: createCertifierVehicle
+      summary: Create vehicle for certification (orphaned)
+      description: Create a new vehicle without an owner for certification by entity members. The vehicle is created in an orphaned state until an owner claims it.
+      tags:
+        - Vehicles
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateVehicleRequest'
+      responses:
+        '201':
+          description: Vehicle created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /vehicles/{vehicleId}/claim:
+    post:
+      operationId: claimVehicle
+      summary: Claim ownership of an orphaned vehicle
+      description: Allow a user to claim ownership of an orphaned vehicle by matching identifiers (chassis number, license plate)
+      tags:
+        - Vehicles
+      parameters:
+        - $ref: '#/components/parameters/VehicleIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClaimVehicleRequest'
+      responses:
+        '200':
+          description: Vehicle claimed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /vehicles/{vehicleId}/photos:
+    get:
+      operationId: getVehiclePhotos
+      summary: Get vehicle photos
+      description: Retrieve all photos for a specific vehicle
+      tags:
+        - Vehicles
+        - Photos
+      parameters:
+        - $ref: '#/components/parameters/VehicleIdParam'
+      responses:
+        '200':
+          description: List of vehicle photos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhotoListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /vehicles/{vehicleId}/photos/upload-url:
+    post:
+      operationId: generatePhotoUploadUrl
+      summary: Generate photo upload URL
+      description: Creates a photo record and generates a pre-signed URL for uploading. Returns a photo object with the uploadUrl field populated. The object key is generated server-side using a UUID.
+      tags:
+        - Vehicles
+        - Photos
+      parameters:
+        - $ref: '#/components/parameters/VehicleIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateUploadUrlRequest'
+      responses:
+        '200':
+          description: Photo record created and pre-signed upload URL generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerateUploadUrlResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /vehicles/{vehicleId}/photos/{photoId}/confirm :
+    post:
+      operationId: confirmPhotoUpload
+      summary: Confirm photo upload
+      description: Confirms a successful photo upload. This should be called after uploading the photo to the pre-signed URL returned by the upload-url endpoint.
+      tags:
+        - Vehicles
+        - Photos
+      parameters:
+        - $ref: '#/components/parameters/VehicleIdParam'
+        - $ref: '#/components/parameters/PhotoIdParam'
+      responses:
+        '200':
+          description: Photo upload confirmed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Photo'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /vehicles/{vehicleId}/photos/{photoId}:
+    delete:
+      operationId: deleteVehiclePhoto
+      summary: Delete vehicle photo
+      description: Delete a photo and its associated object from storage
+      tags:
+        - Vehicles
+        - Photos
+      parameters:
+        - $ref: '#/components/parameters/VehicleIdParam'
+        - $ref: '#/components/parameters/PhotoIdParam'
+      responses:
+        '204':
+          description: Photo deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /vehicles/{vehicleId}/documents:
+    get:
+      operationId: getVehicleDocuments
+      summary: Get vehicle documents
+      description: Retrieve all documents for a specific vehicle
+      tags:
+        - Vehicles
+        - Documents
+      parameters:
+        - $ref: '#/components/parameters/VehicleIdParam'
+      responses:
+        '200':
+          description: List of vehicle documents
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /vehicles/{vehicleId}/documents/upload-url:
+    post:
+      operationId: generateDocumentUploadUrl
+      summary: Generate document upload URL
+      description: Creates a document record and generates a pre-signed URL for uploading. Returns a document object with the uploadUrl field populated. Only PDF files are allowed.
+      tags:
+        - Vehicles
+        - Documents
+      parameters:
+        - $ref: '#/components/parameters/VehicleIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateDocumentUploadUrlRequest'
+      responses:
+        '200':
+          description: Document record created and pre-signed upload URL generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerateDocumentUploadUrlResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /vehicles/{vehicleId}/documents/{documentId}/confirm :
+    post:
+      operationId: confirmDocumentUpload
+      summary: Confirm document upload
+      description: Confirms a successful document upload. This should be called after uploading the document to the pre-signed URL returned by the upload-url endpoint.
+      tags:
+        - Vehicles
+        - Documents
+      parameters:
+        - $ref: '#/components/parameters/VehicleIdParam'
+        - $ref: '#/components/parameters/DocumentIdParam'
+      responses:
+        '200':
+          description: Document upload confirmed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /vehicles/{vehicleId}/documents/{documentId}:
+    delete:
+      operationId: deleteVehicleDocument
+      summary: Delete vehicle document
+      description: Delete a document and its associated object from storage
+      tags:
+        - Vehicles
+        - Documents
+      parameters:
+        - $ref: '#/components/parameters/VehicleIdParam'
+        - $ref: '#/components/parameters/DocumentIdParam'
+      responses:
+        '204':
+          description: Document deleted successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # Share Links
+  /vehicles/{vehicleId}/share-links:
+    get:
+      operationId: getVehicleShareLinks
+      summary: List vehicle share links
+      description: Get all active share links for a vehicle. Only accessible by vehicle owner or admin.
+      tags:
+        - Vehicles
+        - ShareLinks
+      parameters:
+        - $ref: '#/components/parameters/VehicleIdParam'
+      responses:
+        '200':
+          description: List of share links
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShareLinkListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      operationId: createShareLink
+      summary: Create a temporary share link
+      description: Create a new temporary share link for a vehicle with specific permissions and expiration
+      tags:
+        - Vehicles
+        - ShareLinks
+      parameters:
+        - $ref: '#/components/parameters/VehicleIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateShareLinkRequest'
+      responses:
+        '201':
+          description: Share link created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateShareLinkResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /vehicles/{vehicleId}/share-links/{shareLinkId}:
+    delete:
+      operationId: revokeShareLink
+      summary: Revoke a share link
+      description: Revoke a share link before it expires
+      tags:
+        - Vehicles
+        - ShareLinks
+      parameters:
+        - $ref: '#/components/parameters/VehicleIdParam'
+        - $ref: '#/components/parameters/ShareLinkIdParam'
+      responses:
+        '204':
+          description: Share link revoked successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /shared/vehicles/{token}:
+    get:
+      operationId: getSharedVehicle
+      summary: Access shared vehicle data
+      description: View vehicle data via a temporary share link. No authentication required.
+      tags:
+        - SharedVehicles
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/ShareTokenParam'
+      responses:
+        '200':
+          description: Shared vehicle data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharedVehicleResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '410':
+          description: Share link has expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /vehicles/{vehicleId}/events:
+    get:
+      operationId: getVehicleEvents
+      summary: Get vehicle history events
+      description: Retrieve all history events for a specific vehicle
+      tags:
+        - Vehicles
+        - Events
+      parameters:
+        - $ref: '#/components/parameters/VehicleIdParam'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: List of vehicle events
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      operationId: createOwnerEvent
+      summary: Create a new (owner documented) history event
+      description: Create a new history event for a vehicle, by owners for their own vehicles.
+      tags:
+        - Vehicles
+        - Events
+      parameters:
+        - $ref: '#/components/parameters/VehicleIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOwnerEventRequest'
+      responses:
+        '201':
+          description: Event created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # Events
+  /events:
+    post:
+      operationId: createEvent
+      summary: Create a new history event
+      description: Create a new certified history event for a vehicle.
+      tags:
+        - Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEventRequest'
+      responses:
+        '201':
+          description: Event created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /events/bulk:
+    post:
+      operationId: createBulkEvents
+      summary: Create event certificates for multiple vehicles
+      description: Issue the same event certificate to multiple vehicles. Creates vehicles if not found.
+      tags:
+        - Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBulkEventsRequest'
+      responses:
+        '201':
+          description: Bulk events created successfully (partial success allowed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateBulkEventsResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /events/{eventId}:
+    get:
+      operationId: getEvent
+      summary: Get event by ID
+      description: Retrieve a specific history event by its ID
+      tags:
+        - Events
+      parameters:
+        - $ref: '#/components/parameters/EventIdParam'
+      responses:
+        '200':
+          description: Event details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    PageParam:
+      name: page
+      in: query
+      description: Page number for pagination
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    LimitParam:
+      name: limit
+      in: query
+      description: Number of items per page
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    UserIdParam:
+      name: userId
+      in: path
+      required: true
+      description: User ID
+      schema:
+        type: string
+        format: uuid
+    EntityIdParam:
+      name: entityId
+      in: path
+      required: true
+      description: Entity ID
+      schema:
+        type: string
+        format: uuid
+    VehicleIdParam:
+      name: vehicleId
+      in: path
+      required: true
+      description: Vehicle ID
+      schema:
+        type: string
+        format: uuid
+    EventIdParam:
+      name: eventId
+      in: path
+      required: true
+      description: Event ID
+      schema:
+        type: string
+        format: uuid
+    PhotoIdParam:
+      name: photoId
+      in: path
+      required: true
+      description: Photo ID
+      schema:
+        type: string
+        format: uuid
+
+    DocumentIdParam:
+      name: documentId
+      in: path
+      required: true
+      description: Document ID
+      schema:
+        type: string
+        format: uuid
+
+    ShareLinkIdParam:
+      name: shareLinkId
+      in: path
+      required: true
+      description: Share Link ID
+      schema:
+        type: string
+        format: uuid
+
+    ShareTokenParam:
+      name: token
+      in: path
+      required: true
+      description: Share link token
+      schema:
+        type: string
+
+    ClientIdParam:
+      name: clientId
+      in: path
+      required: true
+      description: OAuth2 Client ID
+      schema:
+        type: string
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Forbidden - insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Conflict:
+      description: Conflict - resource already exists
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    # Base schemas
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy]
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+      required:
+        - status
+        - timestamp
+        - version
+
+    InvitationValidationResponse:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: The email address associated with the invitation
+        vehicles:
+          type: array
+          description: List of vehicles the user is invited to manage
+          items:
+            $ref: '#/components/schemas/InvitationVehicle'
+      required:
+        - email
+        - vehicles
+
+    InvitationVehicle:
+      type: object
+      properties:
+        vehicleId:
+          type: string
+          format: uuid
+        make:
+          type: string
+        model:
+          type: string
+        year:
+          type: integer
+        licensePlate:
+          type: string
+      required:
+        - vehicleId
+
+    ClaimInvitationsResponse:
+      type: object
+      properties:
+        claimedVehicles:
+          type: array
+          description: List of vehicles that were claimed
+          items:
+            $ref: '#/components/schemas/InvitationVehicle'
+        count:
+          type: integer
+          description: Number of vehicles claimed
+      required:
+        - claimedVehicles
+        - count
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Error code
+      required:
+        - error
+        - code
+
+    PaginationMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+          minimum: 1
+        limit:
+          type: integer
+          minimum: 1
+        total:
+          type: integer
+          minimum: 0
+        totalPages:
+          type: integer
+          minimum: 0
+      required:
+        - page
+        - limit
+        - total
+        - totalPages
+
+    # Admin User schemas
+    AdminUser:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: User ID (from Kratos)
+        email:
+          type: string
+          format: email
+          description: User email (from Kratos)
+        name:
+          type: string
+          description: User name (from Kratos)
+      required:
+        - id
+        - email
+
+    CreateAdminUserRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email address for the new admin user. A recovery link will be sent to this email.
+        name:
+          type: string
+          description: Name of the new admin user
+      required:
+        - email
+
+    AdminUserListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminUser'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+      required:
+        - data
+        - meta
+
+    # User Profile schemas
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: User ID
+        entities:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserEntityMembership'
+          description: List of entities the user belongs to
+        pendingInvitations:
+          type: object
+          description: Information about pending vehicle invitations
+          properties:
+            count:
+              type: integer
+              description: Number of pending invitations
+            vehicles:
+              type: array
+              description: List of vehicles with pending invitations
+              items:
+                $ref: '#/components/schemas/InvitationVehicle'
+          required:
+            - count
+            - vehicles
+      required:
+        - id
+        - entities
+        - pendingInvitations
+
+    UserEntityMembership:
+      type: object
+      properties:
+        entityId:
+          type: string
+          format: uuid
+          description: Entity ID
+        entityName:
+          type: string
+          description: Entity name
+        entityType:
+          $ref: '#/components/schemas/EntityType'
+        role:
+          type: string
+          enum: [admin, member]
+          description: User's role in this entity
+      required:
+        - entityId
+        - entityName
+        - entityType
+        - role
+
+    # Entity schemas
+    Entity:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          $ref: '#/components/schemas/EntityType'
+        description:
+          type: string
+        contactEmail:
+          type: string
+          format: email
+        website:
+          type: string
+          format: uri
+        address:
+          $ref: '#/components/schemas/Address'
+        certifiedBy:
+          type: string
+          format: uuid
+      required:
+        - id
+        - name
+        - type
+        - contactEmail
+
+    PublicEntity:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          $ref: '#/components/schemas/EntityType'
+        description:
+          type: string
+        website:
+          type: string
+          format: uri
+        address:
+          $ref: '#/components/schemas/Address'
+        certifiedBy:
+          type: string
+          format: uuid
+      required:
+        - id
+        - name
+        - type
+
+    EntityType:
+      type: string
+      enum:
+        - certifier
+        - partner
+
+    Address:
+      type: object
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        postalCode:
+          type: string
+        country:
+          type: string
+      required:
+        - city
+        - country
+
+    CreateEntityRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          $ref: '#/components/schemas/EntityType'
+        description:
+          type: string
+        contactEmail:
+          type: string
+          format: email
+        website:
+          type: string
+          format: uri
+        address:
+          $ref: '#/components/schemas/Address'
+      required:
+        - name
+        - type
+        - contactEmail
+
+    UpdateEntityRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        contactEmail:
+          type: string
+          format: email
+        website:
+          type: string
+          format: uri
+        address:
+          $ref: '#/components/schemas/Address'
+
+    EntityListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Entity'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+      required:
+        - data
+        - meta
+
+    PublicEntityListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PublicEntity'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+      required:
+        - data
+        - meta
+
+    EntityMember:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: User ID
+        userName:
+          type: string
+          description: User name (from Kratos)
+        userEmail:
+          type: string
+          format: email
+          description: User email (from Kratos)
+        role:
+          type: string
+          enum: [admin, member]
+          description: User role in the entity
+      required:
+        - userId
+        - role
+
+    AddEntityMemberRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email address of the user to invite
+        name:
+          type: string
+          description: Name of the user to invite
+        role:
+          type: string
+          enum: [admin, member]
+          description: Role to assign to the user
+          default: member
+      required:
+        - email
+        - role
+
+    UpdateEntityMemberRoleRequest:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [admin, member]
+          description: New role for the user
+      required:
+        - role
+
+    Vehicle:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        licensePlate:
+          type: string
+          description: License plate number
+        chassisNumber:
+          type: string
+          description: Chassis/Frame number
+        make:
+          type: string
+        model:
+          type: string
+        year:
+          type: integer
+          minimum: 1800
+          maximum: 9999
+        color:
+          type: string
+        engineNumber:
+          type: string
+          description: Engine identification number
+        transmissionNumber:
+          type: string
+          description: Transmission identification number
+        bodyType:
+          type: string
+          description: Body style (e.g., Sedan, Coupe, Convertible, Wagon)
+        driveType:
+          type: string
+          description: Drive type (FWD, RWD, AWD, 4WD)
+        gearType:
+          type: string
+          description: Transmission type (Manual, Automatic, CVT, DCT)
+        suspensionType:
+          type: string
+          description: Suspension type
+        ownerId:
+          type: string
+          format: uuid
+        blockchainAssetId:
+          type: string
+          description: Algorand blockchain address for this vehicle
+        cid:
+          type: string
+          description: Content Identifier (CID)
+        cidSourceJSON:
+          type: string
+          description: Source JSON used to generate the CID
+        cidSourceCBOR:
+          type: string
+          description: Source CBOR used to generate the CID
+        createdAt:
+          type: string
+          format: date-time
+          description: When event was created
+      required:
+        - id
+        - make
+        - model
+        - year
+        - createdAt
+
+    CreateVehicleRequest:
+      type: object
+      properties:
+        licensePlate:
+          type: string
+        chassisNumber:
+          type: string
+        make:
+          type: string
+        model:
+          type: string
+        year:
+          type: integer
+          minimum: 1800
+          maximum: 9999
+        color:
+          type: string
+        engineNumber:
+          type: string
+        transmissionNumber:
+          type: string
+        bodyType:
+          type: string
+        driveType:
+          type: string
+        gearType:
+          type: string
+        suspensionType:
+          type: string
+      required:
+        - make
+        - model
+        - year
+
+    UpdateVehicleRequest:
+      type: object
+      properties:
+        licensePlate:
+          type: string
+        chassisNumber:
+          type: string
+        color:
+          type: string
+        engineNumber:
+          type: string
+        transmissionNumber:
+          type: string
+        bodyType:
+          type: string
+        driveType:
+          type: string
+        gearType:
+          type: string
+        suspensionType:
+          type: string
+        ownerId:
+          type: string
+          format: uuid
+
+    ClaimVehicleRequest:
+      type: object
+      description: Request to claim ownership of an orphaned vehicle
+      properties:
+        chassisNumber:
+          type: string
+          description: Chassis number (optional, used for matching)
+        licensePlate:
+          type: string
+          description: License plate (optional, used for matching)
+      minProperties: 1
+      example:
+        chassisNumber: "WBADT43452G123456"
+
+    VehicleListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Vehicle'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+      required:
+        - data
+        - meta
+
+    # Event schemas
+    Event:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        vehicleId:
+          type: string
+          format: uuid
+        entityId:
+          type: string
+          format: uuid
+        type:
+          $ref: '#/components/schemas/EventType'
+        title:
+          type: string
+        description:
+          type: string
+        date:
+          type: string
+          format: date
+        location:
+          type: string
+        metadata:
+          type: object
+          additionalProperties: true
+        blockchainTxId:
+          type: string
+          description: Algorand transaction ID
+        cid:
+          type: string
+          description: Content Identifier (CID)
+        cidSourceJSON:
+          type: string
+          description: Source JSON used to generate the CID
+        cidSourceCBOR:
+          type: string
+          description: Source CBOR used to generate the CID
+        createdAt:
+          type: string
+          format: date-time
+          description: When event was created
+      required:
+        - id
+        - vehicleId
+        - type
+        - title
+        - date
+        - createdAt
+
+    EventType:
+      type: string
+      enum:
+        - certification
+        - car_show
+        - classic_meet
+        - rally
+        - vintage_racing
+        - auction
+        - workshop
+        - club_competition
+        - road_trip
+        - festival
+        - race_participation
+        - show_participation
+        - maintenance
+        - ownership_transfer
+        - restoration
+        - modification
+
+    CreateEventRequest:
+      type: object
+      properties:
+        vehicleId:
+          type: string
+          format: uuid
+          description: ID of the vehicle for this event
+        entityId:
+          type: string
+          format: uuid
+          description: Optional entity ID for entity-backed events (certifications). If provided, checks entity membership authorization. If absent, checks vehicle ownership.
+        type:
+          $ref: '#/components/schemas/EventType'
+        title:
+          type: string
+          description: Title of the event
+        description:
+          type: string
+          description: Optional detailed description of the event
+        date:
+          type: string
+          format: date
+          x-go-type: time.Time
+          description: Optional date when the event occurred. If omitted, defaults to current date.
+        location:
+          type: string
+          description: Optional location where the event occurred
+        metadata:
+          type: object
+          additionalProperties: true
+          description: Optional metadata object for event type-specific data
+      required:
+        - vehicleId
+        - type
+        - title
+
+    CreateOwnerEventRequest:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/EventType'
+        title:
+          type: string
+          description: Title of the event
+        description:
+          type: string
+          description: Optional detailed description of the event
+        date:
+          type: string
+          format: date
+          description: Optional date when the event occurred. If omitted, defaults to current date.
+        location:
+          type: string
+          description: Optional location where the event occurred
+      required:
+        - type
+        - title
+
+    VehicleIdentifier:
+      type: object
+      properties:
+        chassisNumber:
+          type: string
+          description: Vehicle chassis number (prioritized for matching)
+        licensePlate:
+          type: string
+          description: Vehicle license plate
+        email:
+          type: string
+          format: email
+          description: Optional email address to send invitation if vehicle is not yet owned
+#      description: At least one identifier must be provided
+
+    CreateBulkEventsRequest:
+      type: object
+      properties:
+        entityId:
+          type: string
+          format: uuid
+          description: ID of the entity issuing the certificates
+          x-go-type: uuid.UUID
+        type:
+          $ref: '#/components/schemas/EventType'
+        title:
+          type: string
+          description: Title of the event
+        description:
+          type: string
+          description: Optional detailed description of the event
+        date:
+          type: string
+          format: date
+          description: Optional date when the event occurred. If omitted, defaults to current date.
+        location:
+          type: string
+          description: Optional location where the event occurred
+        metadata:
+          type: object
+          additionalProperties: true
+          description: Optional metadata object for event type-specific data
+        vehicles:
+          type: array
+          items:
+            $ref: '#/components/schemas/VehicleIdentifier'
+          description: List of vehicles to issue certificates for
+          minItems: 1
+      required:
+        - type
+        - title
+        - vehicles
+
+    BulkEventSuccess:
+      type: object
+      properties:
+        vehicleId:
+          type: string
+          format: uuid
+          description: ID of the vehicle
+        eventId:
+          type: string
+          format: uuid
+          description: ID of the created event
+        created:
+          type: boolean
+          description: Whether the vehicle was newly created
+        invitationSent:
+          type: boolean
+          description: Whether an invitation email was sent (only if email was provided and vehicle was unowned)
+      required:
+        - vehicleId
+        - eventId
+        - created
+
+    BulkEventError:
+      type: object
+      properties:
+        chassisNumber:
+          type: string
+        licensePlate:
+          type: string
+        error:
+          type: string
+          description: Error message
+      required:
+        - error
+
+    CreateBulkEventsResponse:
+      type: object
+      properties:
+        success:
+          type: array
+          items:
+            $ref: '#/components/schemas/BulkEventSuccess'
+          description: Successfully created events
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/BulkEventError'
+          description: Events that failed to create
+      required:
+        - success
+        - errors
+
+    EventListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Event'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+      required:
+        - data
+        - meta
+
+    # Event Metadata Schemas
+    CertificationMetadata:
+      type: object
+      properties:
+        certificateNumber:
+          type: string
+        conditionAssessment:
+          type: string
+        validityEndDate:
+          type: string
+          format: date
+        documentationReferences:
+          type: array
+          items:
+            type: string
+      required:
+        - certificateNumber
+
+    CarShowMetadata:
+      type: object
+      properties:
+        certificateNumber:
+          type: string
+        category:
+          type: string
+        award:
+          type: string
+        judgingScore:
+          type: integer
+      required:
+        - certificateNumber
+        - category
+
+    ClassicMeetMetadata:
+      type: object
+      properties:
+        certificateNumber:
+          type: string
+        clubName:
+          type: string
+        theme:
+          type: string
+      required:
+        - certificateNumber
+        - clubName
+
+    RallyMetadata:
+      type: object
+      properties:
+        certificateNumber:
+          type: string
+        route:
+          type: string
+        carNumber:
+          type: string
+        coDriver:
+          type: string
+        distanceDriven:
+          type: integer
+      required:
+        - certificateNumber
+        - route
+
+    VintageRacingMetadata:
+      type: object
+      properties:
+        certificateNumber:
+          type: string
+        trackName:
+          type: string
+        raceClass:
+          type: string
+        raceNumber:
+          type: string
+        bestLapTime:
+          type: string
+      required:
+        - certificateNumber
+        - trackName
+        - raceClass
+
+    AuctionMetadata:
+      type: object
+      properties:
+        certificateNumber:
+          type: string
+        participantName:
+          type: string
+        lotNumber:
+          type: string
+        auctionHouse:
+          type: string
+        saleStatus:
+          type: string
+      required:
+        - certificateNumber
+        - auctionHouse
+
+    WorkshopMetadata:
+      type: object
+      properties:
+        certificateNumber:
+          type: string
+        workshopTopic:
+          type: string
+        instructorName:
+          type: string
+        completionAcknowledgment:
+          type: boolean
+      required:
+        - certificateNumber
+        - workshopTopic
+        - completionAcknowledgment
+
+    ClubCompetitionMetadata:
+      type: object
+      properties:
+        certificateNumber:
+          type: string
+        competitionCategory:
+          type: string
+        awardTitle:
+          type: string
+        clubChapter:
+          type: string
+      required:
+        - certificateNumber
+        - competitionCategory
+        - awardTitle
+
+    RoadTripMetadata:
+      type: object
+      properties:
+        certificateNumber:
+          type: string
+        routeName:
+          type: string
+        totalDistance:
+          type: integer
+        checkpointsCompleted:
+          type: array
+          items:
+            type: string
+        dateRange:
+          type: string
+      required:
+        - certificateNumber
+        - routeName
+
+    FestivalMetadata:
+      type: object
+      properties:
+        certificateNumber:
+          type: string
+        festivalTheme:
+          type: string
+        activitiesParticipatedIn:
+          type: array
+          items:
+            type: string
+      required:
+        - certificateNumber
+        - festivalTheme
+
+    # Photo schemas
+    Photo:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Photo ID
+        vehicleId:
+          type: string
+          format: uuid
+          description: Vehicle ID
+        objectKey:
+          type: string
+          description: S3-compatible object key
+        createdAt:
+          type: string
+          format: date-time
+          description: When photo was added
+      required:
+        - id
+        - vehicleId
+        - objectKey
+        - createdAt
+
+    PhotoListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Photo'
+      required:
+        - data
+
+    GenerateUploadUrlRequest:
+      type: object
+      properties:
+        filename:
+          type: string
+          description: Name of the file to upload
+      required:
+        - filename
+
+    GenerateUploadUrlResponse:
+      type: object
+      properties:
+        photoId:
+          type: string
+          format: uuid
+          description: Photo ID for later confirmation
+        uploadUrl:
+          type: string
+          format: uri
+          description: Pre-signed URL for uploading the file
+      required:
+        - photoId
+        - uploadUrl
+
+    # Document schemas
+    Document:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Document ID
+        vehicleId:
+          type: string
+          format: uuid
+          description: Vehicle ID
+        objectKey:
+          type: string
+          description: S3-compatible object key in storage
+        filename:
+          type: string
+          description: Original filename of the document
+        createdAt:
+          type: string
+          format: date-time
+          description: When document was added
+      required:
+        - id
+        - vehicleId
+        - objectKey
+        - filename
+        - createdAt
+
+    DocumentListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+      required:
+        - data
+
+    GenerateDocumentUploadUrlRequest:
+      type: object
+      properties:
+        filename:
+          type: string
+          description: Name of the PDF file to upload (must end with .pdf)
+      required:
+        - filename
+
+    GenerateDocumentUploadUrlResponse:
+      type: object
+      properties:
+        documentId:
+          type: string
+          format: uuid
+          description: Document ID for later confirmation
+        uploadUrl:
+          type: string
+          format: uri
+          description: Pre-signed URL for uploading the file
+      required:
+        - documentId
+        - uploadUrl
+
+    CreateShareLinkRequest:
+      type: object
+      properties:
+        canViewDetails:
+          type: boolean
+          description: Allow viewing basic vehicle details
+        canViewPhotos:
+          type: boolean
+          description: Allow viewing vehicle photos
+        canViewDocuments:
+          type: boolean
+          description: Allow viewing vehicle documents
+        canViewHistory:
+          type: boolean
+          description: Allow viewing vehicle history events
+        duration:
+          type: string
+          enum: ["1h", "24h", "7d", "30d"]
+          description: Link expiration duration
+        recipientEmail:
+          type: string
+          format: email
+          nullable: true
+          description: Optional email address to notify recipient
+      required:
+        - canViewDetails
+        - canViewPhotos
+        - canViewDocuments
+        - canViewHistory
+        - duration
+
+    CreateShareLinkResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Share link ID
+        vehicleId:
+          type: string
+          format: uuid
+          description: Vehicle ID
+        shareUrl:
+          type: string
+          format: uri
+          description: Full URL for accessing shared vehicle
+        expiresAt:
+          type: string
+          format: date-time
+          description: Expiration timestamp
+        permissions:
+          $ref: '#/components/schemas/SharePermissions'
+      required:
+        - id
+        - vehicleId
+        - shareUrl
+        - expiresAt
+        - permissions
+
+    ShareLink:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        vehicleId:
+          type: string
+          format: uuid
+        token:
+          type: string
+          description: Share link token for accessing the shared vehicle
+        permissions:
+          $ref: '#/components/schemas/SharePermissions'
+        expiresAt:
+          type: string
+          format: date-time
+        accessedCount:
+          type: integer
+          description: Number of times the link has been accessed
+        lastAccessedAt:
+          type: string
+          format: date-time
+          nullable: true
+        revokedAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - token
+        - vehicleId
+        - permissions
+        - expiresAt
+
+    SharePermissions:
+      type: object
+      properties:
+        canViewDetails:
+          type: boolean
+        canViewPhotos:
+          type: boolean
+        canViewDocuments:
+          type: boolean
+        canViewHistory:
+          type: boolean
+      required:
+        - canViewDetails
+        - canViewPhotos
+        - canViewDocuments
+        - canViewHistory
+
+    ShareLinkListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ShareLink'
+      required:
+        - data
+
+    SharedVehicleResponse:
+      type: object
+      properties:
+        vehicle:
+          $ref: '#/components/schemas/Vehicle'
+        photos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Photo'
+          nullable: true
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+          nullable: true
+        history:
+          type: array
+          items:
+            $ref: '#/components/schemas/Event'
+          nullable: true
+      required:
+        - vehicle
+
+    OAuth2Client:
+      type: object
+      properties:
+        clientId:
+          type: string
+          description: OAuth2 client identifier
+        entityId:
+          type: string
+          format: uuid
+          description: Entity this client belongs to
+        entityName:
+          type: string
+          description: Name of the entity
+        description:
+          type: string
+          description: Client description
+        scopes:
+          type: array
+          items:
+            type: string
+          description: List of authorized scopes
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - clientId
+        - entityId
+        - scopes
+        - createdAt
+
+    OAuth2ClientWithSecret:
+      allOf:
+        - $ref: '#/components/schemas/OAuth2Client'
+        - type: object
+          properties:
+            clientSecret:
+              type: string
+              description: OAuth2 client secret (only returned on creation)
+          required:
+            - clientSecret
+
+    CreateOAuth2ClientRequest:
+      type: object
+      properties:
+        entityId:
+          type: string
+          format: uuid
+          description: Entity ID
+        description:
+          type: string
+          description: Client description
+        scopes:
+          type: array
+          items:
+            type: string
+          description: List of scopes to grant
+      required:
+        - entityId
+        - scopes
+
+    CreateEntityOAuth2ClientRequest:
+      type: object
+      properties:
+        description:
+          type: string
+          description: Client description
+        scopes:
+          type: array
+          items:
+            type: string
+          description: List of scopes to grant
+      required:
+        - scopes
+
+    OAuth2ClientListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/OAuth2Client'
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+      required:
+        - data
+
+tags:
+  - name: Health
+    description: Health check operations
+  - name: User
+    description: User profile operations
+  - name: Admin
+    description: Admin user management operations (admin-only)
+  - name: OAuth2
+    description: OAuth2 client management operations (admin-only)
+  - name: Entities
+    description: Entity (certifiers, partners) operations
+  - name: Public
+    description: Public operations (no authentication required)
+  - name: Vehicles
+    description: Vehicle registration and management
+  - name: Photos
+    description: Vehicle photo management operations
+  - name: Documents
+    description: Vehicle document management operations
+  - name: ShareLinks
+    description: Vehicle temporary share link operations
+  - name: SharedVehicles
+    description: Public access to shared vehicles via temporary links
+  - name: Events
+    description: Vehicle history event operations

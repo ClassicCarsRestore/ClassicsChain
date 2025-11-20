@@ -1,0 +1,151 @@
+{
+  "hero": {
+    "title": "Compreender Ancoragem em Blockchain e Validação de Dados",
+    "subtitle": "Saiba como os dados do histórico do veículo são protegidos criptograficamente e como pode verificar a sua autenticidade."
+  },
+  "whatIs": {
+    "title": "O que é Ancoragem em Blockchain?",
+    "description": "Ancoragem é o processo de ligar criptograficamente dados do histórico do veículo à blockchain Algorand. Em vez de armazenar documentos inteiros na cadeia (o que seria público e comprometeria a privacidade), armazenamos uma impressão criptográfica compacta chamada CID (Identificador de Conteúdo). Este CID é derivado dos dados em si, o que significa que qualquer alteração nos dados originais produziria um CID diferente. Isto cria um registo imutável e à prova de adulteração que prova que os dados existiram na sua forma atual num determinado momento—mantendo os dados sensíveis privados e sob o seu controlo."
+  },
+  "validation": {
+    "title": "Como Validar Dados Ancorados",
+    "steps": [
+      {
+        "title": "1. Descodificar o CID",
+        "description": "Cada registo ancorado tem um Identificador de Conteúdo (CID) armazenado na blockchain. Este CID é uma representação compacta e codificada da hash criptográfica dos dados.",
+        "details": [
+          "O CID contém informações de versão (tipicamente v1 para o moderno formato CIDv1)",
+          "Especifica o algoritmo de hash utilizado (SHA-256 é o padrão)",
+          "O CID codifica o resumo de hash real em formato base32 para legibilidade"
+        ]
+      },
+      {
+        "title": "2. Recuperar os Seus Dados",
+        "description": "Obtenha os dados originais do histórico do veículo (tipicamente armazenados em IPFS ou inclusos no registo). Isto pode ser dados de eventos em formato JSON, relatórios de inspeção ou documentação de restauração.",
+        "details": [
+          "Os dados podem ser exportados diretamente do registo do veículo",
+          "Certifique-se de que possui os dados originais exatos, incluindo formatação",
+          "O formato comum é JSON para dados estruturados ou CBOR para binário compacto"
+        ]
+      },
+      {
+        "title": "3. Codificar Dados como CBOR",
+        "description": "Converter os dados para formato CBOR (Concise Binary Object Representation). O CBOR é uma codificação binária compacta que preserva todos os dados enquanto minimiza armazenamento e garante serialização determinística.",
+        "details": [
+          "CBOR garante que os mesmos dados sempre produzem a mesma representação binária",
+          "Este determinismo é crítico para comparação de hash",
+          "JSON pode ter múltiplas representações válidas (ordenação diferente de chaves, espaçamento), mas CBOR tem apenas uma forma canónica"
+        ]
+      },
+      {
+        "title": "4. Gerar o Hash",
+        "description": "Hash dos dados codificados em CBOR usando SHA-256. Isto produz um resumo de 256-bit (32-byte) que é único para os seus dados específicos.",
+        "details": [
+          "SHA-256 é uma função de hash criptográfica que produz uma cadeia hex fixa de 64 caracteres",
+          "Até a menor alteração nos dados produz um hash completamente diferente",
+          "Este hash é o que o CID codifica"
+        ]
+      },
+      {
+        "title": "5. Comparar com Resumo do CID",
+        "description": "Extraia o resumo de hash do CID e compare-o com o hash que acabou de gerar. Se coincidirem, os dados são autênticos e não foram modificados desde a ancoragem.",
+        "details": [
+          "O resumo do CID e o seu hash calculado devem ser idênticos",
+          "Se diferirem, ou os dados foram modificados ou tem o registo errado",
+          "Uma coincidência prova a integridade criptográfica dos dados"
+        ]
+      }
+    ]
+  },
+  "concepts": {
+    "title": "Conceitos Técnicos Chave",
+    "items": [
+      {
+        "icon": "cid",
+        "name": "Identificador de Conteúdo (CID)",
+        "explanation": "Um identificador único e codificado derivado do conteúdo dos dados. Os mesmos dados sempre produzem o mesmo CID. É auto-descritivo e inclui informações de versão e algoritmo de hash."
+      },
+      {
+        "icon": "cbor",
+        "name": "Codificação CBOR",
+        "explanation": "Concise Binary Object Representation. Um formato binário compacto que garante serialização determinística—os mesmos dados sempre codificam para bytes idênticos, tornando-o perfeito para verificação criptográfica."
+      },
+      {
+        "icon": "hash",
+        "name": "Hash Criptográfica",
+        "explanation": "Uma função matemática unidirecional (SHA-256) que converte qualquer quantidade de dados numa impressão de tamanho fixo. Impossível de reverter, e qualquer alteração de dados produz um hash diferente."
+      },
+      {
+        "icon": "integrity",
+        "name": "Integridade dos Dados",
+        "explanation": "Prova de que os dados não foram modificados. Ao comparar o seu hash gerado com o resumo do CID, verifica que os dados são exatamente como eram quando originalmente ancorados."
+      },
+      {
+        "icon": "immutable",
+        "name": "Registo Imutável",
+        "explanation": "Uma vez que um CID é escrito na blockchain, não pode ser alterado. O carimbo de data/hora da blockchain prova quando os dados existiram, criando um registo permanente e cronológico."
+      },
+      {
+        "icon": "immutable",
+        "name": "Confiança Descentralizada",
+        "explanation": "A validação não requer autoridade central. As partes autorizadas com acesso aos dados podem verificá-los independentemente contra o registo da blockchain, tornando a confiança criptográfica em vez de institucional."
+      }
+    ]
+  },
+  "example": {
+    "title": "Exemplo de Validação Passo a Passo",
+    "step1": {
+      "title": "Passo 1: Obter o Seu CID da Blockchain",
+      "description": "Quando um evento do veículo é ancorado, o seu CID é armazenado na blockchain Algorand. Pode recuperá-lo do seu histórico de transações ou dos detalhes do evento no seu dashboard.",
+      "code": "CID da blockchain: bafyreihzq47mkj6uh5g4pwxh4s5rnkmfezuzbtl5vjq3rqfm6qvzl5pyy"
+    },
+    "step2": {
+      "title": "Passo 2: Recuperar os Dados Originais",
+      "description": "Exportar ou obter os dados reais do evento do veículo. Isto é tipicamente a representação JSON do evento que foi ancorado.",
+      "code": "{\n  \"event\": \"inspecção\",\n  \"date\": \"2024-01-15\",\n  \"mileage\": 45000,\n  \"notes\": \"Inspecção completa realizada. Todos os sistemas funcionais.\",\n  \"inspector\": \"João Silva\"\n}"
+    },
+    "step3": {
+      "title": "Passo 3: Codificar para CBOR e Hash",
+      "description": "Converter os dados JSON para formato binário CBOR, depois calcular o hash SHA-256 desses dados binários.",
+      "code": "1. Codificar CBOR os dados (representação binária)\n2. Calcular hash SHA-256 dos bytes CBOR\n3. Obter resumo de hash: a1c2e3f4b5d6c7e8f9a0b1c2d3e4f5a6\n           (cadeia hex de 64 caracteres)"
+    },
+    "step4": {
+      "title": "Passo 4: Verificar o Hash",
+      "description": "Descodifique o CID para extrair o seu resumo de hash, depois compare com o seu hash calculado. Devem coincidir exatamente.",
+      "code": "Resumo de hash do CID:  a1c2e3f4b5d6c7e8f9a0b1c2d3e4f5a6\nHash calculado:          a1c2e3f4b5d6c7e8f9a0b1c2d3e4f5a6\n                         ✓ COINCIDÊNCIA - Dados são autênticos!"
+    },
+    "result": {
+      "title": "Validação Bem-Sucedida",
+      "description": "Os hashes coincidentes provam que os dados que tem são exatamente aquilo que foi ancorado na blockchain. Sem modificações, sem adulterações. O registo do seu veículo é verificado como autêntico e imutável."
+    }
+  },
+  "why": {
+    "title": "Por Que Isto É Importante para os Seus Registos de Veículos",
+    "benefits": [
+      {
+        "title": "Prova Criptográfica de Autenticidade",
+        "description": "A validação prova que o histórico do seu veículo não foi modificado. Um hash coincidente é prova matemática da integridade dos dados."
+      },
+      {
+        "title": "Detecção de Adulteração",
+        "description": "Qualquer modificação nos dados, por pequena que seja, produz um hash diferente. Isto torna a adulteração imediatamente detectável."
+      },
+      {
+        "title": "Verificação Descentralizada",
+        "description": "Não precisa confiar na Classics Chain ou em qualquer intermediário. Pode verificar os dados você próprio usando ferramentas de código aberto e padrões criptográficos."
+      },
+      {
+        "title": "Registo Permanente",
+        "description": "O carimbo de data/hora da blockchain prova que o histórico do seu veículo existiu num determinado momento. É registado permanentemente e verificável publicamente."
+      },
+      {
+        "title": "Confiança na Revenda",
+        "description": "Os compradores podem verificar independentemente o histórico documentado do seu veículo, aumentando a confiança e valor. O registo é tão antigo quanto a blockchain o prova."
+      },
+      {
+        "title": "Padrão da Indústria",
+        "description": "CID, CBOR e SHA-256 são padrões abertos amplamente adotados. Isto não é proprietário—é tecnologia que qualquer pessoa no mundo pode verificar com ferramentas comuns."
+      }
+    ]
+  }
+}

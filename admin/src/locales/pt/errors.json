@@ -1,0 +1,14 @@
+{
+  "notFound": {
+    "title": "Página Não Encontrada",
+    "description": "A página que está procurando não existe ou foi movida.",
+    "goBack": "Voltar",
+    "goHome": "Ir para Início"
+  },
+  "error": {
+    "title": "Algo Correu Mal",
+    "description": "Ocorreu um erro inesperado. Por favor, tente novamente.",
+    "unknownError": "Erro desconhecido",
+    "goHome": "Ir para Início"
+  }
+}

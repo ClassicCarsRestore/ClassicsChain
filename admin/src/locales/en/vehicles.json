@@ -1,0 +1,240 @@
+{
+  "title": "Vehicles",
+  "description": "Create and manage vehicles",
+  "sections": {
+    "create": "Create",
+    "browse": "Browse"
+  },
+  "form": {
+    "entity": "Entity",
+    "steps": {
+      "basics": "Basics",
+      "details": "Details",
+      "summary": "Summary"
+    },
+    "fields": {
+      "licensePlate": "License Plate",
+      "chassisNumber": "Chassis Number",
+      "make": "Make",
+      "model": "Model",
+      "year": "Year",
+      "color": "Color",
+      "engineNumber": "Engine Number",
+      "transmissionNumber": "Transmission Number",
+      "bodyType": "Body Type",
+      "driveType": "Drive Type",
+      "gearType": "Gear Type",
+      "suspensionType": "Suspension Type"
+    },
+    "placeholders": {
+      "selectBodyType": "Select body type...",
+      "selectDriveType": "Select drive type...",
+      "selectGearType": "Select gear type...",
+      "selectSuspensionType": "Select suspension type..."
+    },
+    "options": {
+      "bodyTypes": {
+        "sedan": "Sedan",
+        "coupe": "Coupe",
+        "convertible": "Convertible",
+        "suv": "SUV",
+        "truck": "Truck",
+        "van": "Van",
+        "wagon": "Wagon",
+        "hatchback": "Hatchback",
+        "minivan": "Minivan",
+        "sports": "Sports"
+      },
+      "driveTypes": {
+        "front_wheel_drive": "Front Wheel Drive",
+        "rear_wheel_drive": "Rear Wheel Drive",
+        "all_wheel_drive": "All Wheel Drive",
+        "four_wheel_drive": "Four Wheel Drive"
+      },
+      "gearTypes": {
+        "manual": "Manual",
+        "automatic": "Automatic",
+        "cvt": "CVT",
+        "semi-automatic": "Semi-Automatic"
+      },
+      "suspensionTypes": {
+        "independent": "Independent",
+        "dependent": "Dependent",
+        "macpherson": "MacPherson",
+        "double_wishbone": "Double Wishbone",
+        "multi_link": "Multi-Link",
+        "air_suspension": "Air Suspension"
+      }
+    },
+    "hints": {
+      "basicStep": "Chassis Number, Make, and Model are required. Other fields can be filled based on available information.",
+      "detailsStep": "Specify the vehicle's technical specifications. Body Type and Drive Type are required."
+    },
+    "summary": {
+      "identification": "Identification",
+      "basicInfo": "Basic Information",
+      "technical": "Technical Specifications",
+      "confirmation": "Please review the vehicle information below. Once created, this vehicle will be in orphaned state and available for users to claim."
+    },
+    "actions": {
+      "next": "Next",
+      "previous": "Previous",
+      "create": "Create Vehicle",
+      "creating": "Creating..."
+    }
+  },
+  "browse": {
+    "searchPlaceholder": "Search by chassis number, make, model, or license plate...",
+    "filters": {
+      "label": "Filter",
+      "all": "All Vehicles",
+      "orphaned": "Orphaned Only",
+      "owned": "Owned Only"
+    },
+    "resultsCount": "Showing {{count}} vehicle(s)",
+    "loading": "Loading vehicles...",
+    "noVehicles": "No vehicles found",
+    "columns": {
+      "vehicle": "Vehicle",
+      "chassisNumber": "Chassis Number",
+      "licensePlate": "License Plate",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "owned": "Owned",
+      "orphaned": "Orphaned"
+    },
+    "actions": {
+      "view": "View Details"
+    }
+  },
+  "modal": {
+    "tabs": {
+      "details": "Details",
+      "history": "History",
+      "certifications": "Certifications",
+      "eventCertificates": "Event Certificates"
+    },
+    "sections": {
+      "identification": "Identification",
+      "basic": "Basic Information",
+      "technical": "Technical Specifications",
+      "status": "Ownership Status"
+    }
+  },
+  "certification": {
+    "section": {
+      "basic": "Basic Information",
+      "certificate": "Certificate Details",
+      "assessment": "Condition Assessment",
+      "documentation": "Documentation References"
+    },
+    "fields": {
+      "title": "Certification Title",
+      "description": "Description",
+      "certificateNumber": "Certificate Number",
+      "setValidity": "Set validity period",
+      "validityDuration": "Validity Duration",
+      "validityEndDate": "Valid Until",
+      "years": "Years",
+      "months": "Months",
+      "days": "Days",
+      "conditionAssessment": "Condition Assessment"
+    },
+    "hints": {
+      "validityOptional": "Leave unchecked for permanent/indefinite certifications"
+    },
+    "actions": {
+      "addReference": "Add Reference",
+      "create": "Issue",
+      "creating": "Creating..."
+    }
+  },
+  "bulkCertificates": {
+    "title": "Bulk Event Certificates",
+    "description": "Issue the same event certificate to multiple vehicles at once",
+    "section": {
+      "eventType": "Step 1: Event Type",
+      "eventDetails": "Step 2: Event Details",
+      "vehicles": "Step 3: Vehicle List"
+    },
+    "fields": {
+      "chassis": "Chassis Number",
+      "licensePlate": "License Plate",
+      "email": "Email"
+    },
+    "hint": {
+      "vehicleFormat": "You can paste data in 'CHASSIS | LICENSE | EMAIL' format from a spreadsheet"
+    },
+    "actions": {
+      "addVehicle": "Add Vehicle",
+      "issue": "Issue Certificates",
+      "issuing": "Issuing...",
+      "issuMore": "Issue More Certificates"
+    },
+    "results": {
+      "allSuccess": "All certificates issued successfully!",
+      "partialSuccess": "Bulk issuance completed with some errors",
+      "certificatesIssued": "certificates issued successfully",
+      "certificatesFailed": "certificates failed to issue",
+      "successList": "Successfully Issued",
+      "errorList": "Failed Issues"
+    }
+  },
+  "eventCertificate": {
+    "section": {
+      "common": "Event Information"
+    },
+    "fields": {
+      "eventType": "Type",
+      "title": "Title",
+      "date": "Date",
+      "location": "Location",
+      "description": "Description",
+      "certificateNumber": "Certificate Number",
+      "category": "Category",
+      "award": "Award",
+      "judgingScore": "Judging Score",
+      "clubName": "Club Name",
+      "theme": "Theme",
+      "route": "Route",
+      "carNumber": "Car Number",
+      "coDriver": "Co-driver Name",
+      "distanceDriven": "Distance Driven (km)",
+      "trackName": "Track Name",
+      "raceClass": "Race Class",
+      "raceNumber": "Race Number",
+      "bestLapTime": "Best Lap Time",
+      "auctionHouse": "Auction House",
+      "participantName": "Participant Name",
+      "lotNumber": "Lot Number",
+      "saleStatus": "Sale Status",
+      "workshopTopic": "Workshop Topic",
+      "instructorName": "Instructor Name",
+      "completionAcknowledgment": "Completion Acknowledged",
+      "competitionCategory": "Competition Category",
+      "awardTitle": "Award Title",
+      "clubChapter": "Club Chapter",
+      "routeName": "Route Name",
+      "totalDistance": "Total Distance (km)",
+      "dateRange": "Date Range",
+      "festivalTheme": "Festival Theme"
+    },
+    "types": {
+      "carShow": "Car Shows & Concours d'Elegance",
+      "classicMeet": "Classic Car Meets / Cruise-Ins",
+      "rally": "Rallies & Tours",
+      "vintageRacing": "Vintage Racing & Track Days",
+      "auction": "Auctions & Sales Events",
+      "workshop": "Restoration Workshops & Seminars",
+      "clubCompetition": "Club Competitions & Awards",
+      "roadTrip": "Road Trips & Heritage Drives",
+      "festival": "Classic Car Festivals"
+    },
+    "actions": {
+      "create": "Issue",
+      "creating": "Creating..."
+    }
+  }
+}

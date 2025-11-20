@@ -1,0 +1,93 @@
+{
+  "welcome": "Welcome to Your Dashboard",
+  "welcomeWithName": "Welcome, {{name}}",
+  "actions": {
+    "addVehicle": "Add Vehicle",
+    "addVehicleDescription": "Register a new classic vehicle"
+  },
+  "vehicles": {
+    "title": "My Vehicles",
+    "empty": {
+      "title": "No vehicles yet",
+      "description": "Start by registering your first classic vehicle to track its history and authenticity.",
+      "action": "Add Your First Vehicle"
+    }
+  },
+  "vehicleForm": {
+    "title": "Register New Vehicle",
+    "subtitle": "Add a classic vehicle to your collection",
+    "fields": {
+      "make": "Make",
+      "makePlaceholder": "e.g., Ford, Chevrolet, Mercedes-Benz",
+      "model": "Model",
+      "modelPlaceholder": "e.g., Mustang, Corvette, 300SL",
+      "year": "Year",
+      "yearPlaceholder": "e.g., 1965",
+      "color": "Color",
+      "colorPlaceholder": "e.g., Red, Black, Silver",
+      "engineNumber": "Engine Number",
+      "engineNumberPlaceholder": "Engine identification number",
+      "licensePlate": "License Plate",
+      "licensePlatePlaceholder": "Vehicle license plate",
+      "chassisNumber": "Chassis Number",
+      "chassisNumberPlaceholder": "Chassis or frame identification number",
+      "transmissionNumber": "Transmission Number",
+      "transmissionNumberPlaceholder": "Transmission identification number",
+      "bodyType": "Body Type",
+      "selectBodyType": "Select body type",
+      "driveType": "Drive Type",
+      "selectDriveType": "Select drive type",
+      "gearType": "Gear Type",
+      "selectGearType": "Select gear type",
+      "suspensionType": "Suspension Type",
+      "selectSuspensionType": "Select suspension type",
+      "engineNumberOrLicensePlateHint": "At least one of these fields is required for vehicle identification"
+    },
+    "bodyTypes": {
+      "sedan": "Sedan",
+      "coupe": "Coupe",
+      "convertible": "Convertible",
+      "wagon": "Wagon",
+      "suv": "SUV",
+      "truck": "Truck",
+      "van": "Van",
+      "hatchback": "Hatchback",
+      "roadster": "Roadster"
+    },
+    "driveTypes": {
+      "fwd": "Front-Wheel Drive (FWD)",
+      "rwd": "Rear-Wheel Drive (RWD)",
+      "awd": "All-Wheel Drive (AWD)",
+      "4wd": "Four-Wheel Drive (4WD)"
+    },
+    "gearTypes": {
+      "manual": "Manual",
+      "automatic": "Automatic",
+      "cvt": "CVT (Continuously Variable Transmission)",
+      "dct": "DCT (Dual-Clutch Transmission)",
+      "sequential": "Sequential"
+    },
+    "suspensionTypes": {
+      "independent": "Independent",
+      "dependent": "Dependent",
+      "macpherson": "MacPherson",
+      "double_wishbone": "Double Wishbone",
+      "multi_link": "Multi-Link",
+      "air_suspension": "Air Suspension"
+    },
+    "buttons": {
+      "submit": "Register Vehicle",
+      "cancel": "Cancel",
+      "submitting": "Registering..."
+    },
+    "validation": {
+      "makeRequired": "Make is required",
+      "modelRequired": "Model is required",
+      "yearRequired": "Year is required",
+      "yearInvalid": "Year must be between 1800 and 9999",
+      "engineNumberOrLicensePlateRequired": "Either Engine Number or License Plate is required"
+    },
+    "success": "Vehicle registered successfully!",
+    "error": "Failed to register vehicle. Please try again."
+  }
+}

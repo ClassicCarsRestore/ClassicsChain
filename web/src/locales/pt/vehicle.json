@@ -1,0 +1,177 @@
+{
+  "loading": "Carregando detalhes do veículo...",
+  "buttons": {
+    "backToDashboard": "Voltar ao Painel",
+    "addEvent": "Adicionar Evento"
+  },
+  "fields": {
+    "year": "Ano",
+    "color": "Cor",
+    "engineNumber": "Número do Motor",
+    "licensePlate": "Matrícula",
+    "chassisNumber": "Número do Chassis",
+    "transmissionNumber": "Número da Transmissão",
+    "bodyType": "Tipo de Carroçaria",
+    "driveType": "Tipo de Tração",
+    "gearType": "Tipo de Câmbio",
+    "suspensionType": "Tipo de Suspensão"
+  },
+  "sections": {
+    "photos": "Fotos do Veículo",
+    "documents": "Documentos",
+    "history": "Histórico do Veículo"
+  },
+  "documentation": {
+    "comingSoon": "Upload de Documentos em Breve",
+    "description": "Em breve poderá fazer upload de fotos, certificados e outra documentação do seu veículo."
+  },
+  "events": {
+    "empty": {
+      "title": "Ainda sem eventos no histórico",
+      "description": "Comece a adicionar eventos para documentar a jornada, restaurações e participações em eventos do seu veículo."
+    }
+  },
+  "eventTypes": {
+    "certification": "Certificação de Veículo",
+    "carShow": "Exposição de Carros & Concurso de Elegância",
+    "classicMeet": "Encontro de Clássicos / Passeio",
+    "rally": "Rally & Tour",
+    "vintageRacing": "Corrida de Época & Dia de Pista",
+    "auction": "Leilão & Evento de Venda",
+    "workshop": "Oficina de Restauração & Seminário",
+    "clubCompetition": "Competição de Clube & Prêmio",
+    "roadTrip": "Passeio em Estrada & Viagem de Herança",
+    "festival": "Festival de Carros Clássicos",
+    "raceParticipation": "Participação em Corrida",
+    "showParticipation": "Participação em Exposição",
+    "maintenance": "Manutenção",
+    "restoration": "Restauração",
+    "modification": "Modificação",
+    "ownershipTransfer": "Transferência de Propriedade"
+  },
+  "eventBadges": {
+    "certified": "Certificado",
+    "ownerProvided": "Fornecido pelo Proprietário"
+  },
+  "eventForm": {
+    "title": "Adicionar Registro de Evento",
+    "fields": {
+      "type": "Tipo de Evento",
+      "title": "Título do Evento",
+      "titlePlaceholder": "ex: Restauração Completa, Revisão do Motor",
+      "description": "Descrição",
+      "descriptionPlaceholder": "Adicione detalhes sobre este evento",
+      "eventDate": "Data",
+      "eventTime": "Hora",
+      "location": "Localização",
+      "locationPlaceholder": "Onde ocorreu este evento?"
+    },
+    "buttons": {
+      "create": "Criar Evento",
+      "creating": "Criando...",
+      "cancel": "Cancelar"
+    },
+    "validation": {
+      "titleRequired": "O título do evento é obrigatório",
+      "dateRequired": "A data do evento é obrigatória"
+    },
+    "error": "Falha ao criar evento. Por favor tente novamente."
+  },
+  "photos": {
+    "photosCount": "fotos",
+    "uploadButton": "Fazer Upload",
+    "uploading": "Enviando...",
+    "viewButton": "Ver",
+    "deleteButton": "Eliminar",
+    "confirmDelete": "Tem a certeza que deseja eliminar esta foto?",
+    "deleteTitle": "Eliminar Foto",
+    "deleteMessage": "Tem a certeza que deseja eliminar esta foto? Esta ação não pode ser desfeita.",
+    "deleteConfirm": "Eliminar",
+    "deleteCancel": "Cancelar",
+    "empty": {
+      "title": "Sem fotos ainda",
+      "description": "Faça upload de fotos para mostrar o seu veículo"
+    },
+    "errors": {
+      "fileTooLarge": "O ficheiro é muito grande. O tamanho máximo é 5MB.",
+      "invalidFileType": "Tipo de ficheiro inválido. Apenas imagens JPEG, PNG e WebP são permitidas.",
+      "maxPhotosExceeded": "O veículo atingiu o número máximo de fotos (10).",
+      "uploadFailed": "Falha ao fazer upload da foto. Por favor tente novamente.",
+      "deleteFailed": "Falha ao eliminar a foto. Por favor tente novamente."
+    }
+  },
+  "documents": {
+    "documentsCount": "documentos",
+    "uploadButton": "Fazer Upload",
+    "uploading": "Enviando...",
+    "downloadButton": "Descarregar",
+    "deleteButton": "Eliminar",
+    "confirmDelete": "Tem a certeza que deseja eliminar este documento?",
+    "deleteTitle": "Eliminar Documento",
+    "deleteMessage": "Tem a certeza que deseja eliminar este documento? Esta ação não pode ser desfeita.",
+    "deleteConfirm": "Eliminar",
+    "deleteCancel": "Cancelar",
+    "empty": {
+      "title": "Sem documentos ainda",
+      "description": "Faça upload de documentos PDF como certificados e registos de manutenção"
+    },
+    "errors": {
+      "fileTooLarge": "O ficheiro é muito grande. O tamanho máximo é 50MB.",
+      "invalidFileType": "Tipo de ficheiro inválido. Apenas ficheiros PDF são permitidos.",
+      "maxDocumentsExceeded": "O veículo atingiu o número máximo de documentos (20).",
+      "uploadFailed": "Falha ao fazer upload do documento. Por favor tente novamente.",
+      "deleteFailed": "Falha ao eliminar o documento. Por favor tente novamente."
+    }
+  },
+  "shareLinks": {
+    "title": "Links de Partilha",
+    "createButton": "Criar Link de Partilha",
+    "empty": "Sem links de partilha activos",
+    "noData": "Sem dados disponíveis para este veículo partilhado",
+    "invalidToken": "Token de partilha inválido ou em falta",
+    "accessDenied": "Acesso Negado",
+    "backHome": "Voltar ao Início",
+    "expired": "Expirado",
+    "expiresAt": "Expira",
+    "accessedCount": "Acedido {{ count }} vez",
+    "accessedCount_plural": "Acedido {{ count }} vezes",
+    "confirmRevoke": "Tem a certeza que deseja revogar este link de partilha?",
+    "revokeTitle": "Revogar Link de Partilha",
+    "revokeMessage": "Tem a certeza que deseja revogar este link de partilha? O destinatário deixará de ter acesso ao veículo partilhado.",
+    "revokeConfirm": "Revogar",
+    "revokeCancel": "Cancelar",
+    "copyUrl": "Copiar URL de partilha",
+    "revoke": "Revogar",
+    "permissions": {
+      "details": "Ver Detalhes",
+      "photos": "Ver Fotos",
+      "documents": "Ver Documentos",
+      "history": "Ver Histórico"
+    },
+    "createModal": {
+      "title": "Criar Link de Partilha",
+      "permissions": "Seleccionar Permissões",
+      "duration": "Expiração do Link",
+      "recipientEmail": "Email do Destinatário",
+      "optional": "(opcional)",
+      "emailPlaceholder": "utilizador@exemplo.com",
+      "emailNote": "As notificações por email ainda não foram implementadas",
+      "cancel": "Cancelar",
+      "create": "Criar",
+      "creating": "Criando..."
+    },
+    "validation": {
+      "atLeastOnePermission": "Pelo menos uma permissão deve ser seleccionada",
+      "invalidEmail": "Por favor introduza um endereço de email válido"
+    },
+    "errors": {
+      "createFailed": "Falha ao criar link de partilha",
+      "loadFailed": "Falha ao carregar dados do veículo partilhado",
+      "linkExpired": "Este link de partilha expirou e já não é válido.",
+      "linkNotFound": "Este link de partilha não existe ou foi revogado."
+    }
+  },
+  "error": {
+    "notFound": "Veículo não encontrado"
+  }
+}

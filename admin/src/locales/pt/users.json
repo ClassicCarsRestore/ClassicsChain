@@ -1,0 +1,16 @@
+{
+  "title": "Utilizadores",
+  "inviteAdmin": "Convidar Admin",
+  "inviteNewAdmin": "Convidar Novo Admin",
+  "usersList": "Lista de Utilizadores",
+  "fields": {
+    "name": "Nome",
+    "email": "Email",
+    "createdAt": "Criado Em"
+  },
+  "messages": {
+    "loadingUsers": "A carregar utilizadores...",
+    "errorLoading": "Erro ao carregar utilizadores: {{error}}",
+    "noUsers": "Nenhum utilizador encontrado."
+  }
+}

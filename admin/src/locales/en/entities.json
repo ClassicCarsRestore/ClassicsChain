@@ -1,0 +1,85 @@
+{
+  "title": "Entities",
+  "addEntity": "Add Entity",
+  "editEntity": "Edit Entity",
+  "createEntity": "Create Entity",
+  "updateEntity": "Update Entity",
+  "filters": {
+    "all": "All",
+    "certifiers": "Certifiers",
+    "partners": "Partners"
+  },
+  "fields": {
+    "name": "Name",
+    "type": "Type",
+    "contactEmail": "Contact Email",
+    "website": "Website",
+    "description": "Description",
+    "address": "Address",
+    "street": "Street",
+    "city": "City",
+    "state": "State",
+    "postalCode": "Postal Code",
+    "country": "Country"
+  },
+  "types": {
+    "certifier": "Certifier",
+    "partner": "Partner"
+  },
+  "placeholders": {
+    "website": "example.com"
+  },
+  "messages": {
+    "noEntities": "No entities found",
+    "loadingEntities": "Loading entities...",
+    "loadingEntity": "Loading entity...",
+    "errorLoading": "Error loading entities: {{error}}",
+    "errorLoadingEntity": "Error loading entity",
+    "addressOptional": "Address (Optional)",
+    "cityRequired": "City is required when providing address",
+    "countryRequired": "Country is required when providing address",
+    "cityRequiredWhen": "City {{condition}}",
+    "countryRequiredWhen": "Country {{condition}}",
+    "confirmDelete": "Are you sure you want to delete {{name}}?",
+    "errorDeleting": "Error deleting entity"
+  },
+  "actions": {
+    "visit": "Visit",
+    "view": "View",
+    "edit": "Edit",
+    "actions": "Actions",
+    "cancel": "Cancel",
+    "adding": "Adding...",
+    "backToList": "Back to list"
+  },
+  "tabs": {
+    "details": "Details",
+    "members": "Members",
+    "oauth2": "API Credentials"
+  },
+  "details": {
+    "title": "Entity Details"
+  },
+  "members": {
+    "title": "Entity Members",
+    "addMember": "Invite Member",
+    "noMembers": "No members found",
+    "loading": "Loading members...",
+    "errorLoading": "Error loading members",
+    "errorInviting": "Error inviting member",
+    "errorRemoving": "Error removing member",
+    "errorUpdatingRole": "Error updating member role",
+    "confirmRemove": "Are you sure you want to remove this member?",
+    "emailHelp": "User will receive an email with a link to set their password",
+    "fields": {
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "actions": "Actions"
+    },
+    "roles": {
+      "admin": "Admin",
+      "member": "Member"
+    }
+  }
+}

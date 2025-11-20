@@ -1,0 +1,151 @@
+{
+  "hero": {
+    "title": "Understanding Blockchain Anchoring & Data Validation",
+    "subtitle": "Learn how vehicle data is cryptographically secured and how you can verify its authenticity."
+  },
+  "whatIs": {
+    "title": "What is Blockchain Anchoring?",
+    "description": "Anchoring is the process of cryptographically binding vehicle history data to a blockchain - Algorand. Instead of storing entire documents on-chain (which would be public and compromise privacy), we store a compact cryptographic fingerprint called a CID (Content Identifier). This CID is derived from the data itself, meaning any change to the original data would produce a different CID. This creates an immutable, tamper-proof record that proves the data existed in its current form at a specific point in time—while keeping the actual sensitive data private and under your control."
+  },
+  "validation": {
+    "title": "How to Validate Anchored Data",
+    "steps": [
+      {
+        "title": "Access Event History in Your Vehicle Record",
+        "description": "View any event in your vehicle's history. You'll see the CBOR data, CID, and Transaction ID (txnId) all visible and ready for verification.",
+        "details": [
+          "Each anchored event displays its CBOR representation (compact binary data)",
+          "The CID is displayed as a unique content identifier",
+          "The txnId links to the specific Algorand blockchain transaction"
+        ]
+      },
+      {
+        "title": "Verify Data Integrity Using CBOR Decoder",
+        "description": "Take the CBOR data and decode it using an external tool like https://cbor.williamchong.cloud to verify it matches the original event data.",
+        "details": [
+          "CBOR decoders are freely available online and in open-source libraries",
+          "Decoding the CBOR should produce the exact JSON event data you see in the history",
+          "This confirms the binary representation is correct and uncorrupted"
+        ]
+      },
+      {
+        "title": "Hash the CBOR Data",
+        "description": "Take the CBOR binary data and compute its SHA-256 hash. You can do this using any standard cryptographic tool or online SHA-256 calculator.",
+        "details": [
+          "Hash the exact CBOR bytes that were anchored",
+          "SHA-256 produces a 64-character hexadecimal string",
+          "This hash should match the digest contained in the CID"
+        ]
+      },
+      {
+        "title": "Inspect the CID",
+        "description": "Visit https://cid.ipfs.tech and paste your CID to inspect its structure and extract the hash digest.",
+        "details": [
+          "CID Inspector reveals the hash algorithm used (typically SHA-256)",
+          "The hash digest from the CID should match the hash you calculated from CBOR",
+          "This proves the data hasn't been modified since anchoring"
+        ]
+      },
+      {
+        "title": "Verify on Algorand Blockchain",
+        "description": "Use the txnId to inspect the actual Algorand blockchain transaction. The transaction's note field should contain the CID.",
+        "details": [
+          "Visit an Algorand explorer and look up the transaction by ID",
+          "The CID in the blockchain note proves this specific data was anchored at that block height",
+          "The blockchain timestamp provides immutable proof of when the data was recorded"
+        ]
+      }
+    ]
+  },
+  "concepts": {
+    "title": "Key Technical Concepts",
+    "items": [
+      {
+        "icon": "cid",
+        "name": "Content Identifier (CID)",
+        "explanation": "A unique, encoded identifier derived from data content. Same data always produces the same CID. It's self-describing and includes version and hash algorithm information."
+      },
+      {
+        "icon": "cbor",
+        "name": "CBOR Encoding",
+        "explanation": "Concise Binary Object Representation. A compact binary format that ensures deterministic serialization—the same data always encodes to identical bytes, making it perfect for cryptographic verification."
+      },
+      {
+        "icon": "hash",
+        "name": "Cryptographic Hash",
+        "explanation": "A one-way mathematical function (SHA-256) that converts any amount of data into a fixed-size fingerprint. Impossible to reverse, and any data change produces a different hash."
+      },
+      {
+        "icon": "integrity",
+        "name": "Data Integrity",
+        "explanation": "Proof that data hasn't been modified. By comparing your generated hash with the CID digest, you verify the data is exactly as it was when originally anchored."
+      },
+      {
+        "icon": "immutable",
+        "name": "Immutable Record",
+        "explanation": "Once a CID is written to the blockchain, it cannot be changed. The blockchain timestamp proves when the data existed, creating a permanent, chronological record."
+      },
+      {
+        "icon": "immutable",
+        "name": "Decentralized Trust",
+        "explanation": "Validation requires no central authority. Authorized parties with access to the data can independently verify it against the blockchain record, making trust cryptographic rather than institutional."
+      }
+    ]
+  },
+  "example": {
+    "title": "Step-by-Step Validation Example",
+    "step1": {
+      "title": "Step 1: Get Your CID from the Blockchain",
+      "description": "When a vehicle event is anchored, its CID is stored on the Algorand blockchain. You can retrieve it from the event details in your vehicle history.",
+      "code": "CID from blockchain: bafyreihzq47mkj6uh5g4pwxh4s5rnkmfezuzbtl5vjq3rqfm6qvzl5pyy"
+    },
+    "step2": {
+      "title": "Step 2: Retrieve the Original Data",
+      "description": "Export or fetch the actual vehicle event data. This is typically the JSON representation of the event that was anchored.",
+      "code": "{\n  \"event\": \"inspection\",\n  \"date\": \"2024-01-15\",\n  \"mileage\": 45000,\n  \"notes\": \"Full inspection completed. All systems functional.\",\n  \"inspector\": \"John Smith\"\n}"
+    },
+    "step3": {
+      "title": "Step 3: Encode to CBOR and Hash",
+      "description": "Convert the JSON data to CBOR binary format, then compute the SHA-256 hash of that binary data.",
+      "code": "1. CBOR encode the data (binary representation)\n2. Calculate SHA-256 hash of CBOR bytes\n3. Get hash digest: a1c2e3f4b5d6c7e8f9a0b1c2d3e4f5a6\n           (64 character hex string)"
+    },
+    "step4": {
+      "title": "Step 4: Verify the Hash",
+      "description": "Decode the CID to extract its hash digest, then compare with your calculated hash. They should match exactly.",
+      "code": "CID hash digest:  a1c2e3f4b5d6c7e8f9a0b1c2d3e4f5a6\nCalculated hash:  a1c2e3f4b5d6c7e8f9a0b1c2d3e4f5a6\n                 ✓ MATCH - Data is authentic!"
+    },
+    "result": {
+      "title": "Validation Successful",
+      "description": "The matching hashes prove that the data you have is exactly what was anchored on the blockchain. No modifications, no tampering. Your vehicle's record is verified as authentic and immutable."
+    }
+  },
+  "why": {
+    "title": "Why This Matters for Your Vehicle Records",
+    "benefits": [
+      {
+        "title": "Cryptographic Proof of Authenticity",
+        "description": "Validation proves your vehicle's history hasn't been modified. A matching hash is mathematical proof of data integrity."
+      },
+      {
+        "title": "Tamper Detection",
+        "description": "Any modification to the data, no matter how small, produces a different hash. This makes tampering immediately detectable."
+      },
+      {
+        "title": "Decentralized Verification",
+        "description": "You don't need to trust Classics Chain or any intermediary. You can verify the data yourself using open-source tools and cryptographic standards."
+      },
+      {
+        "title": "Permanent Record",
+        "description": "The blockchain timestamp proves your vehicle's history existed at a specific moment. It's permanently recorded and publicly verifiable."
+      },
+      {
+        "title": "Resale Confidence",
+        "description": "Buyers can independently verify your vehicle's documented history, increasing trust and value. The record is as old as the blockchain proves it to be."
+      },
+      {
+        "title": "Industry Standard",
+        "description": "CID, CBOR, and SHA-256 are widely adopted open standards. This isn't proprietary—it's technology anyone in the world can verify with common tools."
+      }
+    ]
+  }
+}

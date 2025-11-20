@@ -1,0 +1,50 @@
+{
+  "hero": {
+    "title": "Classics Chain",
+    "subheading": "Blockchain-backed records for verified provenance and lasting value.",
+    "cta": {
+      "primary": "Create Your Digital Record",
+      "secondary": "Learn How It Works"
+    },
+    "signIn": "Sign in"
+  },
+  "features": {
+    "title": "Why Classics Chain",
+    "subtitle": "Built for collectors, restorers, and enthusiasts who want their vehicles' stories to be permanent and verifiable.",
+    "authentic": {
+      "title": "Authentic by Design",
+      "description": "Immutable blockchain verification for every certificate and event."
+    },
+    "history": {
+      "title": "Complete Vehicle History",
+      "description": "A living digital passport — every restoration, event, and milestone preserved."
+    },
+    "network": {
+      "title": "Global Trust Network",
+      "description": "Connected with certified experts and organizations worldwide."
+    }
+  },
+  "howItWorks": {
+    "title": "How It Works",
+    "steps": [
+      {
+        "title": "Register or Claim Your Vehicle",
+        "description": "Start your digital record with key details or documents."
+      },
+      {
+        "title": "Add Verified History",
+        "description": "Certified partners and recognized experts can contribute restoration reports, event participation, and inspection milestones."
+      },
+      {
+        "title": "Immutable Record",
+        "description": "Every verified event is securely anchored on the blockchain — permanent, transparent, and tamper-proof."
+      }
+    ],
+    "learnMore": "Learn More"
+  },
+  "cta": {
+    "title": "Ready to begin your vehicle's digital legacy?",
+    "subtitle": "Join Classics Chain and start building your verifiable record today.",
+    "button": "Create Account"
+  }
+}

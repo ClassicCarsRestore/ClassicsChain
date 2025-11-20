@@ -1,0 +1,35 @@
+{
+  "buttons": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "submit": "Submeter",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "create": "Criar",
+    "add": "Adicionar",
+    "close": "Fechar",
+    "confirm": "Confirmar",
+    "update": "Atualizar"
+  },
+  "labels": {
+    "name": "Nome",
+    "email": "Email",
+    "password": "Palavra-passe",
+    "description": "Descrição",
+    "website": "Website",
+    "address": "Morada",
+    "required": "Obrigatório",
+    "optional": "Opcional"
+  },
+  "messages": {
+    "loading": "A carregar...",
+    "saving": "A guardar...",
+    "noData": "Sem dados",
+    "success": "Operação bem-sucedida",
+    "error": "Ocorreu um erro"
+  },
+  "validation": {
+    "required": "{{field}} é obrigatório",
+    "invalidEmail": "Endereço de email inválido"
+  }
+}

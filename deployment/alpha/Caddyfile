@@ -1,0 +1,131 @@
+########################################
+# Common Security Headers
+########################################
+(common_headers) {
+	header {
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "geolocation=(), microphone=(), camera=()"
+	}
+
+	# Uncomment ONLY if all subdomains are HTTPS and you'd like HSTS
+	# Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+}
+
+########################################
+# Static asset caching (immutable)
+########################################
+(cache_static) {
+	header Cache-Control "public, max-age=31536000, immutable"
+}
+
+########################################
+# HTML caching for SPA shells (no-cache)
+########################################
+(cache_html) {
+	header Cache-Control "no-cache, must-revalidate"
+}
+
+########################################
+# Reusable SPA Site Snippet
+# Usage: import spa_site /path/to/dist
+########################################
+(spa_site) {
+	import common_headers
+	encode gzip
+
+	root * {args.0}
+	try_files {path} /index.html
+
+	@static {
+		path /assets/*
+	}
+
+	handle @static {
+		import cache_static
+		file_server
+	}
+
+	# HTML and everything else (the SPA shell)
+	handle {
+		import cache_html
+		file_server
+	}
+
+	log {
+		output stdout
+		format json
+	}
+}
+
+
+###############################################################################
+#                               PRODUCTION SITES
+###############################################################################
+
+########################################
+# Main SPA
+########################################
+classicschain.com {
+	import spa_site /opt/classics-chain/web/dist
+}
+
+########################################
+# Admin SPA
+########################################
+admin.classicschain.com {
+	import spa_site /opt/classics-chain/admin/dist
+}
+
+########################################
+# Auth Service (Kratos) - HTTPS backend
+########################################
+auth.classicschain.com {
+	import common_headers
+	import api_security
+	encode gzip
+
+	reverse_proxy https://cc-kratos:4433 {
+		transport http {
+			tls_insecure_skip_verify  # only if self-signed certs
+		}
+	}
+
+	log {
+		output stdout
+		format json
+	}
+}
+
+########################################
+# Media Service (Garage)
+########################################
+media.classicschain.com {
+	import common_headers
+	import api_security
+	encode gzip
+
+	reverse_proxy http://cc-garage:9000
+
+	log {
+		output stdout
+		format json
+	}
+}
+
+########################################
+# API Service Backend
+########################################
+api.classicschain.com {
+	import common_headers
+	import api_security
+	encode gzip
+
+	reverse_proxy http://cchain-backend:4000
+
+	log {
+		output stdout
+		format json
+	}
+}

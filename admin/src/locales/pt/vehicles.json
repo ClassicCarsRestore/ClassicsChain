@@ -1,0 +1,240 @@
+{
+  "title": "Veículos",
+  "description": "Criar e gerenciar veículos",
+  "sections": {
+    "create": "Criar Veículos",
+    "browse": "Navegar Veículos"
+  },
+  "form": {
+    "entity": "Entidade",
+    "steps": {
+      "basics": "Básico",
+      "details": "Detalhes",
+      "summary": "Resumo"
+    },
+    "fields": {
+      "licensePlate": "Placa de Licença",
+      "chassisNumber": "Número de Chassis",
+      "make": "Fabricante",
+      "model": "Modelo",
+      "year": "Ano",
+      "color": "Cor",
+      "engineNumber": "Número do Motor",
+      "transmissionNumber": "Número da Transmissão",
+      "bodyType": "Tipo de Carroceria",
+      "driveType": "Tipo de Tração",
+      "gearType": "Tipo de Transmissão",
+      "suspensionType": "Tipo de Suspensão"
+    },
+    "placeholders": {
+      "selectBodyType": "Selecionar tipo de carroceria...",
+      "selectDriveType": "Selecionar tipo de tração...",
+      "selectGearType": "Selecionar tipo de transmissão...",
+      "selectSuspensionType": "Selecionar tipo de suspensão..."
+    },
+    "options": {
+      "bodyTypes": {
+        "sedan": "Sedã",
+        "coupe": "Cupê",
+        "convertible": "Conversível",
+        "suv": "SUV",
+        "truck": "Caminhão",
+        "van": "Van",
+        "wagon": "Perua",
+        "hatchback": "Hatchback",
+        "minivan": "Minivan",
+        "sports": "Esportivo"
+      },
+      "driveTypes": {
+        "front_wheel_drive": "Tração Dianteira",
+        "rear_wheel_drive": "Tração Traseira",
+        "all_wheel_drive": "Tração em Todas as Rodas",
+        "four_wheel_drive": "Tração em Quatro Rodas"
+      },
+      "gearTypes": {
+        "manual": "Manual",
+        "automatic": "Automática",
+        "cvt": "CVT",
+        "semi-automatic": "Semi-Automática"
+      },
+      "suspensionTypes": {
+        "independent": "Independente",
+        "dependent": "Dependente",
+        "macpherson": "MacPherson",
+        "double_wishbone": "Duplo Comando",
+        "multi_link": "Multi-link",
+        "air_suspension": "Suspensão Pneumática"
+      }
+    },
+    "hints": {
+      "basicStep": "Número de Chassis, Fabricante e Modelo são obrigatórios. Outros campos podem ser preenchidos com as informações disponíveis.",
+      "detailsStep": "Especifique as especificações técnicas do veículo. Tipo de Carroceria e Tipo de Tração são obrigatórios."
+    },
+    "summary": {
+      "identification": "Identificação",
+      "basicInfo": "Informações Básicas",
+      "technical": "Especificações Técnicas",
+      "confirmation": "Por favor, revise as informações do veículo abaixo. Uma vez criado, este veículo estará em estado órfão e disponível para os usuários reivindicarem."
+    },
+    "actions": {
+      "next": "Próximo",
+      "previous": "Anterior",
+      "create": "Criar Veículo",
+      "creating": "Criando..."
+    }
+  },
+  "browse": {
+    "searchPlaceholder": "Pesquisar por número de chassis, fabricante, modelo ou placa...",
+    "filters": {
+      "label": "Filtro",
+      "all": "Todos os Veículos",
+      "orphaned": "Apenas Órfãos",
+      "owned": "Apenas Possuídos"
+    },
+    "resultsCount": "Exibindo {{count}} veículo(s)",
+    "loading": "Carregando veículos...",
+    "noVehicles": "Nenhum veículo encontrado",
+    "columns": {
+      "vehicle": "Veículo",
+      "chassisNumber": "Número de Chassis",
+      "licensePlate": "Placa de Licença",
+      "status": "Status",
+      "actions": "Ações"
+    },
+    "status": {
+      "owned": "Possuído",
+      "orphaned": "Órfão"
+    },
+    "actions": {
+      "view": "Ver Detalhes"
+    }
+  },
+  "modal": {
+    "tabs": {
+      "details": "Detalhes",
+      "history": "Histórico",
+      "certifications": "Certificações",
+      "eventCertificates": "Certificados de Eventos"
+    },
+    "sections": {
+      "identification": "Identificação",
+      "basic": "Informações Básicas",
+      "technical": "Especificações Técnicas",
+      "status": "Status de Propriedade"
+    }
+  },
+  "certification": {
+    "section": {
+      "basic": "Informações Básicas",
+      "certificate": "Detalhes do Certificado",
+      "assessment": "Avaliação de Condição",
+      "documentation": "Referências de Documentação"
+    },
+    "fields": {
+      "title": "Título da Certificação",
+      "description": "Descrição",
+      "certificateNumber": "Número do Certificado",
+      "setValidity": "Definir período de validade",
+      "validityDuration": "Duração da Validade",
+      "validityEndDate": "Válido Até",
+      "years": "Anos",
+      "months": "Meses",
+      "days": "Dias",
+      "conditionAssessment": "Avaliação de Condição"
+    },
+    "hints": {
+      "validityOptional": "Deixe desmarcado para certificações permanentes/indefinidas"
+    },
+    "actions": {
+      "addReference": "Adicionar Referência",
+      "create": "Criar Certificação",
+      "creating": "Criando..."
+    }
+  },
+  "bulkCertificates": {
+    "title": "Certificados de Eventos em Lote",
+    "description": "Emita o mesmo certificado de evento para múltiplos veículos de uma vez",
+    "section": {
+      "eventType": "Passo 1: Selecione o Tipo de Evento",
+      "eventDetails": "Passo 2: Detalhes do Evento",
+      "vehicles": "Passo 3: Lista de Veículos"
+    },
+    "fields": {
+      "chassis": "Número do Chassis",
+      "licensePlate": "Placa de Licença",
+      "email": "Email"
+    },
+    "hint": {
+      "vehicleFormat": "Você pode colar dados no formato 'CHASSIS | LICENÇA | EMAIL' de uma planilha"
+    },
+    "actions": {
+      "addVehicle": "Adicionar Veículo",
+      "issue": "Emitir Certificados",
+      "issuing": "Emitindo...",
+      "issuMore": "Emitir Mais Certificados"
+    },
+    "results": {
+      "allSuccess": "Todos os certificados foram emitidos com sucesso!",
+      "partialSuccess": "Emissão em lote concluída com alguns erros",
+      "certificatesIssued": "certificados emitidos com sucesso",
+      "certificatesFailed": "certificados falharam ao emitir",
+      "successList": "Emitidos com Sucesso",
+      "errorList": "Falhas na Emissão"
+    }
+  },
+  "eventCertificate": {
+    "section": {
+      "common": "Informações do Evento"
+    },
+    "fields": {
+      "eventType": "Tipo de Evento",
+      "title": "Título do Evento (opcional)",
+      "date": "Data do Evento",
+      "location": "Local",
+      "description": "Descrição do Evento",
+      "certificateNumber": "Número do Certificado",
+      "category": "Categoria",
+      "award": "Prêmio",
+      "judgingScore": "Pontuação de Julgamento",
+      "clubName": "Nome do Clube",
+      "theme": "Tema",
+      "route": "Rota",
+      "carNumber": "Número do Carro",
+      "coDriver": "Nome do Navegador",
+      "distanceDriven": "Distância Percorrida (km)",
+      "trackName": "Nome da Pista",
+      "raceClass": "Classe de Corrida",
+      "raceNumber": "Número da Corrida",
+      "bestLapTime": "Melhor Tempo de Volta",
+      "auctionHouse": "Casa de Leilão",
+      "participantName": "Nome do Participante",
+      "lotNumber": "Número do Lote",
+      "saleStatus": "Status da Venda",
+      "workshopTopic": "Tópico da Oficina",
+      "instructorName": "Nome do Instrutor",
+      "completionAcknowledgment": "Conclusão Reconhecida",
+      "competitionCategory": "Categoria de Competição",
+      "awardTitle": "Título do Prêmio",
+      "clubChapter": "Capítulo do Clube",
+      "routeName": "Nome da Rota",
+      "totalDistance": "Distância Total (km)",
+      "dateRange": "Intervalo de Datas",
+      "festivalTheme": "Tema do Festival"
+    },
+    "types": {
+      "carShow": "Exposições de Carros & Concursos de Elegância",
+      "classicMeet": "Encontros de Carros Clássicos / Passeios",
+      "rally": "Rallyes & Tours",
+      "vintageRacing": "Corridas de Época & Dias de Pista",
+      "auction": "Eventos de Leilão & Vendas",
+      "workshop": "Oficinas de Restauração & Seminários",
+      "clubCompetition": "Competições de Clube & Prêmios",
+      "roadTrip": "Passeios em Estrada & Viagens de Herança",
+      "festival": "Festivais de Carros Clássicos"
+    },
+    "actions": {
+      "create": "Criar Certificado de Evento",
+      "creating": "Criando..."
+    }
+  }
+}

@@ -1,0 +1,6 @@
+package: http
+generate:
+  - std-http-server
+  - models
+  - strict-server
+output: generated.go

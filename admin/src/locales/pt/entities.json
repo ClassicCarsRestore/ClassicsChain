@@ -1,0 +1,85 @@
+{
+  "title": "Entidades",
+  "addEntity": "Adicionar Entidade",
+  "editEntity": "Editar Entidade",
+  "createEntity": "Criar Entidade",
+  "updateEntity": "Atualizar Entidade",
+  "filters": {
+    "all": "Todas",
+    "certifiers": "Certificadores",
+    "partners": "Parceiros"
+  },
+  "fields": {
+    "name": "Nome",
+    "type": "Tipo",
+    "contactEmail": "Email de Contacto",
+    "website": "Website",
+    "description": "Descrição",
+    "address": "Morada",
+    "street": "Rua",
+    "city": "Cidade",
+    "state": "Estado/Distrito",
+    "postalCode": "Código Postal",
+    "country": "País"
+  },
+  "types": {
+    "certifier": "Certificador",
+    "partner": "Parceiro"
+  },
+  "placeholders": {
+    "website": "exemplo.com"
+  },
+  "messages": {
+    "noEntities": "Nenhuma entidade encontrada",
+    "loadingEntities": "A carregar entidades...",
+    "loadingEntity": "A carregar entidade...",
+    "errorLoading": "Erro ao carregar entidades: {{error}}",
+    "errorLoadingEntity": "Erro ao carregar entidade",
+    "addressOptional": "Morada (Opcional)",
+    "cityRequired": "Cidade é obrigatória ao fornecer morada",
+    "countryRequired": "País é obrigatório ao fornecer morada",
+    "cityRequiredWhen": "Cidade {{condition}}",
+    "countryRequiredWhen": "País {{condition}}",
+    "confirmDelete": "Tem a certeza que deseja eliminar {{name}}?",
+    "errorDeleting": "Erro ao eliminar entidade"
+  },
+  "actions": {
+    "visit": "Visitar",
+    "view": "Ver",
+    "edit": "Editar",
+    "actions": "Ações",
+    "cancel": "Cancelar",
+    "adding": "A adicionar...",
+    "backToList": "Voltar à lista"
+  },
+  "tabs": {
+    "details": "Detalhes",
+    "members": "Membros",
+    "oauth2": "Credenciais API"
+  },
+  "details": {
+    "title": "Detalhes da Entidade"
+  },
+  "members": {
+    "title": "Membros da Entidade",
+    "addMember": "Convidar Membro",
+    "noMembers": "Nenhum membro encontrado",
+    "loading": "A carregar membros...",
+    "errorLoading": "Erro ao carregar membros",
+    "errorInviting": "Erro ao convidar membro",
+    "errorRemoving": "Erro ao remover membro",
+    "errorUpdatingRole": "Erro ao atualizar função do membro",
+    "confirmRemove": "Tem a certeza que deseja remover este membro?",
+    "emailHelp": "O utilizador receberá um email com link para definir a password",
+    "fields": {
+      "name": "Nome",
+      "email": "Email",
+      "role": "Função",
+      "actions": "Ações"
+    },
+    "roles": {
+      "admin": "Administrador",
+      "member": "Membro"
+    }
+  }
+}

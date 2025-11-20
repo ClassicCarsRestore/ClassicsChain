@@ -1,0 +1,35 @@
+{
+  "buttons": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "edit": "Edit",
+    "delete": "Delete",
+    "create": "Create",
+    "add": "Add",
+    "close": "Close",
+    "confirm": "Confirm",
+    "update": "Update"
+  },
+  "labels": {
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "description": "Description",
+    "website": "Website",
+    "address": "Address",
+    "required": "Required",
+    "optional": "Optional"
+  },
+  "messages": {
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "noData": "No data found",
+    "success": "Operation successful",
+    "error": "An error occurred"
+  },
+  "validation": {
+    "required": "{{field}} is required",
+    "invalidEmail": "Invalid email address"
+  }
+}

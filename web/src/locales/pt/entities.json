@@ -1,0 +1,29 @@
+{
+  "title": "Entidades",
+  "description": "Explore a nossa rede de entidades certificadas e parceiros",
+  "loading": "A carregar entidades...",
+  "resultsCount": "A mostrar {{count}} entidades",
+  "visitWebsite": "Visitar website",
+  "filters": {
+    "name": "Nome",
+    "namePlaceholder": "Pesquisar por nome...",
+    "type": "Tipo",
+    "typeOptions": {
+      "all": "Todos os Tipos",
+      "certifier": "Certificadores",
+      "partner": "Parceiros"
+    },
+    "city": "Cidade",
+    "cityPlaceholder": "Filtrar por cidade...",
+    "country": "País",
+    "countryPlaceholder": "Filtrar por país..."
+  },
+  "entityTypes": {
+    "certifier": "Certificador",
+    "partner": "Parceiro"
+  },
+  "empty": {
+    "title": "Nenhuma entidade encontrada",
+    "description": "Tente ajustar os seus filtros para encontrar entidades"
+  }
+}

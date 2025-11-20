@@ -1,0 +1,14 @@
+{
+  "notFound": {
+    "title": "Page Not Found",
+    "description": "The page you're looking for doesn't exist or has been moved.",
+    "goBack": "Go Back",
+    "goHome": "Go to Home"
+  },
+  "error": {
+    "title": "Something Went Wrong",
+    "description": "An unexpected error occurred. Please try again.",
+    "unknownError": "Unknown error",
+    "goHome": "Go to Home"
+  }
+}

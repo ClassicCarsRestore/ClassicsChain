@@ -1,0 +1,15 @@
+{
+  "title": "Classics Chain",
+  "home": "Home",
+  "concepts": "Concepts",
+  "entities": "Entities",
+  "dashboard": "Dashboard",
+  "myVehicles": "My Vehicles",
+  "profile": "Profile",
+  "account": "Account",
+  "settings": "Settings",
+  "login": "Login",
+  "register": "Register",
+  "logout": "Logout",
+  "adminPanel": "Admin Panel"
+}

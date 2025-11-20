@@ -1,0 +1,46 @@
+{
+  "title": "API Credentials",
+  "description": "Manage OAuth2 API credentials for third-party integrations",
+  "createNew": "Create New Client",
+  "noClients": "No API clients created yet",
+  "save": "Save your client secret now - you won't be able to see it again!",
+  "copy": "Copy to Clipboard",
+  "copied": "Client secret copied to clipboard",
+  "delete": "Delete",
+  "confirmDelete": "Are you sure you want to delete this OAuth2 client?",
+  "form": {
+    "title": "Create API Client",
+    "description": "Description",
+    "descriptionPlaceholder": "e.g., Mobile App API Access",
+    "scopes": "Scopes",
+    "scopesRequired": "Please select at least one scope",
+    "create": "Create Client",
+    "cancel": "Cancel"
+  },
+  "scopes": {
+    "vehiclesRead": "Read vehicle data",
+    "vehiclesWrite": "Create and update vehicles",
+    "vehiclesDelete": "Delete vehicles",
+    "certificationsRead": "Read certifications",
+    "certificationsWrite": "Create and update certifications",
+    "certificationsDelete": "Delete certifications",
+    "entitiesRead": "Read entity information",
+    "eventsRead": "Read vehicle events",
+    "eventsWrite": "Create and update vehicle events",
+    "documentsRead": "Read documents",
+    "documentsWrite": "Upload and delete documents"
+  },
+  "fields": {
+    "clientId": "Client ID",
+    "clientSecret": "Client Secret",
+    "description": "Description",
+    "scopes": "Scopes",
+    "createdAt": "Created",
+    "actions": "Actions"
+  },
+  "errors": {
+    "loading": "Error loading API clients",
+    "creating": "Error creating API client",
+    "deleting": "Error deleting API client"
+  }
+}
