@@ -11,13 +11,11 @@ COPY . .
 
 ARG BUILD_VERSION=dev
 ARG BUILD_COMMIT=unknown
-ARG BUILD_TIME=unknown
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
 	-ldflags="-s -w \
 		-X 'main.Version=${BUILD_VERSION}' \
-		-X 'main.Commit=${BUILD_COMMIT}' \
-		-X 'main.BuildTime=${BUILD_TIME}'" \
+		-X 'main.Commit=${BUILD_COMMIT}'" \
 	-o app ./cmd/http/main.go
 
 

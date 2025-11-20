@@ -54,7 +54,6 @@ jobs:
           build-args: |
             BUILD_VERSION=${{ github.sha }}
             BUILD_COMMIT=${{ github.sha }}
-            BUILD_TIME=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
