@@ -54,4 +54,4 @@ jobs:
         env:
           DEPLOY_PATH: ${{ secrets.WEB_DEPLOY_PATH }}
         run: |
-          scp -r web/dist/* "ccvm:$DEPLOY_PATH/"
+          scp -vvv -r web/dist/* "ccvm:$DEPLOY_PATH/"
