@@ -31,16 +31,27 @@ jobs:
         working-directory: web
         run: npm run build
 
-      - name: Deploy via SSH
+      - name: Configure SSH
         env:
           SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          DEPLOY_PATH: ${{ secrets.WEB_DEPLOY_PATH }}
+          SSH_HOST: ${{ secrets.DEPLOY_HOST }}
+          SSH_USER: ${{ secrets.DEPLOY_USER }}
         run: |
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
 
-          scp -i ~/.ssh/deploy_key -r web/dist/* "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/"
+          cat >>~/.ssh/config <<END
+          Host ccvm
+            HostName $SSH_HOST
+            User $SSH_USER
+            IdentityFile ~/.ssh/slack-patrol-bot.key
+            StrictHostKeyChecking no
+          END
+          chmod 600 ~/.ssh/config
+
+      - name: Transfer build
+        env:
+          DEPLOY_PATH: ${{ secrets.WEB_DEPLOY_PATH }}
+        run: |
+          scp -r web/dist/* "ccvm:$DEPLOY_PATH/"

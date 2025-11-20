@@ -36,10 +36,7 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           SSH_HOST: ${{ secrets.DEPLOY_HOST }}
           SSH_USER: ${{ secrets.DEPLOY_USER }}
-          DEPLOY_PATH: ${{ secrets.ADMIN_DEPLOY_PATH }}
         run: |
-          set -e
-          set -x
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
@@ -53,11 +50,8 @@ jobs:
           END
           chmod 600 ~/.ssh/config
 
-      - name: Create .env file in server
+      - name: Transfer build
         env:
-          SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
-          SSH_HOST: ${{ secrets.DEPLOY_HOST }}
-          SSH_USER: ${{ secrets.DEPLOY_USER }}
           DEPLOY_PATH: ${{ secrets.ADMIN_DEPLOY_PATH }}
         run: |
           scp -r admin/dist/* "ccvm:$DEPLOY_PATH/"
