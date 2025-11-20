@@ -29,8 +29,8 @@ RUN addgroup -g 1000 appgroup && \
 WORKDIR /home/appuser
 
 COPY --from=builder --chown=appuser:appgroup /build/app /home/appuser/app
-COPY --from=builder --chown=appuser:appgroup casbin_model.conf /home/appuser/
-COPY --from=builder --chown=appuser:appgroup casbin_policy.csv /home/appuser/
+COPY --from=builder --chown=appuser:appgroup /build/casbin_model.conf /home/appuser/
+COPY --from=builder --chown=appuser:appgroup /build/casbin_policy.csv /home/appuser/
 
 RUN mkdir -p /home/appuser/data && chown -R appuser:appgroup /home/appuser/data
 
