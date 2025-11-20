@@ -18,10 +18,10 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
 		-X 'main.Version=${BUILD_VERSION}' \
 		-X 'main.Commit=${BUILD_COMMIT}' \
 		-X 'main.BuildTime=${BUILD_TIME}'" \
-	-o /app ./cmd/http/main.go
+	-o app ./cmd/http/main.go
 
 
-FROM alpine:3.20
+FROM alpine:3.22
 
 RUN apk add --no-cache ca-certificates curl tzdata
 
@@ -30,9 +30,9 @@ RUN addgroup -g 1000 appgroup && \
 
 WORKDIR /home/appuser
 
-COPY --from=builder --chown=appuser:appgroup /app /home/appuser/app
-COPY --chown=appuser:appgroup casbin_model.conf /home/appuser/
-COPY --chown=appuser:appgroup casbin_policy.csv /home/appuser/
+COPY --from=builder --chown=appuser:appgroup /build/app /home/appuser/app
+COPY --from=builder --chown=appuser:appgroup casbin_model.conf /home/appuser/
+COPY --from=builder --chown=appuser:appgroup casbin_policy.csv /home/appuser/
 
 RUN mkdir -p /home/appuser/data && chown -R appuser:appgroup /home/appuser/data
 
