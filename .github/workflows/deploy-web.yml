@@ -50,6 +50,19 @@ jobs:
           END
           chmod 600 ~/.ssh/config
 
+      - name: Create .env file in server
+        env:
+          DEPLOY_PATH: ${{ secrets.WEB_DEPLOY_PATH }}
+        run: |
+          ssh ccvm "DEPLOY_PATH='$DEPLOY_PATH' bash -s" << 'EOF'
+          cat > "$DEPLOY_PATH/.env" << 'INNEREOF'
+          VITE_API_BASE_URL=https://api.classicschain.com
+          VITE_KRATOS_URL=https://auth.classicschain.com
+          VITE_ADMIN_URL=https://admin.classicschain.com
+          VITE_STORAGE_BASE_URL=http://vehicles.localhost:3902
+          INNEREOF
+          EOF
+
       - name: Transfer build
         env:
           DEPLOY_PATH: ${{ secrets.WEB_DEPLOY_PATH }}
