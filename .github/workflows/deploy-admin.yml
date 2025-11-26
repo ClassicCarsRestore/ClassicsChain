@@ -50,7 +50,6 @@ jobs:
             StrictHostKeyChecking no
           END
           chmod 600 ~/.ssh/config
-          scp -vr admin/dist/* "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/"
 
       - name: Transfer build
         env:
