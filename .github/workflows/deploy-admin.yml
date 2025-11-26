@@ -27,6 +27,14 @@ jobs:
         working-directory: admin
         run: npm ci
 
+      - name: Create .env file
+        run: |
+          cat > .env << 'EOF'
+          VITE_API_BASE_URL=https://api.classicschain.com
+          VITE_KRATOS_URL=https://auth.classicschain.com
+          VITE_PUBLIC_REDIRECT_URL=https://classicschain.com
+          EOF
+
       - name: Build
         working-directory: admin
         run: npm run build
