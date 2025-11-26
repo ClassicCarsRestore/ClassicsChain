@@ -51,9 +51,6 @@ jobs:
           END
           chmod 600 ~/.ssh/config
 
-      - name: Test SSH connection
-        run: ssh ccvm "echo 'Connection successful'; pwd"
-
       - name: Transfer build
         env:
           DEPLOY_PATH: ${{ secrets.ADMIN_DEPLOY_PATH }}
