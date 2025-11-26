@@ -36,7 +36,6 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           SSH_HOST: ${{ secrets.DEPLOY_HOST }}
           SSH_USER: ${{ secrets.DEPLOY_USER }}
-          DEPLOY_PATH: ${{ secrets.ADMIN_DEPLOY_PATH }}
         run: |
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
@@ -55,4 +54,4 @@ jobs:
         env:
           DEPLOY_PATH: ${{ secrets.ADMIN_DEPLOY_PATH }}
         run: |
-          scp -vr admin/dist/* "ccvm:$DEPLOY_PATH/"
+          scp -r admin/dist/* "ccvm:$DEPLOY_PATH/"
