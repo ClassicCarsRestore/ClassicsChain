@@ -1,0 +1,47 @@
+{{- if .Identity.metadata_public.isInvitation -}}
+Welcome to Classics Chain!
+
+You've been invited to join our platform to manage your classic vehicles.
+
+{{- if .Identity.metadata_public.invitationUrl }}
+
+Complete your signup:
+{{ .Identity.metadata_public.invitationUrl }}
+
+Or enter this code manually:
+{{ .RecoveryCode }}
+{{- else }}
+
+To complete your signup and start managing your vehicles, please enter the following code:
+
+{{ .RecoveryCode }}
+{{- end }}
+
+{{- if .Identity.metadata_public.vehicles }}
+
+You've been invited to manage:
+{{- range .Identity.metadata_public.vehicles }}
+• {{ .year }} {{ .make }} {{ .model }}{{ if .licensePlate }} ({{ .licensePlate }}){{ end }}
+{{- end }}
+{{- end }}
+
+Once you enter this code, you'll be able to set up your password and access your account.
+
+---
+This is an automated message. Please do not reply to this email.
+© Classics Chain. All rights reserved.
+{{- else -}}
+Password Reset Request
+
+We received a request to reset your Classics Chain password.
+
+To reset your password, please enter the following code:
+
+{{ .RecoveryCode }}
+
+If you didn't request this password reset, you can safely ignore this email.
+
+---
+This is an automated message. Please do not reply to this email.
+© Classics Chain. All rights reserved.
+{{- end -}}
