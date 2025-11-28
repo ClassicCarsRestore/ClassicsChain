@@ -15,11 +15,6 @@ if [ ! -f "${DEPLOY_DIR}/.env" ]; then
     exit 1
 fi
 
-# Load environment variables
-set -a
-source "${DEPLOY_DIR}/.env"
-set +a
-
 cd "${DEPLOY_DIR}"
 
 # Pull latest images
