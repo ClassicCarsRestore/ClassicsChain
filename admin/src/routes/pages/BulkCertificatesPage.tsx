@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Plus, Trash2, CheckCircle, AlertCircle } from 'lucide-react';
 import { EventCertificateFormFields } from '@/features/certifications/components/EventCertificateFormFields';
 import { useCreateBulkEvents } from '@/features/certifications/hooks/useBulkEvents';
+import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import type { EventType, EventMetadata } from '@/features/certifications/types';
 import type { VehicleIdentifier } from '@/features/certifications/hooks/useBulkEvents';
 
@@ -187,6 +188,20 @@ export function BulkCertificatesPage() {
       }
     );
   };
+
+  if (isPending) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">{t('bulkCertificates.title')}</h1>
+          <p className="text-muted-foreground">{t('bulkCertificates.description')}</p>
+        </div>
+        <LoadingSpinner
+          message={t('bulkCertificates.actions.issuing')}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

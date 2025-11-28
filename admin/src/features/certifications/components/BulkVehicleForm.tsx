@@ -5,6 +5,7 @@ import { VehicleBasicsStep } from './steps/VehicleBasicsStep';
 import { VehicleDetailsStep } from './steps/VehicleDetailsStep';
 import { VehicleSummaryStep } from './steps/VehicleSummaryStep';
 import { useCreateVehicles } from '../hooks/useVehicles';
+import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import type { VehicleFormData } from '../types';
 
 interface Entity {
@@ -84,6 +85,14 @@ export function BulkVehicleForm({ entities, onSuccess }: BulkVehicleFormProps) {
   const isStep2Valid = formData.bodyType && formData.driveType;
   const canProceedToStep2 = isStep1Valid;
   const canProceedToStep3 = isStep1Valid && isStep2Valid;
+
+  if (isPending) {
+    return (
+      <LoadingSpinner
+        message={t('form.actions.creating')}
+      />
+    );
+  }
 
   return (
     <div className="w-full">
