@@ -1,6 +1,9 @@
 # Main web application
 ${DOMAIN} {
     encode gzip
+    basicauth {
+        ${BASIC_AUTH_USER} ${BASIC_AUTH_PASSWORD_HASH}
+    }
     root * /srv/web
     file_server
     try_files {path} /index.html
@@ -9,6 +12,9 @@ ${DOMAIN} {
 # Admin application
 ${ADMIN_DOMAIN} {
     encode gzip
+    basicauth {
+        ${BASIC_AUTH_USER} ${BASIC_AUTH_PASSWORD_HASH}
+    }
     root * /srv/admin
     file_server
     try_files {path} /index.html
@@ -17,16 +23,16 @@ ${ADMIN_DOMAIN} {
 # API backend
 ${API_DOMAIN} {
     encode gzip
-    reverse_proxy backend:4000
+    reverse_proxy cc-backend:4000
 }
 
 # Authentication (Kratos)
 ${AUTH_DOMAIN} {
     encode gzip
-    reverse_proxy kratos:4433
+    reverse_proxy cc-kratos:4433
 }
 
-# Storage/S3 (Garage) - read-only public access
+# Storage (Garage) - read-only public access
 ${STORAGE_DOMAIN} {
     encode gzip
 
@@ -39,7 +45,7 @@ ${STORAGE_DOMAIN} {
         header Access-Control-Allow-Origin "*"
         header Access-Control-Allow-Methods "GET, OPTIONS"
         header Cache-Control "public, max-age=3600"
-        reverse_proxy garage:3902
+        reverse_proxy cc-garage:3902
     }
 
     # Handle OPTIONS preflight requests

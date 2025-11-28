@@ -83,6 +83,10 @@ jobs:
 
           # Caddy
           ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+
+          # Basic Auth
+          BASIC_AUTH_USER: ${{ secrets.BASIC_AUTH_USER }}
+          BASIC_AUTH_PASSWORD_HASH: ${{ secrets.BASIC_AUTH_PASSWORD_HASH }}
         run: |
           cd deployment/production
           ./scripts/render-configs.sh
@@ -149,6 +153,8 @@ jobs:
           WEB_APP_PATH: ${{ secrets.WEB_APP_PATH }}
           ADMIN_APP_PATH: ${{ secrets.ADMIN_APP_PATH }}
           ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          BASIC_AUTH_USER: ${{ secrets.BASIC_AUTH_USER }}
+          BASIC_AUTH_PASSWORD_HASH: ${{ secrets.BASIC_AUTH_PASSWORD_HASH }}
         run: |
           # Create .env file locally
           cat > .env.production <<EOF
@@ -191,6 +197,8 @@ jobs:
           WEB_APP_PATH=${WEB_APP_PATH}
           ADMIN_APP_PATH=${ADMIN_APP_PATH}
           ADMIN_EMAIL=${ADMIN_EMAIL}
+          BASIC_AUTH_USER=${BASIC_AUTH_USER}
+          BASIC_AUTH_PASSWORD_HASH=${BASIC_AUTH_PASSWORD_HASH}
           EOF
 
           # Create directory and transfer .env file

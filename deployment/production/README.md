@@ -143,6 +143,28 @@ openssl rand -base64 20
 ### Other
 - `ADMIN_EMAIL`: Admin email for Let's Encrypt (e.g., admin@classicschain.com)
 
+### Basic Authentication
+- `BASIC_AUTH_USER`: Username for basic auth (e.g., admin)
+- `BASIC_AUTH_PASSWORD_HASH`: Bcrypt hashed password
+
+Generate bcrypt hash:
+```bash
+# Using Docker (recommended)
+docker run --rm caddy:latest caddy hash-password --plaintext 'your-secure-password'
+
+# Or using htpasswd (if available)
+htpasswd -nbB "" 'your-secure-password' | cut -d: -f2
+```
+
+**Protected endpoints:**
+- Main web application (classicschain.com)
+- Admin application (admin.classicschain.com)
+
+**Unprotected endpoints:**
+- API backend (api.classicschain.com) - for programmatic access
+- Authentication (auth.classicschain.com) - required for login flows
+- Storage (storage.classicschain.com) - public read-only access
+
 ## Deployment Workflow
 
 The deployment happens in these steps:
