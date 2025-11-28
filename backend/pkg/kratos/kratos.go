@@ -14,9 +14,10 @@ const schemaID = "default"
 
 // CreateUserParams contains parameters for creating a new user
 type CreateUserParams struct {
-	Email   string
-	Name    *string
-	IsAdmin bool
+	Email    string
+	Name     *string
+	IsAdmin  bool
+	Password *string
 }
 
 // UpdateUserParams contains parameters for updating a user (partial updates supported via pointers)
@@ -139,6 +140,16 @@ func (k *Client) CreateUser(ctx context.Context, params CreateUserParams) (*User
 		SchemaId:       schemaID,
 		Traits:         traits,
 		MetadataPublic: metadata,
+	}
+
+	if params.Password != nil && *params.Password != "" {
+		body.Credentials = map[string]interface{}{
+			"password": map[string]interface{}{
+				"config": map[string]interface{}{
+					"password": *params.Password,
+				},
+			},
+		}
 	}
 
 	identity, resp, err := k.admin.IdentityAPI.CreateIdentity(ctx).

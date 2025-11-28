@@ -24,7 +24,6 @@ func SeedAdminUser(ctx context.Context, kratosClient *kratos.Client, querier *db
 		return fmt.Errorf("admin password is required")
 	}
 
-	// Check if admin user already exists
 	adminUsers, err := kratosClient.ListAdminUsers(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to list admin users: %w", err)
@@ -44,8 +43,9 @@ func SeedAdminUser(ctx context.Context, kratosClient *kratos.Client, querier *db
 		log.Printf("Creating admin user in Kratos: %s", config.Email)
 
 		user, err := kratosClient.CreateUser(ctx, kratos.CreateUserParams{
-			Email:   config.Email,
-			IsAdmin: true,
+			Email:    config.Email,
+			IsAdmin:  true,
+			Password: &config.Password,
 		})
 		if err != nil {
 			return fmt.Errorf("failed to create admin user in Kratos: %w", err)

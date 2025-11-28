@@ -86,6 +86,11 @@ log:
   format: json
   leak_sensitive_values: false
 
+cookies:
+  domain: .classicschain.com
+  path: /
+  same_site: Lax
+
 secrets:
   cookie:
     - ${KRATOS_SECRET_COOKIE}
