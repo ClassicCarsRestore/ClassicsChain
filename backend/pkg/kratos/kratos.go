@@ -136,20 +136,19 @@ func (k *Client) CreateUser(ctx context.Context, params CreateUserParams) (*User
 		"isAdmin": params.IsAdmin,
 	}
 
+	credentials := &kclient.IdentityWithCredentials{
+		Password: &kclient.IdentityWithCredentialsPassword{
+			Config: &kclient.IdentityWithCredentialsPasswordConfig{
+				Password: params.Password,
+			},
+		},
+	}
+
 	body := kclient.CreateIdentityBody{
 		SchemaId:       schemaID,
 		Traits:         traits,
 		MetadataPublic: metadata,
-	}
-
-	if params.Password != nil && *params.Password != "" {
-		body.Credentials = map[string]interface{}{
-			"password": map[string]interface{}{
-				"config": map[string]interface{}{
-					"password": *params.Password,
-				},
-			},
-		}
+		Credentials:    credentials,
 	}
 
 	identity, resp, err := k.admin.IdentityAPI.CreateIdentity(ctx).
