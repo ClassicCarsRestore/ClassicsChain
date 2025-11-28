@@ -218,9 +218,6 @@ jobs:
           scp -i ~/.ssh/deploy_key deployment/production/configs/kratos/identity.schema.json "$SSH_USER@$SSH_HOST:$DEPLOY_DIR/configs/kratos/"
           scp -i ~/.ssh/deploy_key -r deployment/production/configs/kratos/courier-templates/* "$SSH_USER@$SSH_HOST:$DEPLOY_DIR/configs/kratos/courier-templates/"
 
-          # Transfer database init script
-          scp -i ~/.ssh/deploy_key deployment/production/init-databases.sql "$SSH_USER@$SSH_HOST:$DEPLOY_DIR/"
-
           # Transfer deployment script
           scp -i ~/.ssh/deploy_key deployment/production/scripts/deploy.sh "$SSH_USER@$SSH_HOST:$DEPLOY_DIR/scripts/"
 
