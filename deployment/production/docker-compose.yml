@@ -147,7 +147,8 @@ services:
       DB_PASSWORD: ${POSTGRES_MAIN_PASSWORD}
       DB_NAME: ${POSTGRES_MAIN_DB}
       DB_SSL_MODE: disable
-    command: /home/appuser/tern migrate -m migrations
+    entrypoint: /home/appuser/tern
+    command: migrate -m migrations
     depends_on:
       postgres-main:
         condition: service_healthy
