@@ -294,6 +294,31 @@ func (a apiServer) UpdateEntity(ctx context.Context, request UpdateEntityRequest
 	return UpdateEntity200JSONResponse(httpEntity), nil
 }
 
+func (a apiServer) DeleteEntity(ctx context.Context, request DeleteEntityRequestObject) (DeleteEntityResponseObject, error) {
+	// Check authorization - user must be admin
+	if !auth.IsAdmin(ctx) {
+		return DeleteEntity403JSONResponse{
+			ForbiddenJSONResponse: ForbiddenJSONResponse{
+				Error: "forbidden",
+			},
+		}, nil
+	}
+
+	err := a.entityService.Delete(ctx, request.EntityId)
+	if err != nil {
+		if errors.Is(err, entity.ErrEntityNotFound) {
+			return DeleteEntity404JSONResponse{
+				NotFoundJSONResponse: NotFoundJSONResponse{
+					Error: "Entity not found",
+				},
+			}, nil
+		}
+		return nil, err
+	}
+
+	return DeleteEntity204Response{}, nil
+}
+
 // domainToHTTPEntity converts a domain entity to HTTP entity
 func domainToHTTPEntity(domainEntity entity.Entity) Entity {
 	return Entity{

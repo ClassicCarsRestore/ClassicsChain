@@ -946,6 +946,9 @@ type ServerInterface interface {
 	// Create a new entity
 	// (POST /entities)
 	CreateEntity(w http.ResponseWriter, r *http.Request)
+	// Delete entity
+	// (DELETE /entities/{entityId})
+	DeleteEntity(w http.ResponseWriter, r *http.Request, entityId EntityIdParam)
 	// Get entity by ID
 	// (GET /entities/{entityId})
 	GetEntity(w http.ResponseWriter, r *http.Request, entityId EntityIdParam)
@@ -1271,6 +1274,37 @@ func (siw *ServerInterfaceWrapper) CreateEntity(w http.ResponseWriter, r *http.R
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.CreateEntity(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// DeleteEntity operation middleware
+func (siw *ServerInterfaceWrapper) DeleteEntity(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "entityId" -------------
+	var entityId EntityIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "entityId", r.PathValue("entityId"), &entityId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "entityId", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.DeleteEntity(w, r, entityId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -2628,6 +2662,7 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("POST "+options.BaseURL+"/certifiers/vehicles", wrapper.CreateCertifierVehicle)
 	m.HandleFunc("GET "+options.BaseURL+"/entities", wrapper.GetEntities)
 	m.HandleFunc("POST "+options.BaseURL+"/entities", wrapper.CreateEntity)
+	m.HandleFunc("DELETE "+options.BaseURL+"/entities/{entityId}", wrapper.DeleteEntity)
 	m.HandleFunc("GET "+options.BaseURL+"/entities/{entityId}", wrapper.GetEntity)
 	m.HandleFunc("PUT "+options.BaseURL+"/entities/{entityId}", wrapper.UpdateEntity)
 	m.HandleFunc("GET "+options.BaseURL+"/entities/{entityId}/members", wrapper.GetEntityMembers)
@@ -2955,6 +2990,49 @@ type CreateEntity403JSONResponse struct{ ForbiddenJSONResponse }
 func (response CreateEntity403JSONResponse) VisitCreateEntityResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(403)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type DeleteEntityRequestObject struct {
+	EntityId EntityIdParam `json:"entityId"`
+}
+
+type DeleteEntityResponseObject interface {
+	VisitDeleteEntityResponse(w http.ResponseWriter) error
+}
+
+type DeleteEntity204Response struct {
+}
+
+func (response DeleteEntity204Response) VisitDeleteEntityResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
+}
+
+type DeleteEntity401JSONResponse struct{ UnauthorizedJSONResponse }
+
+func (response DeleteEntity401JSONResponse) VisitDeleteEntityResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type DeleteEntity403JSONResponse struct{ ForbiddenJSONResponse }
+
+func (response DeleteEntity403JSONResponse) VisitDeleteEntityResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type DeleteEntity404JSONResponse struct{ NotFoundJSONResponse }
+
+func (response DeleteEntity404JSONResponse) VisitDeleteEntityResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
 
 	return json.NewEncoder(w).Encode(response)
 }
@@ -4614,6 +4692,9 @@ type StrictServerInterface interface {
 	// Create a new entity
 	// (POST /entities)
 	CreateEntity(ctx context.Context, request CreateEntityRequestObject) (CreateEntityResponseObject, error)
+	// Delete entity
+	// (DELETE /entities/{entityId})
+	DeleteEntity(ctx context.Context, request DeleteEntityRequestObject) (DeleteEntityResponseObject, error)
 	// Get entity by ID
 	// (GET /entities/{entityId})
 	GetEntity(ctx context.Context, request GetEntityRequestObject) (GetEntityResponseObject, error)
@@ -4946,6 +5027,32 @@ func (sh *strictHandler) CreateEntity(w http.ResponseWriter, r *http.Request) {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(CreateEntityResponseObject); ok {
 		if err := validResponse.VisitCreateEntityResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// DeleteEntity operation middleware
+func (sh *strictHandler) DeleteEntity(w http.ResponseWriter, r *http.Request, entityId EntityIdParam) {
+	var request DeleteEntityRequestObject
+
+	request.EntityId = entityId
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.DeleteEntity(ctx, request.(DeleteEntityRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "DeleteEntity")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(DeleteEntityResponseObject); ok {
+		if err := validResponse.VisitDeleteEntityResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

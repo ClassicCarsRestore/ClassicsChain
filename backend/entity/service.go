@@ -133,6 +133,16 @@ func (s *Service) Update(ctx context.Context, id uuid.UUID, params UpdateEntityP
 	return entity, nil
 }
 
+// Delete deletes an entity by its ID
+func (s *Service) Delete(ctx context.Context, id uuid.UUID) error {
+	_, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	return s.repo.Delete(ctx, id)
+}
+
 // UpdateCertification updates which certifier vouched for an entity
 // This is typically used when transferring responsibility or updating records
 func (s *Service) UpdateCertification(ctx context.Context, entityID, certifierID uuid.UUID) (*Entity, error) {
