@@ -83,5 +83,5 @@ jobs:
           ssh -i ~/.ssh/deploy_key -p ${DEPLOY_PORT:-22} "$DEPLOY_USER@$DEPLOY_HOST" << 'EOF'
           docker pull "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main-$IMAGE_TAG"
 
-          cd /opt/classics-chain && docker-compose pull cchain-backend && docker-compose up -d cchain-backend
+          cd /opt/classicschain && docker compose pull backend && docker compose up -d backend
           EOF

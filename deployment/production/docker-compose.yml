@@ -136,6 +136,24 @@ services:
       timeout: 10s
       retries: 3
 
+  backend-migrate:
+    image: ${BACKEND_IMAGE}:${BACKEND_IMAGE_TAG}
+    container_name: cc-backend-migrate
+    restart: on-failure
+    environment:
+      DB_HOST: postgres-main
+      DB_PORT: 5432
+      DB_USER: ${POSTGRES_MAIN_USER}
+      DB_PASSWORD: ${POSTGRES_MAIN_PASSWORD}
+      DB_NAME: ${POSTGRES_MAIN_DB}
+      DB_SSL_MODE: disable
+    command: /home/appuser/tern migrate -m migrations
+    depends_on:
+      postgres-main:
+        condition: service_healthy
+    networks:
+      - intranet
+
   backend:
     image: ${BACKEND_IMAGE}:${BACKEND_IMAGE_TAG}
     container_name: cc-backend
@@ -177,8 +195,8 @@ services:
       ALGORAND_WALLET_MNEMONIC: ${ALGORAND_WALLET_MNEMONIC}
       ALGORAND_NETWORK: ${ALGORAND_NETWORK}testnet
     depends_on:
-      postgres-main:
-        condition: service_healthy
+      backend-migrate:
+        condition: service_completed_successfully
       kratos:
         condition: service_started
       garage:
