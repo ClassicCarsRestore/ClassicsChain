@@ -205,8 +205,6 @@ services:
       - ${ADMIN_APP_PATH}:/srv/admin:ro
       - caddy_data:/data
       - caddy_config:/config
-    environment:
-      ADMIN_EMAIL: ${ADMIN_EMAIL}
     depends_on:
       - backend
       - kratos

@@ -1,7 +1,7 @@
 # Main web application
 ${DOMAIN} {
     encode gzip
-    basicauth {
+    basic_auth {
         ${BASIC_AUTH_USER} ${BASIC_AUTH_PASSWORD_HASH}
     }
     root * /srv/web
@@ -12,7 +12,7 @@ ${DOMAIN} {
 # Admin application
 ${ADMIN_DOMAIN} {
     encode gzip
-    basicauth {
+    basic_auth {
         ${BASIC_AUTH_USER} ${BASIC_AUTH_PASSWORD_HASH}
     }
     root * /srv/admin
