@@ -1,0 +1,10 @@
+# Environment variables (never commit)
+.env
+
+# Rendered configs (generated during CI/CD)
+configs/kratos/kratos.yaml
+configs/garage.toml
+configs/Caddyfile
+
+# Keep templates
+!*.template

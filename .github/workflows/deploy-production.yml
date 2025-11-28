@@ -1,0 +1,242 @@
+name: Deploy Production Stack
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'deployment/production/**'
+      - '.github/workflows/deploy-production.yml'
+
+env:
+  DEPLOY_DIR: c
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y gettext-base
+
+      - name: Render configuration templates
+        env:
+          # PostgreSQL - Main
+          POSTGRES_MAIN_USER: ${{ secrets.POSTGRES_MAIN_USER }}
+          POSTGRES_MAIN_PASSWORD: ${{ secrets.POSTGRES_MAIN_PASSWORD }}
+          POSTGRES_MAIN_DB: ${{ secrets.POSTGRES_MAIN_DB }}
+
+          # PostgreSQL - Kratos
+          POSTGRES_KRATOS_USER: ${{ secrets.POSTGRES_KRATOS_USER }}
+          POSTGRES_KRATOS_PASSWORD: ${{ secrets.POSTGRES_KRATOS_PASSWORD }}
+          POSTGRES_KRATOS_DB: ${{ secrets.POSTGRES_KRATOS_DB }}
+
+          # PostgreSQL - Hydra
+          POSTGRES_HYDRA_USER: ${{ secrets.POSTGRES_HYDRA_USER }}
+          POSTGRES_HYDRA_PASSWORD: ${{ secrets.POSTGRES_HYDRA_PASSWORD }}
+          POSTGRES_HYDRA_DB: ${{ secrets.POSTGRES_HYDRA_DB }}
+
+          # Kratos
+          KRATOS_PUBLIC_BASE_URL: ${{ secrets.KRATOS_PUBLIC_BASE_URL }}
+          KRATOS_LOG_LEVEL: ${{ secrets.KRATOS_LOG_LEVEL }}
+          KRATOS_TOTP_ISSUER: ${{ secrets.KRATOS_TOTP_ISSUER }}
+          KRATOS_SECRET_COOKIE: ${{ secrets.KRATOS_SECRET_COOKIE }}
+          KRATOS_SECRET_CIPHER: ${{ secrets.KRATOS_SECRET_CIPHER }}
+          KRATOS_SMTP_CONNECTION_URI: ${{ secrets.KRATOS_SMTP_CONNECTION_URI }}
+
+          # Hydra
+          HYDRA_PUBLIC_URL: ${{ secrets.HYDRA_PUBLIC_URL }}
+          HYDRA_ADMIN_URL: ${{ secrets.HYDRA_ADMIN_URL }}
+          HYDRA_LOG_LEVEL: ${{ secrets.HYDRA_LOG_LEVEL }}
+          HYDRA_SECRETS_SYSTEM: ${{ secrets.HYDRA_SECRETS_SYSTEM }}
+
+          # Garage
+          GARAGE_RPC_SECRET: ${{ secrets.GARAGE_RPC_SECRET }}
+          GARAGE_REGION: ${{ secrets.GARAGE_REGION }}
+          GARAGE_ROOT_DOMAIN: ${{ secrets.GARAGE_ROOT_DOMAIN }}
+          GARAGE_ADMIN_TOKEN: ${{ secrets.GARAGE_ADMIN_TOKEN }}
+          GARAGE_METRICS_TOKEN: ${{ secrets.GARAGE_METRICS_TOKEN }}
+          GARAGE_ACCESS_KEY: ${{ secrets.GARAGE_ACCESS_KEY }}
+          GARAGE_SECRET_KEY: ${{ secrets.GARAGE_SECRET_KEY }}
+          GARAGE_BUCKET: ${{ secrets.GARAGE_BUCKET }}
+
+          # Backend
+          BACKEND_IMAGE: ${{ secrets.BACKEND_IMAGE }}
+          BACKEND_IMAGE_TAG: ${{ secrets.BACKEND_IMAGE_TAG }}
+
+          # Domains
+          DOMAIN: ${{ secrets.DOMAIN }}
+          ADMIN_DOMAIN: ${{ secrets.ADMIN_DOMAIN }}
+          API_DOMAIN: ${{ secrets.API_DOMAIN }}
+          AUTH_DOMAIN: ${{ secrets.AUTH_DOMAIN }}
+          STORAGE_DOMAIN: ${{ secrets.STORAGE_DOMAIN }}
+          WEB_APP_URL: ${{ secrets.WEB_APP_URL }}
+          ADMIN_APP_URL: ${{ secrets.ADMIN_APP_URL }}
+
+          # Paths
+          WEB_APP_PATH: ${{ secrets.WEB_APP_PATH }}
+          ADMIN_APP_PATH: ${{ secrets.ADMIN_APP_PATH }}
+
+          # Caddy
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+        run: |
+          cd deployment/production
+          ./scripts/render-configs.sh
+
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          SSH_HOST: ${{ secrets.DEPLOY_HOST }}
+          SSH_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
+
+      - name: Create .env file on VM
+        env:
+          SSH_HOST: ${{ secrets.DEPLOY_HOST }}
+          SSH_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_DIR: ${{ env.DEPLOY_DIR }}
+
+          # All secrets for .env
+          # PostgreSQL - Main
+          POSTGRES_MAIN_USER: ${{ secrets.POSTGRES_MAIN_USER }}
+          POSTGRES_MAIN_PASSWORD: ${{ secrets.POSTGRES_MAIN_PASSWORD }}
+          POSTGRES_MAIN_DB: ${{ secrets.POSTGRES_MAIN_DB }}
+
+          # PostgreSQL - Kratos
+          POSTGRES_KRATOS_USER: ${{ secrets.POSTGRES_KRATOS_USER }}
+          POSTGRES_KRATOS_PASSWORD: ${{ secrets.POSTGRES_KRATOS_PASSWORD }}
+          POSTGRES_KRATOS_DB: ${{ secrets.POSTGRES_KRATOS_DB }}
+
+          # PostgreSQL - Hydra
+          POSTGRES_HYDRA_USER: ${{ secrets.POSTGRES_HYDRA_USER }}
+          POSTGRES_HYDRA_PASSWORD: ${{ secrets.POSTGRES_HYDRA_PASSWORD }}
+          POSTGRES_HYDRA_DB: ${{ secrets.POSTGRES_HYDRA_DB }}
+          KRATOS_PUBLIC_BASE_URL: ${{ secrets.KRATOS_PUBLIC_BASE_URL }}
+          KRATOS_LOG_LEVEL: ${{ secrets.KRATOS_LOG_LEVEL }}
+          KRATOS_TOTP_ISSUER: ${{ secrets.KRATOS_TOTP_ISSUER }}
+          KRATOS_SECRET_COOKIE: ${{ secrets.KRATOS_SECRET_COOKIE }}
+          KRATOS_SECRET_CIPHER: ${{ secrets.KRATOS_SECRET_CIPHER }}
+          KRATOS_SMTP_CONNECTION_URI: ${{ secrets.KRATOS_SMTP_CONNECTION_URI }}
+          HYDRA_PUBLIC_URL: ${{ secrets.HYDRA_PUBLIC_URL }}
+          HYDRA_ADMIN_URL: ${{ secrets.HYDRA_ADMIN_URL }}
+          HYDRA_LOG_LEVEL: ${{ secrets.HYDRA_LOG_LEVEL }}
+          HYDRA_SECRETS_SYSTEM: ${{ secrets.HYDRA_SECRETS_SYSTEM }}
+          GARAGE_RPC_SECRET: ${{ secrets.GARAGE_RPC_SECRET }}
+          GARAGE_REGION: ${{ secrets.GARAGE_REGION }}
+          GARAGE_ROOT_DOMAIN: ${{ secrets.GARAGE_ROOT_DOMAIN }}
+          GARAGE_ADMIN_TOKEN: ${{ secrets.GARAGE_ADMIN_TOKEN }}
+          GARAGE_METRICS_TOKEN: ${{ secrets.GARAGE_METRICS_TOKEN }}
+          GARAGE_ACCESS_KEY: ${{ secrets.GARAGE_ACCESS_KEY }}
+          GARAGE_SECRET_KEY: ${{ secrets.GARAGE_SECRET_KEY }}
+          GARAGE_BUCKET: ${{ secrets.GARAGE_BUCKET }}
+          BACKEND_IMAGE: ${{ secrets.BACKEND_IMAGE }}
+          BACKEND_IMAGE_TAG: ${{ secrets.BACKEND_IMAGE_TAG }}
+          DOMAIN: ${{ secrets.DOMAIN }}
+          ADMIN_DOMAIN: ${{ secrets.ADMIN_DOMAIN }}
+          API_DOMAIN: ${{ secrets.API_DOMAIN }}
+          AUTH_DOMAIN: ${{ secrets.AUTH_DOMAIN }}
+          STORAGE_DOMAIN: ${{ secrets.STORAGE_DOMAIN }}
+          WEB_APP_URL: ${{ secrets.WEB_APP_URL }}
+          ADMIN_APP_URL: ${{ secrets.ADMIN_APP_URL }}
+          WEB_APP_PATH: ${{ secrets.WEB_APP_PATH }}
+          ADMIN_APP_PATH: ${{ secrets.ADMIN_APP_PATH }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+        run: |
+          # Create .env file locally
+          cat > .env.production <<EOF
+          POSTGRES_MAIN_USER=${POSTGRES_MAIN_USER}
+          POSTGRES_MAIN_PASSWORD=${POSTGRES_MAIN_PASSWORD}
+          POSTGRES_MAIN_DB=${POSTGRES_MAIN_DB}
+          POSTGRES_KRATOS_USER=${POSTGRES_KRATOS_USER}
+          POSTGRES_KRATOS_PASSWORD=${POSTGRES_KRATOS_PASSWORD}
+          POSTGRES_KRATOS_DB=${POSTGRES_KRATOS_DB}
+          POSTGRES_HYDRA_USER=${POSTGRES_HYDRA_USER}
+          POSTGRES_HYDRA_PASSWORD=${POSTGRES_HYDRA_PASSWORD}
+          POSTGRES_HYDRA_DB=${POSTGRES_HYDRA_DB}
+          KRATOS_PUBLIC_BASE_URL=${KRATOS_PUBLIC_BASE_URL}
+          KRATOS_LOG_LEVEL=${KRATOS_LOG_LEVEL}
+          KRATOS_TOTP_ISSUER=${KRATOS_TOTP_ISSUER}
+          KRATOS_SECRET_COOKIE=${KRATOS_SECRET_COOKIE}
+          KRATOS_SECRET_CIPHER=${KRATOS_SECRET_CIPHER}
+          KRATOS_SMTP_CONNECTION_URI=${KRATOS_SMTP_CONNECTION_URI}
+          HYDRA_PUBLIC_URL=${HYDRA_PUBLIC_URL}
+          HYDRA_ADMIN_URL=${HYDRA_ADMIN_URL}
+          HYDRA_LOG_LEVEL=${HYDRA_LOG_LEVEL}
+          HYDRA_SECRETS_SYSTEM=${HYDRA_SECRETS_SYSTEM}
+          GARAGE_RPC_SECRET=${GARAGE_RPC_SECRET}
+          GARAGE_REGION=${GARAGE_REGION}
+          GARAGE_ROOT_DOMAIN=${GARAGE_ROOT_DOMAIN}
+          GARAGE_ADMIN_TOKEN=${GARAGE_ADMIN_TOKEN}
+          GARAGE_METRICS_TOKEN=${GARAGE_METRICS_TOKEN}
+          GARAGE_ACCESS_KEY=${GARAGE_ACCESS_KEY}
+          GARAGE_SECRET_KEY=${GARAGE_SECRET_KEY}
+          GARAGE_BUCKET=${GARAGE_BUCKET}
+          BACKEND_IMAGE=${BACKEND_IMAGE}
+          BACKEND_IMAGE_TAG=${BACKEND_IMAGE_TAG}
+          DOMAIN=${DOMAIN}
+          ADMIN_DOMAIN=${ADMIN_DOMAIN}
+          API_DOMAIN=${API_DOMAIN}
+          AUTH_DOMAIN=${AUTH_DOMAIN}
+          STORAGE_DOMAIN=${STORAGE_DOMAIN}
+          WEB_APP_URL=${WEB_APP_URL}
+          ADMIN_APP_URL=${ADMIN_APP_URL}
+          WEB_APP_PATH=${WEB_APP_PATH}
+          ADMIN_APP_PATH=${ADMIN_APP_PATH}
+          ADMIN_EMAIL=${ADMIN_EMAIL}
+          EOF
+
+          # Create directory and transfer .env file
+          ssh -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" "mkdir -p $DEPLOY_DIR"
+          scp -i ~/.ssh/deploy_key .env.production "$SSH_USER@$SSH_HOST:$DEPLOY_DIR/.env"
+          rm .env.production
+
+      - name: Transfer deployment files
+        env:
+          SSH_HOST: ${{ secrets.DEPLOY_HOST }}
+          SSH_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_DIR: ${{ env.DEPLOY_DIR }}
+        run: |
+          # Create directories on VM
+          ssh -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" "mkdir -p $DEPLOY_DIR/configs/kratos/courier-templates"
+          ssh -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" "mkdir -p $DEPLOY_DIR/scripts"
+
+          # Transfer docker-compose.yml
+          scp -i ~/.ssh/deploy_key deployment/production/docker-compose.yml "$SSH_USER@$SSH_HOST:$DEPLOY_DIR/"
+
+          # Transfer rendered configs
+          scp -i ~/.ssh/deploy_key deployment/production/configs/Caddyfile "$SSH_USER@$SSH_HOST:$DEPLOY_DIR/configs/"
+          scp -i ~/.ssh/deploy_key deployment/production/configs/garage.toml "$SSH_USER@$SSH_HOST:$DEPLOY_DIR/configs/"
+          scp -i ~/.ssh/deploy_key deployment/production/configs/kratos/kratos.yaml "$SSH_USER@$SSH_HOST:$DEPLOY_DIR/configs/kratos/"
+          scp -i ~/.ssh/deploy_key deployment/production/configs/kratos/identity.schema.json "$SSH_USER@$SSH_HOST:$DEPLOY_DIR/configs/kratos/"
+          scp -i ~/.ssh/deploy_key -r deployment/production/configs/kratos/courier-templates/* "$SSH_USER@$SSH_HOST:$DEPLOY_DIR/configs/kratos/courier-templates/"
+
+          # Transfer database init script
+          scp -i ~/.ssh/deploy_key deployment/production/init-databases.sql "$SSH_USER@$SSH_HOST:$DEPLOY_DIR/"
+
+          # Transfer deployment script
+          scp -i ~/.ssh/deploy_key deployment/production/scripts/deploy.sh "$SSH_USER@$SSH_HOST:$DEPLOY_DIR/scripts/"
+
+      - name: Deploy on VM
+        env:
+          SSH_HOST: ${{ secrets.DEPLOY_HOST }}
+          SSH_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_DIR: ${{ env.DEPLOY_DIR }}
+        run: |
+          ssh -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" "cd $DEPLOY_DIR && bash scripts/deploy.sh"
+
+      - name: Verify deployment
+        env:
+          SSH_HOST: ${{ secrets.DEPLOY_HOST }}
+          SSH_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_DIR: ${{ env.DEPLOY_DIR }}
+        run: |
+          echo "Deployment verification..."
+          ssh -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" "cd $DEPLOY_DIR && docker compose ps"

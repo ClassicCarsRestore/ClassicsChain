@@ -1,0 +1,115 @@
+serve:
+  public:
+    base_url: ${KRATOS_PUBLIC_BASE_URL}
+    cors:
+      enabled: true
+      allowed_origins:
+        - ${WEB_APP_URL}
+        - ${ADMIN_APP_URL}
+      allowed_methods:
+        - POST
+        - GET
+        - PUT
+        - PATCH
+        - DELETE
+      allowed_headers:
+        - Authorization
+        - Content-Type
+        - X-Session-Token
+      exposed_headers:
+        - Content-Type
+        - Set-Cookie
+      allow_credentials: true
+  admin:
+    base_url: http://kratos:4434/
+
+selfservice:
+  default_browser_return_url: ${WEB_APP_URL}/
+  allowed_return_urls:
+    - ${WEB_APP_URL}
+    - ${ADMIN_APP_URL}
+
+  methods:
+    password:
+      enabled: true
+    totp:
+      config:
+        issuer: ${KRATOS_TOTP_ISSUER}
+      enabled: true
+    lookup_secret:
+      enabled: true
+    link:
+      enabled: true
+    code:
+      enabled: true
+
+  flows:
+    error:
+      ui_url: ${ADMIN_APP_URL}/error
+
+    settings:
+      ui_url: ${ADMIN_APP_URL}/settings
+      privileged_session_max_age: 15m
+      required_aal: highest_available
+
+    recovery:
+      enabled: true
+      ui_url: ${ADMIN_APP_URL}/recovery
+      use: code
+
+    verification:
+      enabled: true
+      ui_url: ${ADMIN_APP_URL}/verification
+      use: code
+      after:
+        default_browser_return_url: ${ADMIN_APP_URL}/
+
+    logout:
+      after:
+        default_browser_return_url: ${ADMIN_APP_URL}/login
+
+    login:
+      ui_url: ${ADMIN_APP_URL}/login
+      lifespan: 10m
+
+    registration:
+      lifespan: 10m
+      ui_url: ${ADMIN_APP_URL}/registration
+      after:
+        password:
+          hooks:
+            - hook: session
+        default_browser_return_url: ${ADMIN_APP_URL}/
+
+log:
+  level: ${KRATOS_LOG_LEVEL}
+  format: json
+  leak_sensitive_values: false
+
+secrets:
+  cookie:
+    - ${KRATOS_SECRET_COOKIE}
+  cipher:
+    - ${KRATOS_SECRET_CIPHER}
+
+ciphers:
+  algorithm: xchacha20-poly1305
+
+hashers:
+  algorithm: bcrypt
+  bcrypt:
+    cost: 12
+
+identity:
+  default_schema_id: default
+  schemas:
+    - id: default
+      url: file:///etc/config/kratos/identity.schema.json
+
+courier:
+  smtp:
+    connection_uri: ${KRATOS_SMTP_CONNECTION_URI}
+  template_override_path: /etc/config/kratos/courier-templates
+
+feature_flags:
+  use_continue_with_transitions: true

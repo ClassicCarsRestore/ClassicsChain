@@ -1,0 +1,200 @@
+services:
+  postgres-main:
+    image: postgres:17-alpine
+    container_name: cc-postgres-main
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_MAIN_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_MAIN_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_MAIN_DB}
+    volumes:
+      - postgres_main_data:/var/lib/postgresql/data
+    networks:
+      - intranet
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_MAIN_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-kratos:
+    image: postgres:17-alpine
+    container_name: cc-postgres-kratos
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_KRATOS_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_KRATOS_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_KRATOS_DB}
+    volumes:
+      - postgres_kratos_data:/var/lib/postgresql/data
+    networks:
+      - intranet
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_KRATOS_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-hydra:
+    image: postgres:17-alpine
+    container_name: cc-postgres-hydra
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_HYDRA_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_HYDRA_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_HYDRA_DB}
+    volumes:
+      - postgres_hydra_data:/var/lib/postgresql/data
+    networks:
+      - intranet
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_HYDRA_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  kratos-migrate:
+    image: oryd/kratos:v25.4.0
+    container_name: cc-kratos-migrate
+    restart: on-failure
+    environment:
+      DSN: postgres://${POSTGRES_KRATOS_USER}:${POSTGRES_KRATOS_PASSWORD}@postgres-kratos:5432/${POSTGRES_KRATOS_DB}?sslmode=disable
+    volumes:
+      - ./configs/kratos:/etc/config/kratos:ro
+    command: -c /etc/config/kratos/kratos.yaml migrate sql -e --yes
+    depends_on:
+      postgres-kratos:
+        condition: service_healthy
+    networks:
+      - intranet
+
+  kratos:
+    image: oryd/kratos:v25.4.0
+    container_name: cc-kratos
+    restart: unless-stopped
+    environment:
+      DSN: postgres://${POSTGRES_KRATOS_USER}:${POSTGRES_KRATOS_PASSWORD}@postgres-kratos:5432/${POSTGRES_KRATOS_DB}?sslmode=disable
+      LOG_LEVEL: ${KRATOS_LOG_LEVEL:-info}
+    volumes:
+      - ./configs/kratos:/etc/config/kratos:ro
+    command: serve -c /etc/config/kratos/kratos.yaml
+    depends_on:
+      kratos-migrate:
+        condition: service_completed_successfully
+    networks:
+      - intranet
+
+  hydra-migrate:
+    image: oryd/hydra:v25.4.0
+    container_name: cc-hydra-migrate
+    restart: on-failure
+    environment:
+      DSN: postgres://${POSTGRES_HYDRA_USER}:${POSTGRES_HYDRA_PASSWORD}@postgres-hydra:5432/${POSTGRES_HYDRA_DB}?sslmode=disable
+      SECRETS_SYSTEM: ${HYDRA_SECRETS_SYSTEM}
+    command: migrate sql -e --yes
+    depends_on:
+      postgres-hydra:
+        condition: service_healthy
+    networks:
+      - intranet
+
+  hydra:
+    image: oryd/hydra:v25.4.0
+    container_name: cc-hydra
+    restart: unless-stopped
+    environment:
+      DSN: postgres://${POSTGRES_HYDRA_USER}:${POSTGRES_HYDRA_PASSWORD}@postgres-hydra:5432/${POSTGRES_HYDRA_DB}?sslmode=disable
+      HYDRA_SERVE_PUBLIC_BASE_URL: ${HYDRA_PUBLIC_URL}
+      HYDRA_SERVE_ADMIN_BASE_URL: ${HYDRA_ADMIN_URL}
+      HYDRA_LOG_LEVEL: ${HYDRA_LOG_LEVEL:-info}
+      SECRETS_SYSTEM: ${HYDRA_SECRETS_SYSTEM}
+    command: serve all
+    depends_on:
+      hydra-migrate:
+        condition: service_completed_successfully
+    networks:
+      - intranet
+
+  garage:
+    image: dxflrs/garage:v2.1.0
+    container_name: cc-garage
+    restart: unless-stopped
+    volumes:
+      - ./configs/garage.toml:/etc/garage.toml:ro
+      - garage_meta:/var/lib/garage/meta
+      - garage_data:/var/lib/garage/data
+    networks:
+      - intranet
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3903/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  backend:
+    image: ${BACKEND_IMAGE}:${BACKEND_IMAGE_TAG}
+    container_name: cc-backend
+    restart: unless-stopped
+    environment:
+      PORT: "4000"
+      DB_HOST: postgres-main
+      DB_PORT: "5432"
+      DB_USER: ${POSTGRES_MAIN_USER}
+      DB_PASSWORD: ${POSTGRES_MAIN_PASSWORD}
+      DB_NAME: ${POSTGRES_MAIN_DB}
+      KRATOS_PUBLIC_URL: http://kratos:4433
+      KRATOS_ADMIN_URL: http://kratos:4434
+      GARAGE_ENDPOINT: http://garage:3900
+      GARAGE_REGION: ${GARAGE_REGION}
+      GARAGE_ACCESS_KEY: ${GARAGE_ACCESS_KEY}
+      GARAGE_SECRET_KEY: ${GARAGE_SECRET_KEY}
+      GARAGE_BUCKET: ${GARAGE_BUCKET}
+    depends_on:
+      postgres-main:
+        condition: service_healthy
+      kratos:
+        condition: service_started
+      garage:
+        condition: service_started
+    networks:
+      - intranet
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  caddy:
+    image: caddy:latest
+    container_name: cc-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./configs/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ${WEB_APP_PATH}:/srv/web:ro
+      - ${ADMIN_APP_PATH}:/srv/admin:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+    depends_on:
+      - backend
+      - kratos
+      - garage
+    networks:
+      - intranet
+
+volumes:
+  postgres_main_data:
+  postgres_kratos_data:
+  postgres_hydra_data:
+  garage_data:
+  garage_meta:
+  caddy_data:
+  caddy_config:
+
+networks:
+  intranet:
