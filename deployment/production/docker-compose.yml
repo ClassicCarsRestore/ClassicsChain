@@ -136,23 +136,33 @@ services:
     container_name: cc-backend
     restart: unless-stopped
     environment:
-      PORT: "4000"
+      # HTTP Server Configuration
+      HTTP_PORT: 4000
+      HTTP_READ_TIMEOUT: 10
+      HTTP_WRITE_TIMEOUT: 10
+      HTTP_IDLE_TIMEOUT: 20
+      HTTP_MAX_HEADER_BYTES: 1048576
+      # Database Configuration
       DB_HOST: postgres-main
-      DB_PORT: "5432"
+      DB_PORT: 5432
       DB_USER: ${POSTGRES_MAIN_USER}
       DB_PASSWORD: ${POSTGRES_MAIN_PASSWORD}
       DB_NAME: ${POSTGRES_MAIN_DB}
+      # CORS Configuration
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
       CORS_ALLOWED_METHODS: GET,POST,PUT,PATCH,DELETE,OPTIONS
       CORS_ALLOWED_HEADERS: Authorization,Content-Type,X-Session-Token
       CORS_EXPOSED_HEADERS: Content-Type
       CORS_ALLOW_CREDENTIALS: true
       CORS_MAX_AGE: 3600
+      # Admin User Seeding (set SEED_ADMIN=true to enable)
       SEED_ADMIN: true
       ADMIN_EMAIL: ${SEED_ADMIN_EMAIL}
       ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD}
+      # Kratos Configuration
       KRATOS_PUBLIC_URL: http://cc-kratos:4433
       KRATOS_ADMIN_URL: http://cc-kratos:4434
+      # Storage Configuration
       STORAGE_ENDPOINT: http://cc-garage:3900
       STORAGE_ACCESS_KEY: ${GARAGE_ACCESS_KEY}
       STORAGE_SECRET_KEY: ${GARAGE_SECRET_KEY}
