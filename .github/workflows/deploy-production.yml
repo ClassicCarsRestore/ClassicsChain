@@ -10,7 +10,7 @@ on:
       - '.github/workflows/deploy-production.yml'
 
 env:
-  DEPLOY_DIR: c
+  DEPLOY_DIR: /opt/classicschain
 
 jobs:
   deploy:
