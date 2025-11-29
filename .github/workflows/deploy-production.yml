@@ -245,6 +245,7 @@ jobs:
 
           # Transfer docker-compose.yml
           scp -i ~/.ssh/deploy_key deployment/production/docker-compose.yml "$SSH_USER@$SSH_HOST:$DEPLOY_DIR/"
+          scp -i ~/.ssh/deploy_key deployment/production/configs/Dockerfile.caddy "$SSH_USER@$SSH_HOST:$DEPLOY_DIR/"
 
           # Transfer rendered configs
           scp -i ~/.ssh/deploy_key deployment/production/configs/Caddyfile "$SSH_USER@$SSH_HOST:$DEPLOY_DIR/configs/"
