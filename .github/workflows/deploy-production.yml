@@ -91,6 +91,7 @@ jobs:
 
           # Caddy
           ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
           # Basic Auth
           BASIC_AUTH_USER: ${{ secrets.BASIC_AUTH_USER }}

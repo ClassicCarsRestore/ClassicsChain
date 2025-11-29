@@ -195,7 +195,7 @@ services:
       ALGORAND_ALGOD_URL: ${ALGORAND_ALGOD_URL}
       ALGORAND_INDEXER_URL: ${ALGORAND_INDEXER_URL}
       ALGORAND_WALLET_MNEMONIC: ${ALGORAND_WALLET_MNEMONIC}
-      ALGORAND_NETWORK: ${ALGORAND_NETWORK}testnet
+      ALGORAND_NETWORK: ${ALGORAND_NETWORK}
     depends_on:
       backend-migrate:
         condition: service_completed_successfully
