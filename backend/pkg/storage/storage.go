@@ -3,6 +3,8 @@ package storage
 import (
 	"context"
 	"fmt"
+	"net/url"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -27,25 +29,33 @@ type Presigner interface {
 
 // GarageStorage implements the Storage interface using Garage (S3-compatible)
 type GarageStorage struct {
-	client    DocumentOps
-	presigner Presigner
+	client           DocumentOps
+	presigner        Presigner
+	publicEndpointURL string
 }
 
 type Config struct {
-	Endpoint      string
-	AccessKey     string
-	SecretKey     string
-	UseSSL        bool
-	PublicBuckets []string
+	Endpoint       string
+	PublicEndpoint string
+	AccessKey      string
+	SecretKey      string
+	UseSSL         bool
+	PublicBuckets  []string
 }
 
 // New creates a new Garage storage client
 func New(cfg Config) (*GarageStorage, error) {
-	scheme := "http"
-	if cfg.UseSSL {
-		scheme = "https"
+	// Build internal endpoint for backend to connect to
+	var endpoint string
+	if strings.HasPrefix(cfg.Endpoint, "http://") || strings.HasPrefix(cfg.Endpoint, "https://") {
+		endpoint = cfg.Endpoint
+	} else {
+		scheme := "http"
+		if cfg.UseSSL {
+			scheme = "https"
+		}
+		endpoint = fmt.Sprintf("%s://%s", scheme, cfg.Endpoint)
 	}
-	endpoint := fmt.Sprintf("%s://%s", scheme, cfg.Endpoint)
 
 	credentialsProvider := credentials.NewStaticCredentialsProvider(
 		cfg.AccessKey,
@@ -60,9 +70,16 @@ func New(cfg Config) (*GarageStorage, error) {
 		UsePathStyle: true,
 	})
 
+	// Use public endpoint for presigned URLs if specified, otherwise fall back to internal endpoint
+	publicEndpointURL := cfg.PublicEndpoint
+	if publicEndpointURL == "" {
+		publicEndpointURL = endpoint
+	}
+
 	gs := &GarageStorage{
-		client:    client,
-		presigner: s3.NewPresignClient(client),
+		client:            client,
+		presigner:         s3.NewPresignClient(client),
+		publicEndpointURL: publicEndpointURL,
 	}
 
 	return gs, nil
@@ -85,7 +102,22 @@ func (s *GarageStorage) GeneratePresignedUploadURL(ctx context.Context, vehicleI
 		return "", "", err
 	}
 
-	return objectKey, presignRequest.URL, nil
+	// Replace internal endpoint with public endpoint in the presigned URL
+	presignedURL := presignRequest.URL
+	if s.publicEndpointURL != "" {
+		parsedURL, err := url.Parse(presignedURL)
+		if err == nil {
+			publicURL, err := url.Parse(s.publicEndpointURL)
+			if err == nil {
+				// Reconstruct URL with public endpoint
+				parsedURL.Scheme = publicURL.Scheme
+				parsedURL.Host = publicURL.Host
+				presignedURL = parsedURL.String()
+			}
+		}
+	}
+
+	return objectKey, presignedURL, nil
 }
 
 // DeleteObject deletes an object from storage

@@ -188,6 +188,7 @@ services:
       KRATOS_ADMIN_URL: http://cc-kratos:4434
       # Storage Configuration
       STORAGE_ENDPOINT: http://cc-garage:3900
+      STORAGE_PUBLIC_ENDPOINT: https://uploads.classicschain.com
       STORAGE_ACCESS_KEY: ${GARAGE_ACCESS_KEY}
       STORAGE_SECRET_KEY: ${GARAGE_SECRET_KEY}
       # Algorand

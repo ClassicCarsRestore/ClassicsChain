@@ -53,10 +53,11 @@ type Config struct {
 		Network    string `envconfig:"ALGORAND_NETWORK" default:"testnet"`
 	}
 	Storage struct {
-		Endpoint  string `envconfig:"STORAGE_ENDPOINT" default:"localhost:9000"`
-		AccessKey string `envconfig:"STORAGE_ACCESS_KEY" default:"garageuser"`
-		SecretKey string `envconfig:"STORAGE_SECRET_KEY" default:"garagepassword"`
-		UseSSL    bool   `envconfig:"STORAGE_USE_SSL" default:"false"`
+		Endpoint       string `envconfig:"STORAGE_ENDPOINT" default:"localhost:9000"`
+		PublicEndpoint string `envconfig:"STORAGE_PUBLIC_ENDPOINT"`
+		AccessKey      string `envconfig:"STORAGE_ACCESS_KEY" default:"garageuser"`
+		SecretKey      string `envconfig:"STORAGE_SECRET_KEY" default:"garagepassword"`
+		UseSSL         bool   `envconfig:"STORAGE_USE_SSL" default:"false"`
 	}
 	HTTP struct {
 		Port           int `envconfig:"HTTP_PORT" default:"8080"`
@@ -145,11 +146,12 @@ func main() {
 
 	// Initialize storage backend
 	photoStorage, err := storage.New(storage.Config{
-		Endpoint:      cfg.Storage.Endpoint,
-		AccessKey:     cfg.Storage.AccessKey,
-		SecretKey:     cfg.Storage.SecretKey,
-		UseSSL:        cfg.Storage.UseSSL,
-		PublicBuckets: []string{storage.VehiclesBucket},
+		Endpoint:       cfg.Storage.Endpoint,
+		PublicEndpoint: cfg.Storage.PublicEndpoint,
+		AccessKey:      cfg.Storage.AccessKey,
+		SecretKey:      cfg.Storage.SecretKey,
+		UseSSL:         cfg.Storage.UseSSL,
+		PublicBuckets:  []string{storage.VehiclesBucket},
 	})
 	if err != nil {
 		log.Fatalf("Failed to initialize Garage storage: %v", err)

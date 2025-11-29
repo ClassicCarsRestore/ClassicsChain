@@ -80,7 +80,8 @@ jobs:
           ADMIN_DOMAIN: ${{ secrets.ADMIN_DOMAIN }}
           API_DOMAIN: ${{ secrets.API_DOMAIN }}
           AUTH_DOMAIN: ${{ secrets.AUTH_DOMAIN }}
-          STORAGE_DOMAIN: ${{ secrets.STORAGE_DOMAIN }}
+          UPLOADS_DOMAIN: ${{ secrets.UPLOADS_DOMAIN }}
+          MEDIA_DOMAIN: ${{ secrets.MEDIA_DOMAIN }}
           WEB_APP_URL: ${{ secrets.WEB_APP_URL }}
           ADMIN_APP_URL: ${{ secrets.ADMIN_APP_URL }}
 
@@ -161,7 +162,8 @@ jobs:
           ADMIN_DOMAIN: ${{ secrets.ADMIN_DOMAIN }}
           API_DOMAIN: ${{ secrets.API_DOMAIN }}
           AUTH_DOMAIN: ${{ secrets.AUTH_DOMAIN }}
-          STORAGE_DOMAIN: ${{ secrets.STORAGE_DOMAIN }}
+          UPLOADS_DOMAIN: ${{ secrets.UPLOADS_DOMAIN }}
+          MEDIA_DOMAIN: ${{ secrets.MEDIA_DOMAIN }}
           WEB_APP_URL: ${{ secrets.WEB_APP_URL }}
           ADMIN_APP_URL: ${{ secrets.ADMIN_APP_URL }}
           WEB_APP_PATH: ${{ secrets.WEB_APP_PATH }}
@@ -212,7 +214,8 @@ jobs:
           ADMIN_DOMAIN=${ADMIN_DOMAIN}
           API_DOMAIN=${API_DOMAIN}
           AUTH_DOMAIN=${AUTH_DOMAIN}
-          STORAGE_DOMAIN=${STORAGE_DOMAIN}
+          MEDIA_DOMAIN=${MEDIA_DOMAIN}
+          UPLOADS_DOMAIN=${UPLOADS_DOMAIN}
           WEB_APP_URL=${WEB_APP_URL}
           ADMIN_APP_URL=${ADMIN_APP_URL}
           WEB_APP_PATH=${WEB_APP_PATH}
