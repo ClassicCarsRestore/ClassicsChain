@@ -215,7 +215,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.caddy
-    image: cc-caddy:cloudflare
     container_name: cc-caddy
     restart: unless-stopped
     environment:
