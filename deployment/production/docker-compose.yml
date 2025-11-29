@@ -215,6 +215,8 @@ services:
     image: caddy:latest
     container_name: cc-caddy
     restart: unless-stopped
+    environment:
+      CLOUDFLARE_API_TOKEN: ${CLOUDFLARE_API_TOKEN}
     ports:
       - "80:80"
       - "443:443"
