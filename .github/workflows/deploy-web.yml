@@ -34,7 +34,7 @@ jobs:
           VITE_API_BASE_URL=https://api.classicschain.com
           VITE_KRATOS_URL=https://auth.classicschain.com
           VITE_ADMIN_URL=https://admin.classicschain.com
-          VITE_STORAGE_BASE_URL=https://media.classicschain.com
+          VITE_STORAGE_BASE_URL=https://vehicles.classicschain.com
           EOF
 
       - name: Build
