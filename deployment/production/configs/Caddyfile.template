@@ -51,9 +51,6 @@ ${UPLOADS_DOMAIN} {
     }
 
     handle @s3_operations {
-        forward_auth cc-kratos:4433 {
-            uri /sessions/whoami
-        }
         header Access-Control-Allow-Methods "PUT, OPTIONS"
         header Access-Control-Allow-Headers "*"
         header Access-Control-Expose-Headers "ETag, Content-Type, Content-Length"
