@@ -3,7 +3,6 @@ package storage
 import (
 	"context"
 	"fmt"
-	"net/url"
 	"strings"
 	"time"
 
@@ -29,9 +28,8 @@ type Presigner interface {
 
 // GarageStorage implements the Storage interface using Garage (S3-compatible)
 type GarageStorage struct {
-	client           DocumentOps
-	presigner        Presigner
-	publicEndpointURL string
+	client    DocumentOps
+	presigner Presigner
 }
 
 type Config struct {
@@ -70,16 +68,26 @@ func New(cfg Config) (*GarageStorage, error) {
 		UsePathStyle: true,
 	})
 
-	// Use public endpoint for presigned URLs if specified, otherwise fall back to internal endpoint
-	publicEndpointURL := cfg.PublicEndpoint
-	if publicEndpointURL == "" {
-		publicEndpointURL = endpoint
+	// For presigned URLs, we need to use the public endpoint (if specified) to generate
+	// signatures with the correct host. The signature includes the hostname, so we must
+	// generate with the same host that will receive the request.
+	var presignEndpoint string
+	if cfg.PublicEndpoint != "" {
+		presignEndpoint = cfg.PublicEndpoint
+	} else {
+		presignEndpoint = endpoint
 	}
 
+	presignClient := s3.New(s3.Options{
+		Credentials:  credentialsProvider,
+		BaseEndpoint: &presignEndpoint,
+		Region:       "garage",
+		UsePathStyle: true,
+	})
+
 	gs := &GarageStorage{
-		client:            client,
-		presigner:         s3.NewPresignClient(client),
-		publicEndpointURL: publicEndpointURL,
+		client:    client,
+		presigner: s3.NewPresignClient(presignClient),
 	}
 
 	return gs, nil
@@ -102,22 +110,7 @@ func (s *GarageStorage) GeneratePresignedUploadURL(ctx context.Context, vehicleI
 		return "", "", err
 	}
 
-	// Replace internal endpoint with public endpoint in the presigned URL
-	presignedURL := presignRequest.URL
-	if s.publicEndpointURL != "" {
-		parsedURL, err := url.Parse(presignedURL)
-		if err == nil {
-			publicURL, err := url.Parse(s.publicEndpointURL)
-			if err == nil {
-				// Reconstruct URL with public endpoint
-				parsedURL.Scheme = publicURL.Scheme
-				parsedURL.Host = publicURL.Host
-				presignedURL = parsedURL.String()
-			}
-		}
-	}
-
-	return objectKey, presignedURL, nil
+	return objectKey, presignRequest.URL, nil
 }
 
 // DeleteObject deletes an object from storage
