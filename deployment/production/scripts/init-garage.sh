@@ -21,7 +21,4 @@ garage_cli bucket create "${GARAGE_BUCKET}" || echo "Bucket already exists"
 garage_cli bucket allow --read --write "${GARAGE_BUCKET}" --key "${GARAGE_ACCESS_KEY}"
 garage_cli bucket website --allow "${GARAGE_BUCKET}"
 
-echo "Configuring Garage CORS..."
-bash "${DEPLOY_DIR}/scripts/configure-garage-cors.sh"
-
 echo "Garage initialization complete!"
