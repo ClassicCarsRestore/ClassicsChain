@@ -42,6 +42,7 @@ export function useUploadDocument(vehicleId: string) {
       const uploadFileResponse = await fetch(response.uploadUrl, {
         method: 'PUT',
         body: file,
+        credentials: 'include',
         headers: {
           'Content-Type': file.type,
         },
