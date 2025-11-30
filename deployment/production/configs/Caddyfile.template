@@ -42,16 +42,37 @@ ${UPLOADS_DOMAIN} {
         method PUT
     }
 
+    @allowed_origin_main {
+        header Origin https://classicschain.com
+    }
+
+    @allowed_origin_admin {
+        header Origin https://admin.classicschain.com
+    }
+
     handle @s3_operations {
         forward_auth cc-kratos:4433 {
             uri /sessions/whoami
             copy_headers Cookie>ory_kratos_session
         }
-        header Access-Control-Allow-Origin "https://classicschain.com https://admin.classicschain.com"
         header Access-Control-Allow-Methods "PUT, OPTIONS"
         header Access-Control-Allow-Headers "*"
         header Access-Control-Expose-Headers "ETag, Content-Type, Content-Length"
-        reverse_proxy cc-garage:3900
+        header Access-Control-Allow-Credentials "true"
+
+        handle @allowed_origin_main {
+            header Access-Control-Allow-Origin "https://classicschain.com"
+            reverse_proxy cc-garage:3900
+        }
+
+        handle @allowed_origin_admin {
+            header Access-Control-Allow-Origin "https://admin.classicschain.com"
+            reverse_proxy cc-garage:3900
+        }
+
+        handle {
+            reverse_proxy cc-garage:3900
+        }
     }
 
     @options {
@@ -59,10 +80,23 @@ ${UPLOADS_DOMAIN} {
     }
 
     handle @options {
-        header Access-Control-Allow-Origin "https://classicschain.com https://admin.classicschain.com"
         header Access-Control-Allow-Methods "PUT, OPTIONS"
         header Access-Control-Allow-Headers "*"
-        respond 204
+        header Access-Control-Allow-Credentials "true"
+
+        handle @allowed_origin_main {
+            header Access-Control-Allow-Origin "https://classicschain.com"
+            respond 204
+        }
+
+        handle @allowed_origin_admin {
+            header Access-Control-Allow-Origin "https://admin.classicschain.com"
+            respond 204
+        }
+
+        handle {
+            respond 204
+        }
     }
 
     handle {
@@ -78,15 +112,36 @@ ${UPLOADS_DOMAIN} {
         method GET
     }
 
+    @allowed_origin_main {
+        header Origin https://classicschain.com
+    }
+
+    @allowed_origin_admin {
+        header Origin https://admin.classicschain.com
+    }
+
     handle @get_requests {
         forward_auth cc-kratos:4433 {
             uri /sessions/whoami
             copy_headers Cookie>ory_kratos_session
         }
-        header Access-Control-Allow-Origin "https://classicschain.com https://admin.classicschain.com"
         header Access-Control-Allow-Methods "GET, OPTIONS"
         header Cache-Control "public, max-age=31536000, immutable"
-        reverse_proxy cc-garage:3902
+        header Access-Control-Allow-Credentials "true"
+
+        handle @allowed_origin_main {
+            header Access-Control-Allow-Origin "https://classicschain.com"
+            reverse_proxy cc-garage:3902
+        }
+
+        handle @allowed_origin_admin {
+            header Access-Control-Allow-Origin "https://admin.classicschain.com"
+            reverse_proxy cc-garage:3902
+        }
+
+        handle {
+            reverse_proxy cc-garage:3902
+        }
     }
 
     @options {
@@ -94,9 +149,22 @@ ${UPLOADS_DOMAIN} {
     }
 
     handle @options {
-        header Access-Control-Allow-Origin "https://classicschain.com https://admin.classicschain.com"
         header Access-Control-Allow-Methods "GET, OPTIONS"
-        respond 204
+        header Access-Control-Allow-Credentials "true"
+
+        handle @allowed_origin_main {
+            header Access-Control-Allow-Origin "https://classicschain.com"
+            respond 204
+        }
+
+        handle @allowed_origin_admin {
+            header Access-Control-Allow-Origin "https://admin.classicschain.com"
+            respond 204
+        }
+
+        handle {
+            respond 204
+        }
     }
 
     handle {
