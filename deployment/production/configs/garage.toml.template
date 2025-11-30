@@ -15,7 +15,7 @@ root_domain = "uploads.classicschain.com"
 
 [s3_web]
 bind_addr = "[::]:3902"
-root_domain = "media.classicschain.com"
+root_domain = "classicschain.com"
 index = "index.html"
 
 [k2v_api]
