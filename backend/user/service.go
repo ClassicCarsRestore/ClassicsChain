@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 
 	"github.com/google/uuid"
 	"github.com/s1moe2/classics-chain/pkg/kratos"
+	"github.com/s1moe2/classics-chain/user_invitation"
 )
 
 // Repository defines the data access interface for users
@@ -25,7 +25,6 @@ type KratosClient interface {
 	GetUser(ctx context.Context, userID string) (*kratos.UserIdentity, error)
 	CreateUser(ctx context.Context, params kratos.CreateUserParams) (*kratos.UserIdentity, error)
 	UpdateUser(ctx context.Context, userID string, params kratos.UpdateUserParams) (*kratos.UserIdentity, error)
-	TriggerRecoveryForUser(ctx context.Context, email string) error
 }
 
 // InvitationService defines the interface for invitation operations
@@ -38,12 +37,18 @@ type VehicleService interface {
 	GetByID(ctx context.Context, id uuid.UUID) (interface{}, error)
 }
 
+// UserInvitationService defines the interface for user invitation operations
+type UserInvitationService interface {
+	CreateAdminInvitation(ctx context.Context, params user_invitation.CreateAdminInvitationParams) (*user_invitation.UserInvitation, error)
+}
+
 // Service handles business logic for user management
 type Service struct {
-	repo              Repository
-	kratos            KratosClient
-	invitationService InvitationService
-	vehicleService    VehicleService
+	repo                  Repository
+	kratos                KratosClient
+	invitationService     InvitationService
+	vehicleService        VehicleService
+	userInvitationService UserInvitationService
 }
 
 // NewService creates a new user service
@@ -62,13 +67,19 @@ func NewServiceWithKratos(repo Repository, kratos KratosClient) *Service {
 }
 
 // NewServiceWithDependencies creates a new user service with all dependencies
-func NewServiceWithDependencies(repo Repository, kratos KratosClient, invitationService InvitationService, vehicleService VehicleService) *Service {
+func NewServiceWithDependencies(repo Repository, kratos KratosClient, invitationService InvitationService, vehicleService VehicleService, userInvitationService UserInvitationService) *Service {
 	return &Service{
-		repo:              repo,
-		kratos:            kratos,
-		invitationService: invitationService,
-		vehicleService:    vehicleService,
+		repo:                  repo,
+		kratos:                kratos,
+		invitationService:     invitationService,
+		vehicleService:        vehicleService,
+		userInvitationService: userInvitationService,
 	}
+}
+
+// SetUserInvitationService sets the user invitation service dependency
+func (s *Service) SetUserInvitationService(userInvitationService UserInvitationService) {
+	s.userInvitationService = userInvitationService
 }
 
 // GetByID retrieves a user by ID
@@ -199,39 +210,23 @@ func (s *Service) ListAdminUsers(ctx context.Context, limit, offset int) ([]Admi
 	return adminUsers, total, nil
 }
 
-// CreateAdminUserWithIdentity creates a new admin user in both Kratos and database
-func (s *Service) CreateAdminUserWithIdentity(ctx context.Context, email string, name *string) (*AdminUserWithTraits, error) {
-	if s.kratos == nil {
-		return nil, fmt.Errorf("kratos client not configured")
+// CreateAdminInvitation creates an invitation for a new admin user
+func (s *Service) CreateAdminInvitation(ctx context.Context, email string, name *string) error {
+	if s.userInvitationService == nil {
+		return fmt.Errorf("user invitation service not configured")
 	}
 
-	user, err := s.kratos.CreateUser(ctx, kratos.CreateUserParams{
-		Email:   email,
-		Name:    name,
-		IsAdmin: true,
-	})
+	params := user_invitation.CreateAdminInvitationParams{
+		Email: email,
+		Name:  name,
+	}
+
+	_, err := s.userInvitationService.CreateAdminInvitation(ctx, params)
 	if err != nil {
-		return nil, fmt.Errorf("create user in kratos: %w", err)
+		return fmt.Errorf("create admin invitation: %w", err)
 	}
 
-	dbUser, err := s.CreateAdmin(ctx, user.ID)
-	if err != nil {
-		return nil, fmt.Errorf("create admin user in database: %w", err)
-	}
-
-	err = s.kratos.TriggerRecoveryForUser(ctx, email)
-	if err != nil {
-		// Log the error but don't fail - user can request recovery manually
-		log.Printf("Failed to trigger recovery flow for user %s: %v", user.ID, err)
-	}
-
-	result := &AdminUserWithTraits{
-		ID:    dbUser.ID,
-		Email: user.Email,
-		Name:  user.Name,
-	}
-
-	return result, nil
+	return nil
 }
 
 // GetAdminUserWithTraits retrieves an admin user with data from both database and Kratos

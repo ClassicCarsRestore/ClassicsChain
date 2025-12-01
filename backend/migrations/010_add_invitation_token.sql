@@ -4,3 +4,9 @@ ALTER TABLE vehicle_invitations ADD COLUMN token_expires_at TIMESTAMP;
 
 -- Create index for token lookups
 CREATE INDEX idx_invitations_token ON vehicle_invitations(token) WHERE token IS NOT NULL;
+
+---- create above / drop below ----
+
+-- Remove token columns from vehicle_invitations
+ALTER TABLE vehicle_invitations DROP COLUMN IF EXISTS token;
+ALTER TABLE vehicle_invitations DROP COLUMN IF EXISTS token_expires_at;

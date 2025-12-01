@@ -18,12 +18,14 @@ import (
 	"github.com/s1moe2/classics-chain/pkg/http"
 	"github.com/s1moe2/classics-chain/pkg/hydra"
 	"github.com/s1moe2/classics-chain/pkg/kratos"
+	"github.com/s1moe2/classics-chain/pkg/mailer"
 	"github.com/s1moe2/classics-chain/pkg/postgres"
 	"github.com/s1moe2/classics-chain/pkg/postgres/db"
 	"github.com/s1moe2/classics-chain/pkg/seed"
 	"github.com/s1moe2/classics-chain/pkg/storage"
 	"github.com/s1moe2/classics-chain/repository"
 	"github.com/s1moe2/classics-chain/user"
+	"github.com/s1moe2/classics-chain/user_invitation"
 	"github.com/s1moe2/classics-chain/vehicles"
 	"github.com/s1moe2/classics-chain/vehicleshare"
 )
@@ -78,6 +80,12 @@ type Config struct {
 		Enabled       bool   `envconfig:"SEED_ADMIN" default:"false"`
 		AdminEmail    string `envconfig:"ADMIN_EMAIL"`
 		AdminPassword string `envconfig:"ADMIN_PASSWORD"`
+	}
+	Mailer struct {
+		ResendAPIKey string `envconfig:"RESEND_API_KEY" required:"true"`
+		FromEmail    string `envconfig:"MAILER_FROM_EMAIL" default:"noreply@classicschain.com"`
+		FromName     string `envconfig:"MAILER_FROM_NAME" default:"Classics Chain"`
+		BaseURL      string `envconfig:"MAILER_BASE_URL" default:"http://localhost:5173"`
 	}
 }
 
@@ -175,16 +183,35 @@ func main() {
 		log.Fatalf("Algorand client is offline")
 	}
 
+	// Initialize mailer
+	mailerClient := mailer.New(mailer.Config{
+		APIKey:    cfg.Mailer.ResendAPIKey,
+		FromEmail: cfg.Mailer.FromEmail,
+		FromName:  cfg.Mailer.FromName,
+		BaseURL:   cfg.Mailer.BaseURL,
+	})
+
+	// Initialize repositories
+	userInvitationRepo := repository.NewUserInvitationRepository(querier)
+
 	// Initialize services
 	anchorerService := anchorer.New(algorandClient, vehicleRepo, eventRepo)
-	userService := user.NewServiceWithKratos(userRepo, kratosClient)
-	entityService := entity.New(entityRepo, userRepo, kratosClient, userService, hydraClient)
 	eventService := event.NewService(eventRepo, anchorerService)
 	vehicleService := vehicles.NewService(vehicleRepo, anchorerService)
 	photoService := photos.NewService(photoRepo, photoStorage)
 	documentService := documents.NewService(documentRepo, photoStorage)
 	shareLinksService := vehicleshare.NewService(shareLinkRepo)
 	invitationService := invitation.NewService(invitationRepo, vehicleService)
+
+	// User invitation service
+	userInvitationService := user_invitation.NewService(userInvitationRepo, mailerClient)
+
+	// User service with dependencies
+	userService := user.NewServiceWithKratos(userRepo, kratosClient)
+	userService.SetUserInvitationService(userInvitationService)
+
+	// Entity service with user invitation service
+	entityService := entity.New(entityRepo, userRepo, kratosClient, userService, hydraClient, userInvitationService)
 
 	// Initialize Casbin enforcer
 	enforcer, err := casbin.NewEnforcer("casbin_model.conf", "casbin_policy.csv")
@@ -216,7 +243,7 @@ func main() {
 		},
 	}
 
-	server := http.New(httpCfg, entityService, eventService, vehicleService, photoService, documentService, shareLinksService, userService, invitationService, kratosClient, authMiddleware, authorizer)
+	server := http.New(httpCfg, entityService, eventService, vehicleService, photoService, documentService, shareLinksService, userService, invitationService, userInvitationService, kratosClient, authMiddleware, authorizer)
 
 	log.Printf("Starting HTTP server on port %d", httpCfg.Port)
 	if err := server.ListenAndServe(); err != nil {

@@ -15,6 +15,7 @@ type Querier interface {
 	CheckUserEntityMembership(ctx context.Context, arg CheckUserEntityMembershipParams) (bool, error)
 	ClaimInvitation(ctx context.Context, id uuid.UUID) (ClaimInvitationRow, error)
 	ClaimInvitationsByEmail(ctx context.Context, email string) error
+	ClaimUserInvitation(ctx context.Context, token string) error
 	ClaimVehicle(ctx context.Context, arg ClaimVehicleParams) (Vehicle, error)
 	ConfirmDocumentUpload(ctx context.Context, id uuid.UUID) (VehicleDocument, error)
 	ConfirmPhotoUpload(ctx context.Context, id uuid.UUID) (VehiclePhoto, error)
@@ -31,6 +32,7 @@ type Querier interface {
 	CreatePhoto(ctx context.Context, arg CreatePhotoParams) (VehiclePhoto, error)
 	CreateShareLink(ctx context.Context, arg CreateShareLinkParams) (VehicleShareLink, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	CreateUserInvitation(ctx context.Context, arg CreateUserInvitationParams) (UserInvitation, error)
 	CreateVehicle(ctx context.Context, arg CreateVehicleParams) (Vehicle, error)
 	DeleteDocument(ctx context.Context, id uuid.UUID) error
 	DeleteEntity(ctx context.Context, id uuid.UUID) error
@@ -39,6 +41,7 @@ type Querier interface {
 	DeleteInvitation(ctx context.Context, id uuid.UUID) error
 	DeletePhoto(ctx context.Context, id uuid.UUID) error
 	DeleteUser(ctx context.Context, id uuid.UUID) error
+	DeleteUserInvitation(ctx context.Context, id uuid.UUID) error
 	DeleteVehicle(ctx context.Context, id uuid.UUID) error
 	GetAllPendingInvitations(ctx context.Context) ([]GetAllPendingInvitationsRow, error)
 	GetDocument(ctx context.Context, id uuid.UUID) (VehicleDocument, error)
@@ -50,6 +53,7 @@ type Querier interface {
 	GetInvitationByToken(ctx context.Context, token *string) (GetInvitationByTokenRow, error)
 	GetInvitationsByEmailAndVehicle(ctx context.Context, arg GetInvitationsByEmailAndVehicleParams) ([]GetInvitationsByEmailAndVehicleRow, error)
 	GetPendingInvitationsByEmail(ctx context.Context, email string) ([]GetPendingInvitationsByEmailRow, error)
+	GetPendingUserInvitationsByEmail(ctx context.Context, email string) ([]UserInvitation, error)
 	GetPhoto(ctx context.Context, id uuid.UUID) (VehiclePhoto, error)
 	GetPhotoByKey(ctx context.Context, arg GetPhotoByKeyParams) (VehiclePhoto, error)
 	GetShareLinkByID(ctx context.Context, id uuid.UUID) (VehicleShareLink, error)
@@ -57,6 +61,8 @@ type Querier interface {
 	GetUserByID(ctx context.Context, id uuid.UUID) (User, error)
 	GetUserEntityMemberships(ctx context.Context, userID uuid.UUID) ([]GetUserEntityMembershipsRow, error)
 	GetUserEntityRole(ctx context.Context, arg GetUserEntityRoleParams) (string, error)
+	GetUserInvitationByID(ctx context.Context, id uuid.UUID) (UserInvitation, error)
+	GetUserInvitationByToken(ctx context.Context, token string) (UserInvitation, error)
 	GetVehicle(ctx context.Context, id uuid.UUID) (Vehicle, error)
 	GetVehicleByChassisNumber(ctx context.Context, chassisNumber string) (Vehicle, error)
 	GetVehicleByLicensePlate(ctx context.Context, licensePlate string) (Vehicle, error)

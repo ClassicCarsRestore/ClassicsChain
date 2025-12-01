@@ -55,6 +55,19 @@ type UserEntity struct {
 	AddedAt  time.Time
 }
 
+type UserInvitation struct {
+	ID             uuid.UUID
+	Email          string
+	Name           *string
+	Token          string
+	TokenExpiresAt pgtype.Timestamp
+	EntityID       *uuid.UUID
+	InvitationType string
+	EntityRole     *string
+	InvitedAt      pgtype.Timestamp
+	ClaimedAt      pgtype.Timestamp
+}
+
 type Vehicle struct {
 	ID                 uuid.UUID
 	OwnerID            *uuid.UUID

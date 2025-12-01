@@ -3,10 +3,14 @@ package http
 import (
 	"context"
 	"errors"
+	"fmt"
 
+	"github.com/google/uuid"
 	openapi_types "github.com/oapi-codegen/runtime/types"
 	"github.com/s1moe2/classics-chain/auth"
 	"github.com/s1moe2/classics-chain/invitation"
+	"github.com/s1moe2/classics-chain/pkg/kratos"
+	"github.com/s1moe2/classics-chain/user_invitation"
 )
 
 func (a apiServer) ValidateInvitation(ctx context.Context, request ValidateInvitationRequestObject) (ValidateInvitationResponseObject, error) {
@@ -147,5 +151,110 @@ func (a apiServer) ClaimInvitations(ctx context.Context, _ ClaimInvitationsReque
 	return ClaimInvitations200JSONResponse{
 		ClaimedVehicles: claimedVehicles,
 		Count:           len(claimedVehicles),
+	}, nil
+}
+
+func (a apiServer) GetAdminInvitation(ctx context.Context, request GetAdminInvitationRequestObject) (GetAdminInvitationResponseObject, error) {
+	invitation, err := a.userInvitationService.ValidateInvitationToken(ctx, request.Token)
+	if err != nil {
+		if errors.Is(err, user_invitation.ErrInvitationNotFound) || errors.Is(err, user_invitation.ErrInvitationExpired) {
+			return GetAdminInvitation404JSONResponse{
+				NotFoundJSONResponse: NotFoundJSONResponse{
+					Error: "Invalid or expired invitation token",
+				},
+			}, nil
+		}
+		if errors.Is(err, user_invitation.ErrInvitationClaimed) {
+			return GetAdminInvitation409JSONResponse{
+				Code:  "already_claimed",
+				Error: "This invitation has already been claimed",
+			}, nil
+		}
+		return nil, err
+	}
+
+	response := AdminInvitationResponse{
+		Email:          openapi_types.Email(invitation.Email),
+		InvitationType: AdminInvitationResponseInvitationType(invitation.InvitationType),
+	}
+
+	if invitation.Name != nil {
+		response.Name = invitation.Name
+	}
+
+	if invitation.EntityID != nil && invitation.EntityRole != nil {
+		entity, err := a.entityService.GetByID(ctx, *invitation.EntityID)
+		if err == nil {
+			response.EntityName = &entity.Name
+			response.Role = invitation.EntityRole
+		}
+	}
+
+	return GetAdminInvitation200JSONResponse(response), nil
+}
+
+func (a apiServer) ClaimAdminInvitation(ctx context.Context, request ClaimAdminInvitationRequestObject) (ClaimAdminInvitationResponseObject, error) {
+	if request.Body == nil {
+		return nil, fmt.Errorf("request body is required")
+	}
+
+	inv, err := a.userInvitationService.ValidateInvitationToken(ctx, request.Token)
+	if err != nil {
+		if errors.Is(err, user_invitation.ErrInvitationNotFound) || errors.Is(err, user_invitation.ErrInvitationExpired) {
+			return ClaimAdminInvitation404JSONResponse{
+				NotFoundJSONResponse: NotFoundJSONResponse{
+					Error: "Invalid or expired invitation token",
+				},
+			}, nil
+		}
+		if errors.Is(err, user_invitation.ErrInvitationClaimed) {
+			return ClaimAdminInvitation409JSONResponse{
+				Code:  "already_claimed",
+				Error: "This invitation has already been claimed",
+			}, nil
+		}
+		return nil, err
+	}
+
+	email := string(request.Body.Email)
+	password := request.Body.Password
+
+	kratosUser, err := a.kratosClient.CreateUser(ctx, kratos.CreateUserParams{
+		Email:    email,
+		Name:     &request.Body.Name,
+		IsAdmin:  inv.InvitationType == user_invitation.TypeAdmin,
+		Password: &password,
+	})
+	if err != nil {
+		return ClaimAdminInvitation409JSONResponse{
+			Code:  "user_creation_failed",
+			Error: "Failed to create user account. Email may already exist.",
+		}, nil
+	}
+
+	userID, err := uuid.Parse(kratosUser.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	dbUser, err := a.userService.CreateOrGetUser(ctx, kratosUser.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	if inv.InvitationType == user_invitation.TypeEntityMember && inv.EntityID != nil && inv.EntityRole != nil {
+		if err := a.entityService.AddMember(ctx, *inv.EntityID, dbUser.ID, *inv.EntityRole); err != nil {
+			return nil, err
+		}
+	}
+
+	if err := a.userInvitationService.ClaimInvitation(ctx, request.Token); err != nil {
+		return nil, err
+	}
+
+	return ClaimAdminInvitation200JSONResponse{
+		UserId:         userID,
+		Email:          openapi_types.Email(email),
+		InvitationType: ClaimAdminInvitationResponseInvitationType(inv.InvitationType),
 	}, nil
 }

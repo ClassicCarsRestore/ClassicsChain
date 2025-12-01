@@ -205,61 +205,6 @@ func (k *Client) UpdateUser(ctx context.Context, userID string, params UpdateUse
 	return k.toUserIdentity(updated), nil
 }
 
-// TriggerRecoveryForUser triggers a browser recovery flow for a user
-// This causes Kratos to automatically send a recovery email via the configured courier
-func (k *Client) TriggerRecoveryForUser(ctx context.Context, email string) error {
-	// Step 1: Create a browser recovery flow
-	flow, resp, err := k.frontend.FrontendAPI.CreateBrowserRecoveryFlow(ctx).Execute()
-	if err != nil {
-		return fmt.Errorf("create browser recovery flow: %w", err)
-	}
-
-	// Extract cookies from the response
-	cookies := resp.Header.Get("Set-Cookie")
-	resp.Body.Close()
-
-	// Step 2: Get CSRF token from the flow
-	var csrfToken string
-	for _, node := range flow.Ui.Nodes {
-		if node.Attributes.UiNodeInputAttributes != nil {
-			attrs := node.Attributes.UiNodeInputAttributes
-			if attrs.Name == "csrf_token" {
-				if value, ok := attrs.Value.(string); ok {
-					csrfToken = value
-					break
-				}
-			}
-		}
-	}
-
-	if csrfToken == "" {
-		return fmt.Errorf("csrf token not found in recovery flow")
-	}
-
-	// Step 3: Submit the email to trigger recovery email sending
-	// Use "code" method for passwordless verification via email code
-	// Include the cookies from the flow creation to pass CSRF validation
-	updateBody := kclient.UpdateRecoveryFlowBody{
-		UpdateRecoveryFlowWithCodeMethod: &kclient.UpdateRecoveryFlowWithCodeMethod{
-			Email:     kclient.PtrString(email),
-			Method:    "code",
-			CsrfToken: kclient.PtrString(csrfToken),
-		},
-	}
-
-	_, resp2, err := k.frontend.FrontendAPI.UpdateRecoveryFlow(ctx).
-		Flow(flow.Id).
-		UpdateRecoveryFlowBody(updateBody).
-		Cookie(cookies).
-		Execute()
-	if err != nil {
-		return fmt.Errorf("update recovery flow: %w", err)
-	}
-	defer resp2.Body.Close()
-
-	return nil
-}
-
 // Helper functions (Kratos-specific knowledge contained here)
 
 func (k *Client) toUserIdentity(identity *kclient.Identity) *UserIdentity {

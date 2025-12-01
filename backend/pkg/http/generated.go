@@ -28,6 +28,18 @@ const (
 	AddEntityMemberRequestRoleMember AddEntityMemberRequestRole = "member"
 )
 
+// Defines values for AdminInvitationResponseInvitationType.
+const (
+	AdminInvitationResponseInvitationTypeAdmin        AdminInvitationResponseInvitationType = "admin"
+	AdminInvitationResponseInvitationTypeEntityMember AdminInvitationResponseInvitationType = "entity_member"
+)
+
+// Defines values for ClaimAdminInvitationResponseInvitationType.
+const (
+	ClaimAdminInvitationResponseInvitationTypeAdmin        ClaimAdminInvitationResponseInvitationType = "admin"
+	ClaimAdminInvitationResponseInvitationTypeEntityMember ClaimAdminInvitationResponseInvitationType = "entity_member"
+)
+
 // Defines values for CreateShareLinkRequestDuration.
 const (
 	N1h  CreateShareLinkRequestDuration = "1h"
@@ -109,6 +121,27 @@ type Address struct {
 	Street     *string `json:"street,omitempty"`
 }
 
+// AdminInvitationResponse defines model for AdminInvitationResponse.
+type AdminInvitationResponse struct {
+	// Email The email address for the invitation
+	Email openapi_types.Email `json:"email"`
+
+	// EntityName Entity name (for entity member invitations)
+	EntityName *string `json:"entityName,omitempty"`
+
+	// InvitationType Type of invitation
+	InvitationType AdminInvitationResponseInvitationType `json:"invitationType"`
+
+	// Name The name pre-filled in the invitation
+	Name *string `json:"name,omitempty"`
+
+	// Role Role in entity (for entity member invitations)
+	Role *string `json:"role,omitempty"`
+}
+
+// AdminInvitationResponseInvitationType Type of invitation
+type AdminInvitationResponseInvitationType string
+
 // AdminUser defines model for AdminUser.
 type AdminUser struct {
 	// Email User email (from Kratos)
@@ -150,6 +183,33 @@ type BulkEventSuccess struct {
 	// VehicleId ID of the vehicle
 	VehicleId openapi_types.UUID `json:"vehicleId"`
 }
+
+// ClaimAdminInvitationRequest defines model for ClaimAdminInvitationRequest.
+type ClaimAdminInvitationRequest struct {
+	// Email User's email (can be modified from invitation)
+	Email openapi_types.Email `json:"email"`
+
+	// Name User's full name
+	Name string `json:"name"`
+
+	// Password Password for the new user account
+	Password string `json:"password"`
+}
+
+// ClaimAdminInvitationResponse defines model for ClaimAdminInvitationResponse.
+type ClaimAdminInvitationResponse struct {
+	// Email The user's email
+	Email openapi_types.Email `json:"email"`
+
+	// InvitationType Type of invitation that was claimed
+	InvitationType ClaimAdminInvitationResponseInvitationType `json:"invitationType"`
+
+	// UserId The created user's ID
+	UserId openapi_types.UUID `json:"userId"`
+}
+
+// ClaimAdminInvitationResponseInvitationType Type of invitation that was claimed
+type ClaimAdminInvitationResponseInvitationType string
 
 // ClaimInvitationsResponse defines model for ClaimInvitationsResponse.
 type ClaimInvitationsResponse struct {
@@ -875,6 +935,9 @@ type GetVehicleEventsParams struct {
 	Limit *LimitParam `form:"limit,omitempty" json:"limit,omitempty"`
 }
 
+// ClaimAdminInvitationJSONRequestBody defines body for ClaimAdminInvitation for application/json ContentType.
+type ClaimAdminInvitationJSONRequestBody = ClaimAdminInvitationRequest
+
 // CreateAdminUserJSONRequestBody defines body for CreateAdminUser for application/json ContentType.
 type CreateAdminUserJSONRequestBody = CreateAdminUserRequest
 
@@ -925,6 +988,12 @@ type CreateShareLinkJSONRequestBody = CreateShareLinkRequest
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// Get admin invitation details by token
+	// (GET /admin-invitations/{token})
+	GetAdminInvitation(w http.ResponseWriter, r *http.Request, token string)
+	// Claim admin invitation and create user account
+	// (POST /admin-invitations/{token})
+	ClaimAdminInvitation(w http.ResponseWriter, r *http.Request, token string)
 	// List admin users
 	// (GET /admin/users)
 	GetAdminUsers(w http.ResponseWriter, r *http.Request, params GetAdminUsersParams)
@@ -1070,6 +1139,56 @@ type ServerInterfaceWrapper struct {
 }
 
 type MiddlewareFunc func(http.Handler) http.Handler
+
+// GetAdminInvitation operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminInvitation(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "token" -------------
+	var token string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "token", r.PathValue("token"), &token, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "token", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetAdminInvitation(w, r, token)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ClaimAdminInvitation operation middleware
+func (siw *ServerInterfaceWrapper) ClaimAdminInvitation(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "token" -------------
+	var token string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "token", r.PathValue("token"), &token, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "token", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ClaimAdminInvitation(w, r, token)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
 
 // GetAdminUsers operation middleware
 func (siw *ServerInterfaceWrapper) GetAdminUsers(w http.ResponseWriter, r *http.Request) {
@@ -2655,6 +2774,8 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 		ErrorHandlerFunc:   options.ErrorHandlerFunc,
 	}
 
+	m.HandleFunc("GET "+options.BaseURL+"/admin-invitations/{token}", wrapper.GetAdminInvitation)
+	m.HandleFunc("POST "+options.BaseURL+"/admin-invitations/{token}", wrapper.ClaimAdminInvitation)
 	m.HandleFunc("GET "+options.BaseURL+"/admin/users", wrapper.GetAdminUsers)
 	m.HandleFunc("POST "+options.BaseURL+"/admin/users", wrapper.CreateAdminUser)
 	m.HandleFunc("DELETE "+options.BaseURL+"/admin/users/{userId}", wrapper.DeleteAdminUser)
@@ -2713,6 +2834,77 @@ type ForbiddenJSONResponse ErrorResponse
 type NotFoundJSONResponse ErrorResponse
 
 type UnauthorizedJSONResponse ErrorResponse
+
+type GetAdminInvitationRequestObject struct {
+	Token string `json:"token"`
+}
+
+type GetAdminInvitationResponseObject interface {
+	VisitGetAdminInvitationResponse(w http.ResponseWriter) error
+}
+
+type GetAdminInvitation200JSONResponse AdminInvitationResponse
+
+func (response GetAdminInvitation200JSONResponse) VisitGetAdminInvitationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetAdminInvitation404JSONResponse struct{ NotFoundJSONResponse }
+
+func (response GetAdminInvitation404JSONResponse) VisitGetAdminInvitationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetAdminInvitation409JSONResponse ErrorResponse
+
+func (response GetAdminInvitation409JSONResponse) VisitGetAdminInvitationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(409)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ClaimAdminInvitationRequestObject struct {
+	Token string `json:"token"`
+	Body  *ClaimAdminInvitationJSONRequestBody
+}
+
+type ClaimAdminInvitationResponseObject interface {
+	VisitClaimAdminInvitationResponse(w http.ResponseWriter) error
+}
+
+type ClaimAdminInvitation200JSONResponse ClaimAdminInvitationResponse
+
+func (response ClaimAdminInvitation200JSONResponse) VisitClaimAdminInvitationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ClaimAdminInvitation404JSONResponse struct{ NotFoundJSONResponse }
+
+func (response ClaimAdminInvitation404JSONResponse) VisitClaimAdminInvitationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ClaimAdminInvitation409JSONResponse ErrorResponse
+
+func (response ClaimAdminInvitation409JSONResponse) VisitClaimAdminInvitationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(409)
+
+	return json.NewEncoder(w).Encode(response)
+}
 
 type GetAdminUsersRequestObject struct {
 	Params GetAdminUsersParams
@@ -4671,6 +4863,12 @@ func (response RevokeShareLink404JSONResponse) VisitRevokeShareLinkResponse(w ht
 
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
+	// Get admin invitation details by token
+	// (GET /admin-invitations/{token})
+	GetAdminInvitation(ctx context.Context, request GetAdminInvitationRequestObject) (GetAdminInvitationResponseObject, error)
+	// Claim admin invitation and create user account
+	// (POST /admin-invitations/{token})
+	ClaimAdminInvitation(ctx context.Context, request ClaimAdminInvitationRequestObject) (ClaimAdminInvitationResponseObject, error)
 	// List admin users
 	// (GET /admin/users)
 	GetAdminUsers(ctx context.Context, request GetAdminUsersRequestObject) (GetAdminUsersResponseObject, error)
@@ -4835,6 +5033,65 @@ type strictHandler struct {
 	ssi         StrictServerInterface
 	middlewares []StrictMiddlewareFunc
 	options     StrictHTTPServerOptions
+}
+
+// GetAdminInvitation operation middleware
+func (sh *strictHandler) GetAdminInvitation(w http.ResponseWriter, r *http.Request, token string) {
+	var request GetAdminInvitationRequestObject
+
+	request.Token = token
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetAdminInvitation(ctx, request.(GetAdminInvitationRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetAdminInvitation")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetAdminInvitationResponseObject); ok {
+		if err := validResponse.VisitGetAdminInvitationResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ClaimAdminInvitation operation middleware
+func (sh *strictHandler) ClaimAdminInvitation(w http.ResponseWriter, r *http.Request, token string) {
+	var request ClaimAdminInvitationRequestObject
+
+	request.Token = token
+
+	var body ClaimAdminInvitationJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ClaimAdminInvitation(ctx, request.(ClaimAdminInvitationRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ClaimAdminInvitation")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ClaimAdminInvitationResponseObject); ok {
+		if err := validResponse.VisitClaimAdminInvitationResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
 }
 
 // GetAdminUsers operation middleware

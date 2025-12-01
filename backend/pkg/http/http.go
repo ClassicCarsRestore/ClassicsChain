@@ -19,6 +19,7 @@ import (
 	"github.com/s1moe2/classics-chain/photos"
 	"github.com/s1moe2/classics-chain/pkg/kratos"
 	"github.com/s1moe2/classics-chain/user"
+	"github.com/s1moe2/classics-chain/user_invitation"
 	"github.com/s1moe2/classics-chain/vehicles"
 	"github.com/s1moe2/classics-chain/vehicleshare"
 )
@@ -63,18 +64,19 @@ func createResponseErrorHandler() func(w http.ResponseWriter, r *http.Request, e
 }
 
 // New creates a new HTTP server with the API server as its handler.
-func New(cfg Config, entityService *entity.Service, eventService *event.Service, vehicleService *vehicles.Service, photoService *photos.Service, documentService *documents.Service, shareLinksService *vehicleshare.Service, userService *user.Service, invitationService *invitation.Service, kratosClient *kratos.Client, authMiddleware *auth.Middleware, authorizer *auth.Authorizer) *http.Server {
+func New(cfg Config, entityService *entity.Service, eventService *event.Service, vehicleService *vehicles.Service, photoService *photos.Service, documentService *documents.Service, shareLinksService *vehicleshare.Service, userService *user.Service, invitationService *invitation.Service, userInvitationService *user_invitation.Service, kratosClient *kratos.Client, authMiddleware *auth.Middleware, authorizer *auth.Authorizer) *http.Server {
 	server := &apiServer{
-		entityService:     entityService,
-		eventService:      eventService,
-		vehicleService:    vehicleService,
-		photoService:      photoService,
-		documentService:   documentService,
-		shareLinksService: shareLinksService,
-		userService:       userService,
-		invitationService: invitationService,
-		kratosClient:      kratosClient,
-		authorizer:        authorizer,
+		entityService:         entityService,
+		eventService:          eventService,
+		vehicleService:        vehicleService,
+		photoService:          photoService,
+		documentService:       documentService,
+		shareLinksService:     shareLinksService,
+		userService:           userService,
+		invitationService:     invitationService,
+		userInvitationService: userInvitationService,
+		kratosClient:          kratosClient,
+		authorizer:            authorizer,
 	}
 
 	// Create strict handler with custom error handler
@@ -94,6 +96,7 @@ func New(cfg Config, entityService *entity.Service, eventService *event.Service,
 	rootMux.Handle("/v1/public/", http.StripPrefix("/v1", LoggingMiddleware(handler)))
 	rootMux.Handle("/v1/shared/", http.StripPrefix("/v1", LoggingMiddleware(handler)))
 	rootMux.Handle("/v1/invitations/validate", http.StripPrefix("/v1", LoggingMiddleware(handler)))
+	rootMux.Handle("/v1/admin-invitations/", http.StripPrefix("/v1", LoggingMiddleware(handler)))
 
 	// Protected endpoints
 	protectedHandler := authMiddleware.Auth(LoggingMiddleware(handler))
@@ -122,14 +125,15 @@ func New(cfg Config, entityService *entity.Service, eventService *event.Service,
 
 type apiServer struct {
 	// TODO replace with interfaces
-	entityService     *entity.Service
-	eventService      *event.Service
-	vehicleService    *vehicles.Service
-	photoService      *photos.Service
-	documentService   *documents.Service
-	shareLinksService *vehicleshare.Service
-	userService       *user.Service
-	invitationService *invitation.Service
-	kratosClient      *kratos.Client
-	authorizer        *auth.Authorizer
+	entityService         *entity.Service
+	eventService          *event.Service
+	vehicleService        *vehicles.Service
+	photoService          *photos.Service
+	documentService       *documents.Service
+	shareLinksService     *vehicleshare.Service
+	userService           *user.Service
+	invitationService     *invitation.Service
+	userInvitationService *user_invitation.Service
+	kratosClient          *kratos.Client
+	authorizer            *auth.Authorizer
 }

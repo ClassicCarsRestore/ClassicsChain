@@ -96,6 +96,74 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
 
+  # Admin Invitations
+  /admin-invitations/{token}:
+    get:
+      operationId: getAdminInvitation
+      summary: Get admin invitation details by token
+      description: Validates an admin invitation token and returns invitation details
+      tags:
+        - Admin Invitations
+      security: []
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The invitation token
+      responses:
+        '200':
+          description: Valid invitation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminInvitationResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Invitation already claimed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      operationId: claimAdminInvitation
+      summary: Claim admin invitation and create user account
+      description: Claims an admin invitation by creating a Kratos identity and database user
+      tags:
+        - Admin Invitations
+      security: []
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The invitation token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClaimAdminInvitationRequest'
+      responses:
+        '200':
+          description: Invitation claimed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClaimAdminInvitationResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Invitation already claimed or email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   # Admin Users
   /admin/users:
     get:
@@ -1333,6 +1401,69 @@ components:
       required:
         - claimedVehicles
         - count
+
+    AdminInvitationResponse:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: The email address for the invitation
+        name:
+          type: string
+          description: The name pre-filled in the invitation
+        invitationType:
+          type: string
+          enum: [admin, entity_member]
+          description: Type of invitation
+        entityName:
+          type: string
+          description: Entity name (for entity member invitations)
+        role:
+          type: string
+          description: Role in entity (for entity member invitations)
+      required:
+        - email
+        - invitationType
+
+    ClaimAdminInvitationRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's email (can be modified from invitation)
+        name:
+          type: string
+          description: User's full name
+        password:
+          type: string
+          description: Password for the new user account
+          minLength: 8
+      required:
+        - email
+        - name
+        - password
+
+    ClaimAdminInvitationResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: The created user's ID
+        email:
+          type: string
+          format: email
+          description: The user's email
+        invitationType:
+          type: string
+          enum: [admin, entity_member]
+          description: Type of invitation that was claimed
+      required:
+        - userId
+        - email
+        - invitationType
 
     ErrorResponse:
       type: object

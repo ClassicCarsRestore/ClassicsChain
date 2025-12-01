@@ -10,6 +10,7 @@ import (
 	"github.com/s1moe2/classics-chain/pkg/hydra"
 	"github.com/s1moe2/classics-chain/pkg/kratos"
 	"github.com/s1moe2/classics-chain/user"
+	"github.com/s1moe2/classics-chain/user_invitation"
 )
 
 // Repository defines the data access interface for entities
@@ -41,7 +42,6 @@ type KratosUser interface {
 // KratosUserService defines interface for Kratos user operations
 type KratosUserService interface {
 	CreateUser(ctx context.Context, params kratos.CreateUserParams) (*kratos.UserIdentity, error)
-	TriggerRecoveryForUser(ctx context.Context, email string) error
 }
 
 // UserService defines interface for user operations
@@ -49,23 +49,30 @@ type UserService interface {
 	CreateOrGetUser(ctx context.Context, kratosID string) (*user.User, error)
 }
 
+// UserInvitationService defines interface for user invitation operations
+type UserInvitationService interface {
+	CreateEntityMemberInvitation(ctx context.Context, params user_invitation.CreateEntityMemberInvitationParams) (*user_invitation.UserInvitation, error)
+}
+
 // Service handles business logic for entity management
 type Service struct {
-	repo              Repository
-	userRepo          UserRepository
-	kratosUserService KratosUserService
-	userService       UserService
-	hydraClient       *hydra.Client
+	repo                  Repository
+	userRepo              UserRepository
+	kratosUserService     KratosUserService
+	userService           UserService
+	hydraClient           *hydra.Client
+	userInvitationService UserInvitationService
 }
 
 // New creates a new entity service with all dependencies
-func New(repo Repository, userRepo UserRepository, kratosUserService KratosUserService, userService UserService, hydraClient *hydra.Client) *Service {
+func New(repo Repository, userRepo UserRepository, kratosUserService KratosUserService, userService UserService, hydraClient *hydra.Client, userInvitationService UserInvitationService) *Service {
 	return &Service{
-		repo:              repo,
-		userRepo:          userRepo,
-		kratosUserService: kratosUserService,
-		userService:       userService,
-		hydraClient:       hydraClient,
+		repo:                  repo,
+		userRepo:              userRepo,
+		kratosUserService:     kratosUserService,
+		userService:           userService,
+		hydraClient:           hydraClient,
+		userInvitationService: userInvitationService,
 	}
 }
 
@@ -260,38 +267,32 @@ type AddMemberResult struct {
 	Role   string
 }
 
-// AddMemberWithInvite orchestrates adding a new member to an entity with email invitation
-// It handles: creating Kratos user, database user, entity membership, and recovery email
-func (s *Service) AddMemberWithInvite(ctx context.Context, params AddMemberWithInviteParams) (*AddMemberResult, error) {
-	kratosUser, err := s.kratosUserService.CreateUser(ctx, kratos.CreateUserParams{
-		Email:   params.Email,
-		Name:    params.Name,
-		IsAdmin: false,
-	})
+// AddMemberWithInvite creates an invitation for a new entity member
+// It handles: creating invitation token and sending invitation email
+func (s *Service) AddMemberWithInvite(ctx context.Context, params AddMemberWithInviteParams) error {
+	if s.userInvitationService == nil {
+		return fmt.Errorf("user invitation service not configured")
+	}
+
+	entity, err := s.repo.GetByID(ctx, params.EntityID)
 	if err != nil {
-		return nil, fmt.Errorf("create kratos user: %w", err)
+		return fmt.Errorf("get entity: %w", err)
 	}
 
-	dbUser, err := s.userService.CreateOrGetUser(ctx, kratosUser.GetID())
+	invParams := user_invitation.CreateEntityMemberInvitationParams{
+		Email:      params.Email,
+		Name:       params.Name,
+		EntityID:   params.EntityID,
+		EntityName: entity.Name,
+		Role:       params.Role,
+	}
+
+	_, err = s.userInvitationService.CreateEntityMemberInvitation(ctx, invParams)
 	if err != nil {
-		return nil, fmt.Errorf("create database user: %w", err)
+		return fmt.Errorf("create entity member invitation: %w", err)
 	}
 
-	if err := s.userRepo.AddUserToEntity(ctx, dbUser.ID, params.EntityID, params.Role); err != nil {
-		return nil, fmt.Errorf("add user to entity: %w", err)
-	}
-
-	if err := s.kratosUserService.TriggerRecoveryForUser(ctx, params.Email); err != nil {
-		// Log error but don't fail - user can request recovery manually
-		fmt.Printf("Failed to trigger recovery email for %s: %v\n", params.Email, err)
-	}
-
-	return &AddMemberResult{
-		UserID: dbUser.ID,
-		Email:  params.Email,
-		Name:   params.Name,
-		Role:   params.Role,
-	}, nil
+	return nil
 }
 
 // CreateClientParams contains parameters for creating an OAuth2 client

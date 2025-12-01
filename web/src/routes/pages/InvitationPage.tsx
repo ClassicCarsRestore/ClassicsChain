@@ -146,8 +146,8 @@ export function InvitationPage() {
         </div>
 
         <div className="mb-6 p-4 bg-blue-950/20 border border-blue-900/50 rounded-md">
-          <p className="text-blue-400 text-sm">
-            Account will be created for: <strong>{invitationData.email}</strong>
+          <p className="text-blue-200 text-sm">
+            Account will be created for: <strong className="text-blue-100">{invitationData.email}</strong>
           </p>
         </div>
 

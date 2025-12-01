@@ -1,0 +1,126 @@
+package mailer
+
+import "fmt"
+
+func RenderAdminInvitationTemplate(name, invitationURL string) string {
+	displayName := name
+	if displayName == "" {
+		displayName = "there"
+	}
+
+	return fmt.Sprintf(`
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #f5f5f5; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
+        .content { margin: 20px 0; }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 500;
+            margin: 20px 0;
+        }
+        .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Welcome to Classics Chain!</h2>
+            <p>You've been invited to join as an Administrator</p>
+        </div>
+
+        <div class="content">
+            <p>Hi %s,</p>
+            <p>You've been invited to join Classics Chain as an administrator. You'll have full access to manage the platform, users, and entities.</p>
+            <p>Click the button below to complete your signup and set your password:</p>
+            <a href="%s" class="button">Accept Admin Invitation</a>
+            <p style="color: #666; font-size: 14px;">Or copy and paste this link into your browser:<br>%s</p>
+            <p style="color: #999; font-size: 12px; margin-top: 20px;">This invitation expires in 7 days.</p>
+        </div>
+
+        <div class="footer">
+            <p>This is an automated message. Please do not reply to this email.</p>
+            <p>&copy; Classics Chain. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
+`, displayName, invitationURL, invitationURL)
+}
+
+func RenderEntityMemberInvitationTemplate(name, entityName, role, invitationURL string) string {
+	displayName := name
+	if displayName == "" {
+		displayName = "there"
+	}
+
+	return fmt.Sprintf(`
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #f5f5f5; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
+        .content { margin: 20px 0; }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 500;
+            margin: 20px 0;
+        }
+        .entity-info {
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #2563eb;
+        }
+        .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Welcome to Classics Chain!</h2>
+            <p>You've been invited to join %s</p>
+        </div>
+
+        <div class="content">
+            <p>Hi %s,</p>
+            <p>You've been invited to join Classics Chain and become part of the following entity:</p>
+
+            <div class="entity-info">
+                <strong>Entity:</strong> %s<br>
+                <strong>Your Role:</strong> %s
+            </div>
+
+            <p>Click the button below to complete your signup and set your password:</p>
+            <a href="%s" class="button">Accept Invitation</a>
+            <p style="color: #666; font-size: 14px;">Or copy and paste this link into your browser:<br>%s</p>
+            <p style="color: #999; font-size: 12px; margin-top: 20px;">This invitation expires in 7 days.</p>
+        </div>
+
+        <div class="footer">
+            <p>This is an automated message. Please do not reply to this email.</p>
+            <p>&copy; Classics Chain. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
+`, entityName, displayName, entityName, role, invitationURL, invitationURL)
+}

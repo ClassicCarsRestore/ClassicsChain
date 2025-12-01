@@ -474,7 +474,7 @@ func (a apiServer) AddEntityMember(ctx context.Context, request AddEntityMemberR
 		}, nil
 	}
 
-	result, err := a.entityService.AddMemberWithInvite(ctx, entity.AddMemberWithInviteParams{
+	err := a.entityService.AddMemberWithInvite(ctx, entity.AddMemberWithInviteParams{
 		EntityID: request.EntityId,
 		Email:    string(request.Body.Email),
 		Name:     request.Body.Name,
@@ -484,22 +484,21 @@ func (a apiServer) AddEntityMember(ctx context.Context, request AddEntityMemberR
 		return nil, err
 	}
 
+	// Return a response indicating invitation was sent
+	// Note: We don't have a user ID yet since the user hasn't claimed the invitation
 	var userName *string
 	var userEmail *openapi_types.Email
 
-	if result.Name != nil {
-		userName = result.Name
+	if request.Body.Name != nil {
+		userName = request.Body.Name
 	}
-	if result.Email != "" {
-		emailVal := openapi_types.Email(result.Email)
-		userEmail = &emailVal
-	}
+	emailVal := openapi_types.Email(request.Body.Email)
+	userEmail = &emailVal
 
 	return AddEntityMember201JSONResponse{
-		UserId:    result.UserID,
 		UserName:  userName,
 		UserEmail: userEmail,
-		Role:      EntityMemberRole(result.Role),
+		Role:      EntityMemberRole(request.Body.Role),
 	}, nil
 }
 

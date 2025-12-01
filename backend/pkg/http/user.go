@@ -56,7 +56,7 @@ func (a apiServer) GetAdminUsers(ctx context.Context, request GetAdminUsersReque
 	}, nil
 }
 
-// CreateAdminUser creates a new admin user by creating a Kratos identity and triggering recovery flow
+// CreateAdminUser creates an invitation for a new admin user
 func (a apiServer) CreateAdminUser(ctx context.Context, request CreateAdminUserRequestObject) (CreateAdminUserResponseObject, error) {
 	// Check authorization - only admins can create admin users
 	if err := a.authorizer.Authorize(ctx, ResourceAdminUsers, ActionCreate); err != nil {
@@ -75,17 +75,17 @@ func (a apiServer) CreateAdminUser(ctx context.Context, request CreateAdminUserR
 		}, nil
 	}
 
-	adminUser, err := a.userService.CreateAdminUserWithIdentity(ctx, string(request.Body.Email), request.Body.Name)
+	err := a.userService.CreateAdminInvitation(ctx, string(request.Body.Email), request.Body.Name)
 	if err != nil {
 		return nil, err
 	}
 
-	httpUser := AdminUser{
-		Id:    adminUser.ID,
-		Email: openapi_types.Email(adminUser.Email),
-		Name:  adminUser.Name,
-	}
-	return CreateAdminUser201JSONResponse(httpUser), nil
+	// Return a response indicating invitation was sent
+	// Note: We don't have a user ID yet since the user hasn't claimed the invitation
+	return CreateAdminUser201JSONResponse(AdminUser{
+		Email: request.Body.Email,
+		Name:  request.Body.Name,
+	}), nil
 }
 
 // GetAdminUser retrieves a specific admin user by ID
