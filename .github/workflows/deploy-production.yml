@@ -75,12 +75,6 @@ jobs:
           SEED_ADMIN_EMAIL: ${{ secrets.SEED_ADMIN_EMAIL }}
           SEED_ADMIN_PASSWORD: ${{ secrets.SEED_ADMIN_PASSWORD }}
 
-          # Mailer
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-          MAILER_FROM_EMAIL: "noreply@classicschain.com"
-          MAILER_FROM_NAME: "Classics Chain"
-          MAILER_BASE_URL: "https://admin.classicschain.com"
-
           # Domains
           DOMAIN: ${{ secrets.DOMAIN }}
           ADMIN_DOMAIN: ${{ secrets.ADMIN_DOMAIN }}
