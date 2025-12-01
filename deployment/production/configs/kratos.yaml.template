@@ -114,6 +114,8 @@ identity:
 courier:
   smtp:
     connection_uri: ${KRATOS_SMTP_CONNECTION_URI}
+    from_address: noreply@classicschain.com
+    from_name: ClassicsChain
   template_override_path: /etc/config/kratos/courier-templates
 
 feature_flags:

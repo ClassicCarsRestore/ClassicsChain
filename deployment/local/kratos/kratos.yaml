@@ -109,6 +109,8 @@ identity:
 courier:
   smtp:
     connection_uri: smtps://test:test@mailslurper:1025/?skip_ssl_verify=true
+    from_address: noreply@classicschain.com
+    from_name: ClassicsChain
   template_override_path: /etc/config/kratos/courier-templates
 
 feature_flags:
