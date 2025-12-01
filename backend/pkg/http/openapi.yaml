@@ -212,46 +212,6 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
 
-  /admin/users/{userId}:
-    get:
-      operationId: getAdminUser
-      summary: Get admin user by ID
-      description: Retrieve a specific admin user by their ID. Requires admin role.
-      tags:
-        - Admin
-      parameters:
-        - $ref: '#/components/parameters/UserIdParam'
-      responses:
-        '200':
-          description: Admin user details
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AdminUser'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    delete:
-      operationId: deleteAdminUser
-      summary: Remove admin privileges
-      description: Remove admin privileges from a user. Requires admin role.
-      tags:
-        - Admin
-      parameters:
-        - $ref: '#/components/parameters/UserIdParam'
-      responses:
-        '204':
-          description: Admin privileges removed successfully
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
   # Entities
   /entities:
     get:

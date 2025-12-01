@@ -51,40 +51,17 @@ type Service struct {
 	userInvitationService UserInvitationService
 }
 
-// NewService creates a new user service
-func NewService(repo Repository) *Service {
-	return &Service{
-		repo: repo,
-	}
-}
-
-// NewServiceWithKratos creates a new user service with Kratos integration
-func NewServiceWithKratos(repo Repository, kratos KratosClient) *Service {
+// New creates a new user service with Kratos integration
+func New(repo Repository, kratos KratosClient) *Service {
 	return &Service{
 		repo:   repo,
 		kratos: kratos,
 	}
 }
 
-// NewServiceWithDependencies creates a new user service with all dependencies
-func NewServiceWithDependencies(repo Repository, kratos KratosClient, invitationService InvitationService, vehicleService VehicleService, userInvitationService UserInvitationService) *Service {
-	return &Service{
-		repo:                  repo,
-		kratos:                kratos,
-		invitationService:     invitationService,
-		vehicleService:        vehicleService,
-		userInvitationService: userInvitationService,
-	}
-}
-
 // SetUserInvitationService sets the user invitation service dependency
 func (s *Service) SetUserInvitationService(userInvitationService UserInvitationService) {
 	s.userInvitationService = userInvitationService
-}
-
-// GetByID retrieves a user by ID
-func (s *Service) GetByID(ctx context.Context, id uuid.UUID) (*User, error) {
-	return s.repo.GetByID(ctx, id)
 }
 
 // GetUserEntityMemberships retrieves all entities a user belongs to
@@ -97,36 +74,6 @@ func (s *Service) GetUserEntityRole(ctx context.Context, userID, entityID uuid.U
 	return s.repo.GetUserEntityRole(ctx, userID, entityID)
 }
 
-// CreateAdmin creates a new admin user
-func (s *Service) CreateAdmin(ctx context.Context, identityID string) (*User, error) {
-	userID, err := uuid.Parse(identityID)
-	if err != nil {
-		return nil, fmt.Errorf("parse identity ID: %w", err)
-	}
-
-	// Check if user already exists
-	_, err = s.repo.GetByID(ctx, userID)
-	if err != nil && !errors.Is(err, ErrUserNotFound) {
-		return nil, fmt.Errorf("check user existence: %w", err)
-	}
-
-	if err == nil {
-		return nil, ErrUserAlreadyExists
-	}
-
-	// Create new admin user
-	newUser := &User{
-		ID:      userID,
-		IsAdmin: true,
-	}
-
-	if err := s.repo.Create(ctx, newUser); err != nil {
-		return nil, fmt.Errorf("create admin user: %w", err)
-	}
-
-	return newUser, nil
-}
-
 // CreateOrGetUser creates a new regular user or returns existing user
 // This is used when inviting users to entities - if they already exist, just return them
 func (s *Service) CreateOrGetUser(ctx context.Context, identityID string) (*User, error) {
@@ -135,7 +82,6 @@ func (s *Service) CreateOrGetUser(ctx context.Context, identityID string) (*User
 		return nil, fmt.Errorf("parse identity ID: %w", err)
 	}
 
-	// Check if user already exists
 	existingUser, err := s.repo.GetByID(ctx, userID)
 	if err != nil && !errors.Is(err, ErrUserNotFound) {
 		return nil, fmt.Errorf("check user existence: %w", err)
@@ -166,7 +112,6 @@ func (s *Service) ListAdminUsers(ctx context.Context, limit, offset int) ([]Admi
 		return nil, 0, fmt.Errorf("kratos client not configured")
 	}
 
-	// List admin users from Kratos
 	adminIdentities, err := s.kratos.ListAdminUsers(ctx)
 	if err != nil {
 		return nil, 0, fmt.Errorf("list admin users: %w", err)
@@ -277,7 +222,6 @@ func (s *Service) RemoveAdminPrivileges(ctx context.Context, userID uuid.UUID) e
 		return ErrUserNotAdmin
 	}
 
-	// Update to remove admin flag
 	isAdmin := false
 	_, err = s.kratos.UpdateUser(ctx, userID.String(), kratos.UpdateUserParams{
 		IsAdmin: &isAdmin,

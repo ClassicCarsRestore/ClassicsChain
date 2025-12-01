@@ -88,57 +88,6 @@ func (a apiServer) CreateAdminUser(ctx context.Context, request CreateAdminUserR
 	}), nil
 }
 
-// GetAdminUser retrieves a specific admin user by ID
-func (a apiServer) GetAdminUser(ctx context.Context, request GetAdminUserRequestObject) (GetAdminUserResponseObject, error) {
-	// Check authorization - only admins can view admin users
-	if err := a.authorizer.Authorize(ctx, ResourceAdminUsers, ActionRead); err != nil {
-		return GetAdminUser403JSONResponse{
-			ForbiddenJSONResponse: ForbiddenJSONResponse{
-				Error: "forbidden",
-			},
-		}, nil
-	}
-
-	adminUser, err := a.userService.GetAdminUserWithTraits(ctx, request.UserId)
-	if err != nil {
-		return GetAdminUser404JSONResponse{
-			NotFoundJSONResponse: NotFoundJSONResponse{
-				Error: "User not found",
-			},
-		}, nil
-	}
-
-	httpUser := AdminUser{
-		Id:    adminUser.ID,
-		Email: openapi_types.Email(adminUser.Email),
-		Name:  adminUser.Name,
-	}
-	return GetAdminUser200JSONResponse(httpUser), nil
-}
-
-// DeleteAdminUser removes admin privileges from a user
-func (a apiServer) DeleteAdminUser(ctx context.Context, request DeleteAdminUserRequestObject) (DeleteAdminUserResponseObject, error) {
-	// Check authorization - only admins can delete admin users
-	if err := a.authorizer.Authorize(ctx, ResourceAdminUsers, ActionDelete); err != nil {
-		return DeleteAdminUser403JSONResponse{
-			ForbiddenJSONResponse: ForbiddenJSONResponse{
-				Error: "forbidden",
-			},
-		}, nil
-	}
-
-	err := a.userService.RemoveAdminPrivileges(ctx, request.UserId)
-	if err != nil {
-		return DeleteAdminUser404JSONResponse{
-			NotFoundJSONResponse: NotFoundJSONResponse{
-				Error: "User not found or is not an admin",
-			},
-		}, nil
-	}
-
-	return DeleteAdminUser204Response{}, nil
-}
-
 // GetMe returns the current user's entity memberships and pending invitations
 func (a apiServer) GetMe(ctx context.Context, request GetMeRequestObject) (GetMeResponseObject, error) {
 	userID, ok := auth.GetIdentityID(ctx)

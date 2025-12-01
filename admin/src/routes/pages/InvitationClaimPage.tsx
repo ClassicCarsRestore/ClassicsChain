@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { api } from '@/lib/api';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 
@@ -13,7 +12,6 @@ interface InvitationDetails {
 }
 
 export function InvitationClaimPage() {
-  const { t } = useTranslation('users');
   const navigate = useNavigate();
   const { token } = useParams<{ token: string }>();
 

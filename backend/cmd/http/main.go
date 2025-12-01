@@ -207,7 +207,7 @@ func main() {
 	userInvitationService := user_invitation.NewService(userInvitationRepo, mailerClient)
 
 	// User service with dependencies
-	userService := user.NewServiceWithKratos(userRepo, kratosClient)
+	userService := user.New(userRepo, kratosClient)
 	userService.SetUserInvitationService(userInvitationService)
 
 	// Entity service with user invitation service

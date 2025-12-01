@@ -51,7 +51,6 @@ type OAuth2Validator interface {
 
 // UserService defines the interface for user operations
 type UserService interface {
-	GetByID(ctx context.Context, id uuid.UUID) (*user.User, error)
 	GetUserEntityRole(ctx context.Context, userID, entityID uuid.UUID) (string, error)
 	GetUserEntityMemberships(ctx context.Context, userID uuid.UUID) ([]user.EntityMembership, error)
 }

@@ -21,7 +21,7 @@ func RenderAdminInvitationTemplate(name, invitationURL string) string {
         .button {
             display: inline-block;
             padding: 12px 24px;
-            background-color: #2563eb;
+            background-color: #ccc;
             color: white;
             text-decoration: none;
             border-radius: 4px;
@@ -42,7 +42,7 @@ func RenderAdminInvitationTemplate(name, invitationURL string) string {
             <p>Hi %s,</p>
             <p>You've been invited to join Classics Chain as an administrator. You'll have full access to manage the platform, users, and entities.</p>
             <p>Click the button below to complete your signup and set your password:</p>
-            <a href="%s" class="button">Accept Admin Invitation</a>
+            <a href="%s" class="button">Accept Invitation</a>
             <p style="color: #666; font-size: 14px;">Or copy and paste this link into your browser:<br>%s</p>
             <p style="color: #999; font-size: 12px; margin-top: 20px;">This invitation expires in 7 days.</p>
         </div>
@@ -76,7 +76,7 @@ func RenderEntityMemberInvitationTemplate(name, entityName, role, invitationURL 
         .button {
             display: inline-block;
             padding: 12px 24px;
-            background-color: #2563eb;
+            background-color: #ccc;
             color: white;
             text-decoration: none;
             border-radius: 4px;

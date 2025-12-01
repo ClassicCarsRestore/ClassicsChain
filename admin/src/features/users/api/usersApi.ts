@@ -1,5 +1,5 @@
 import { api } from '@/lib/api';
-import type { User, CreateUserDto, UpdateUserDto } from '../types';
+import type { User, CreateUserDto } from '../types';
 
 interface UsersResponse {
   data: User[];
@@ -17,12 +17,5 @@ export const usersApi = {
     return response.data;
   },
 
-  getUser: (id: string) => api.get<User>(`/v1/admin/users/${id}`),
-
   createUser: (data: CreateUserDto) => api.post<User>('/v1/admin/users', data),
-
-  updateUser: (id: string, data: UpdateUserDto) =>
-    api.patch<User>(`/v1/admin/users/${id}`, data),
-
-  deleteUser: (id: string) => api.delete<void>(`/v1/admin/users/${id}`),
 };

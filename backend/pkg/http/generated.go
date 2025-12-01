@@ -1000,12 +1000,6 @@ type ServerInterface interface {
 	// Invite a new admin user
 	// (POST /admin/users)
 	CreateAdminUser(w http.ResponseWriter, r *http.Request)
-	// Remove admin privileges
-	// (DELETE /admin/users/{userId})
-	DeleteAdminUser(w http.ResponseWriter, r *http.Request, userId UserIdParam)
-	// Get admin user by ID
-	// (GET /admin/users/{userId})
-	GetAdminUser(w http.ResponseWriter, r *http.Request, userId UserIdParam)
 	// Create vehicle for certification (orphaned)
 	// (POST /certifiers/vehicles)
 	CreateCertifierVehicle(w http.ResponseWriter, r *http.Request)
@@ -1242,68 +1236,6 @@ func (siw *ServerInterfaceWrapper) CreateAdminUser(w http.ResponseWriter, r *htt
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.CreateAdminUser(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// DeleteAdminUser operation middleware
-func (siw *ServerInterfaceWrapper) DeleteAdminUser(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// ------------- Path parameter "userId" -------------
-	var userId UserIdParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "userId", r.PathValue("userId"), &userId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "userId", Err: err})
-		return
-	}
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.DeleteAdminUser(w, r, userId)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// GetAdminUser operation middleware
-func (siw *ServerInterfaceWrapper) GetAdminUser(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// ------------- Path parameter "userId" -------------
-	var userId UserIdParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "userId", r.PathValue("userId"), &userId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "userId", Err: err})
-		return
-	}
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetAdminUser(w, r, userId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -2778,8 +2710,6 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("POST "+options.BaseURL+"/admin-invitations/{token}", wrapper.ClaimAdminInvitation)
 	m.HandleFunc("GET "+options.BaseURL+"/admin/users", wrapper.GetAdminUsers)
 	m.HandleFunc("POST "+options.BaseURL+"/admin/users", wrapper.CreateAdminUser)
-	m.HandleFunc("DELETE "+options.BaseURL+"/admin/users/{userId}", wrapper.DeleteAdminUser)
-	m.HandleFunc("GET "+options.BaseURL+"/admin/users/{userId}", wrapper.GetAdminUser)
 	m.HandleFunc("POST "+options.BaseURL+"/certifiers/vehicles", wrapper.CreateCertifierVehicle)
 	m.HandleFunc("GET "+options.BaseURL+"/entities", wrapper.GetEntities)
 	m.HandleFunc("POST "+options.BaseURL+"/entities", wrapper.CreateEntity)
@@ -2981,93 +2911,6 @@ type CreateAdminUser403JSONResponse struct{ ForbiddenJSONResponse }
 func (response CreateAdminUser403JSONResponse) VisitCreateAdminUserResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(403)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type DeleteAdminUserRequestObject struct {
-	UserId UserIdParam `json:"userId"`
-}
-
-type DeleteAdminUserResponseObject interface {
-	VisitDeleteAdminUserResponse(w http.ResponseWriter) error
-}
-
-type DeleteAdminUser204Response struct {
-}
-
-func (response DeleteAdminUser204Response) VisitDeleteAdminUserResponse(w http.ResponseWriter) error {
-	w.WriteHeader(204)
-	return nil
-}
-
-type DeleteAdminUser401JSONResponse struct{ UnauthorizedJSONResponse }
-
-func (response DeleteAdminUser401JSONResponse) VisitDeleteAdminUserResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(401)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type DeleteAdminUser403JSONResponse struct{ ForbiddenJSONResponse }
-
-func (response DeleteAdminUser403JSONResponse) VisitDeleteAdminUserResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(403)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type DeleteAdminUser404JSONResponse struct{ NotFoundJSONResponse }
-
-func (response DeleteAdminUser404JSONResponse) VisitDeleteAdminUserResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(404)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GetAdminUserRequestObject struct {
-	UserId UserIdParam `json:"userId"`
-}
-
-type GetAdminUserResponseObject interface {
-	VisitGetAdminUserResponse(w http.ResponseWriter) error
-}
-
-type GetAdminUser200JSONResponse AdminUser
-
-func (response GetAdminUser200JSONResponse) VisitGetAdminUserResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GetAdminUser401JSONResponse struct{ UnauthorizedJSONResponse }
-
-func (response GetAdminUser401JSONResponse) VisitGetAdminUserResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(401)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GetAdminUser403JSONResponse struct{ ForbiddenJSONResponse }
-
-func (response GetAdminUser403JSONResponse) VisitGetAdminUserResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(403)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GetAdminUser404JSONResponse struct{ NotFoundJSONResponse }
-
-func (response GetAdminUser404JSONResponse) VisitGetAdminUserResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(404)
 
 	return json.NewEncoder(w).Encode(response)
 }
@@ -4875,12 +4718,6 @@ type StrictServerInterface interface {
 	// Invite a new admin user
 	// (POST /admin/users)
 	CreateAdminUser(ctx context.Context, request CreateAdminUserRequestObject) (CreateAdminUserResponseObject, error)
-	// Remove admin privileges
-	// (DELETE /admin/users/{userId})
-	DeleteAdminUser(ctx context.Context, request DeleteAdminUserRequestObject) (DeleteAdminUserResponseObject, error)
-	// Get admin user by ID
-	// (GET /admin/users/{userId})
-	GetAdminUser(ctx context.Context, request GetAdminUserRequestObject) (GetAdminUserResponseObject, error)
 	// Create vehicle for certification (orphaned)
 	// (POST /certifiers/vehicles)
 	CreateCertifierVehicle(ctx context.Context, request CreateCertifierVehicleRequestObject) (CreateCertifierVehicleResponseObject, error)
@@ -5144,58 +4981,6 @@ func (sh *strictHandler) CreateAdminUser(w http.ResponseWriter, r *http.Request)
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(CreateAdminUserResponseObject); ok {
 		if err := validResponse.VisitCreateAdminUserResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// DeleteAdminUser operation middleware
-func (sh *strictHandler) DeleteAdminUser(w http.ResponseWriter, r *http.Request, userId UserIdParam) {
-	var request DeleteAdminUserRequestObject
-
-	request.UserId = userId
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.DeleteAdminUser(ctx, request.(DeleteAdminUserRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "DeleteAdminUser")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(DeleteAdminUserResponseObject); ok {
-		if err := validResponse.VisitDeleteAdminUserResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// GetAdminUser operation middleware
-func (sh *strictHandler) GetAdminUser(w http.ResponseWriter, r *http.Request, userId UserIdParam) {
-	var request GetAdminUserRequestObject
-
-	request.UserId = userId
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetAdminUser(ctx, request.(GetAdminUserRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetAdminUser")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetAdminUserResponseObject); ok {
-		if err := validResponse.VisitGetAdminUserResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
