@@ -101,7 +101,7 @@ ${UPLOADS_DOMAIN} {
 }
 
 # Storage Media (Garage S3 Web) - read-only public access
-vehicles.classicschain.com {
+${MEDIA_DOMAIN} {
     encode gzip
 
     @get_requests {

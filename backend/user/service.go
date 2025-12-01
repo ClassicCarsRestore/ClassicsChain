@@ -40,10 +40,10 @@ type VehicleService interface {
 
 // Service handles business logic for user management
 type Service struct {
-	repo               Repository
-	kratos             KratosClient
-	invitationService  InvitationService
-	vehicleService     VehicleService
+	repo              Repository
+	kratos            KratosClient
+	invitationService InvitationService
+	vehicleService    VehicleService
 }
 
 // NewService creates a new user service
@@ -214,13 +214,11 @@ func (s *Service) CreateAdminUserWithIdentity(ctx context.Context, email string,
 		return nil, fmt.Errorf("create user in kratos: %w", err)
 	}
 
-	// Create user in database
 	dbUser, err := s.CreateAdmin(ctx, user.ID)
 	if err != nil {
 		return nil, fmt.Errorf("create admin user in database: %w", err)
 	}
 
-	// Trigger recovery flow to send password setup email
 	err = s.kratos.TriggerRecoveryForUser(ctx, email)
 	if err != nil {
 		// Log the error but don't fail - user can request recovery manually
@@ -242,7 +240,6 @@ func (s *Service) GetAdminUserWithTraits(ctx context.Context, userID uuid.UUID) 
 		return nil, fmt.Errorf("kratos client not configured")
 	}
 
-	// Get user from database first
 	dbUser, err := s.repo.GetByID(ctx, userID)
 	if err != nil {
 		return nil, fmt.Errorf("get user from database: %w", err)
@@ -299,8 +296,8 @@ func (s *Service) RemoveAdminPrivileges(ctx context.Context, userID uuid.UUID) e
 
 // UserProfileResult contains the complete user profile with memberships and invitations
 type UserProfileResult struct {
-	UserID                   uuid.UUID
-	EntityMemberships        []EntityMembership
+	UserID                    uuid.UUID
+	EntityMemberships         []EntityMembership
 	PendingInvitationVehicles []interface{} // Vehicle details for pending invitations
 }
 
