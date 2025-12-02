@@ -20,6 +20,7 @@ import {
   ChevronDown,
   Copy,
   Check,
+  ExternalLink,
 } from 'lucide-react';
 import type { Event, EventType } from '@/types/vehicle';
 
@@ -48,28 +49,54 @@ export function EventCard({ event, isCertified, entityName }: EventCardProps) {
     label: string;
     value: string;
     fieldId: string;
-  }) => (
-    <div className="flex items-start justify-between gap-2 p-2 rounded bg-muted/50 text-xs">
-      <div className="flex-1 min-w-0">
-        <span className="text-muted-foreground">{label}:</span>
-        <code className="block mt-1 break-all font-mono text-foreground">
-          {value}
-        </code>
+  }) => {
+    const isTransactionId = fieldId === 'tx-id';
+    const isCid = fieldId === 'cid';
+    const network = import.meta.env.VITE_ALGORAND_NETWORK || 'testnet';
+
+    let explorerUrl: string | undefined;
+    if (isTransactionId) {
+      explorerUrl = `https://lora.algokit.io/${network}/transaction/${value}`;
+    } else if (isCid) {
+      explorerUrl = `https://cid.ipfs.tech/#${value}`;
+    }
+
+    return (
+      <div className="flex items-start justify-between gap-2 p-2 rounded bg-muted/50 text-xs">
+        <div className="flex-1 min-w-0">
+          <span className="text-muted-foreground">{label}:</span>
+          <div className="flex items-center gap-1 mt-1">
+            <code className="break-all font-mono text-foreground">
+              {value}
+            </code>
+            {explorerUrl && (
+              <a
+                href={explorerUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-shrink-0 p-1 hover:bg-muted rounded transition-colors text-muted-foreground hover:text-primary"
+                title={isTransactionId ? 'View on Algorand Explorer' : 'View on IPFS'}
+              >
+                <ExternalLink className="h-3 w-3" />
+              </a>
+            )}
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => copyToClipboard(value, fieldId)}
+          className="flex-shrink-0 p-1 hover:bg-muted rounded transition-colors text-muted-foreground hover:text-foreground"
+          title="Copy to clipboard"
+        >
+          {copiedField === fieldId ? (
+            <Check className="h-4 w-4 text-green-500" />
+          ) : (
+            <Copy className="h-4 w-4" />
+          )}
+        </button>
       </div>
-      <button
-        type="button"
-        onClick={() => copyToClipboard(value, fieldId)}
-        className="flex-shrink-0 p-1 hover:bg-muted rounded transition-colors text-muted-foreground hover:text-foreground"
-        title="Copy to clipboard"
-      >
-        {copiedField === fieldId ? (
-          <Check className="h-4 w-4 text-green-500" />
-        ) : (
-          <Copy className="h-4 w-4" />
-        )}
-      </button>
-    </div>
-  );
+    );
+  };
 
   const getEventTypeIcon = (type: EventType) => {
     const iconProps = 'h-5 w-5';

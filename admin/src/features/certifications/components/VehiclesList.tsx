@@ -79,8 +79,8 @@ export function VehiclesList({ entities, refreshTrigger }: VehiclesListProps) {
           </div>
 
           {/* Filter Dropdown */}
-          <div className="relative group">
-            <button className="flex items-center gap-2 px-3 py-2 border border-border rounded-md bg-background text-foreground hover:bg-muted">
+          <div className="relative group h-10">
+            <button className="flex items-center gap-2 px-3 py-2 h-full border border-border rounded-md bg-background text-foreground hover:bg-muted">
               <Filter className="w-4 h-4" />
               <span className="text-sm">{t('browse.filters.label')}</span>
               <ChevronDown className="w-4 h-4" />
