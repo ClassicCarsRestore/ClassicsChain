@@ -1,6 +1,7 @@
 package invitation
 
 import (
+	"context"
 	"errors"
 	"time"
 
@@ -28,4 +29,17 @@ type CreateInvitationParams struct {
 	Email          string
 	Token          string
 	TokenExpiresAt time.Time
+}
+
+// VehicleInfo contains display information about a vehicle for invitations
+type VehicleInfo struct {
+	Make         string
+	Model        string
+	Year         int
+	LicensePlate string
+}
+
+// Mailer defines the interface for sending invitation emails
+type Mailer interface {
+	SendOwnerInvitation(ctx context.Context, to, token string, vehicles []VehicleInfo) error
 }

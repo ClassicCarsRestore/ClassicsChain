@@ -75,7 +75,7 @@ func (a apiServer) ValidateInvitation(ctx context.Context, request ValidateInvit
 	}
 
 	return ValidateInvitation200JSONResponse{
-		Email:    openapi_types.Email(email),
+		Email:    email,
 		Vehicles: vehiclesList,
 	}, nil
 }

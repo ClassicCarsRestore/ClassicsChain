@@ -43,16 +43,8 @@ type Service struct {
 	invitationService InvitationService
 }
 
-// NewService creates a new event service
-func NewService(repo Repository, anchorer EventAnchorer) *Service {
-	return &Service{
-		repo:     repo,
-		anchorer: anchorer,
-	}
-}
-
-// NewServiceWithDependencies creates a new event service with all dependencies
-func NewServiceWithDependencies(repo Repository, anchorer EventAnchorer, vehicleService VehicleService, invitationService InvitationService) *Service {
+// NewService creates a new event service with all dependencies
+func NewService(repo Repository, anchorer EventAnchorer, vehicleService VehicleService, invitationService InvitationService) *Service {
 	return &Service{
 		repo:              repo,
 		anchorer:          anchorer,
@@ -195,17 +187,16 @@ func (s *Service) CreateBulkEvents(ctx context.Context, params CreateBulkEventsP
 	invitationsByEmail := make(map[string][]map[string]interface{})
 	successByEmail := make(map[string][]uuid.UUID)
 
-	for _, vehicleID := range params.Vehicles {
-		// Find or create vehicle
-		vehicle, err := s.vehicleService.FindOrCreateVehicle(ctx, vehicleID.ChassisNumber, vehicleID.LicensePlate)
+	for _, vhicle := range params.Vehicles {
+		vehicle, err := s.vehicleService.FindOrCreateVehicle(ctx, vhicle.ChassisNumber, vhicle.LicensePlate)
 		if err != nil {
 			chassisNum := ""
-			if vehicleID.ChassisNumber != nil {
-				chassisNum = *vehicleID.ChassisNumber
+			if vhicle.ChassisNumber != nil {
+				chassisNum = *vhicle.ChassisNumber
 			}
 			licensePlate := ""
-			if vehicleID.LicensePlate != nil {
-				licensePlate = *vehicleID.LicensePlate
+			if vhicle.LicensePlate != nil {
+				licensePlate = *vhicle.LicensePlate
 			}
 			result.Errors = append(result.Errors, BulkEventError{
 				ChassisNumber: chassisNum,
@@ -217,12 +208,12 @@ func (s *Service) CreateBulkEvents(ctx context.Context, params CreateBulkEventsP
 
 		if vehicle == nil {
 			chassisNum := ""
-			if vehicleID.ChassisNumber != nil {
-				chassisNum = *vehicleID.ChassisNumber
+			if vhicle.ChassisNumber != nil {
+				chassisNum = *vhicle.ChassisNumber
 			}
 			licensePlate := ""
-			if vehicleID.LicensePlate != nil {
-				licensePlate = *vehicleID.LicensePlate
+			if vhicle.LicensePlate != nil {
+				licensePlate = *vhicle.LicensePlate
 			}
 			result.Errors = append(result.Errors, BulkEventError{
 				ChassisNumber: chassisNum,
@@ -248,12 +239,12 @@ func (s *Service) CreateBulkEvents(ctx context.Context, params CreateBulkEventsP
 		createdEvent, err := s.Create(ctx, *vehicle, createEventParams)
 		if err != nil {
 			chassisNum := ""
-			if vehicleID.ChassisNumber != nil {
-				chassisNum = *vehicleID.ChassisNumber
+			if vhicle.ChassisNumber != nil {
+				chassisNum = *vhicle.ChassisNumber
 			}
 			licensePlate := ""
-			if vehicleID.LicensePlate != nil {
-				licensePlate = *vehicleID.LicensePlate
+			if vhicle.LicensePlate != nil {
+				licensePlate = *vhicle.LicensePlate
 			}
 			result.Errors = append(result.Errors, BulkEventError{
 				ChassisNumber: chassisNum,
@@ -266,12 +257,12 @@ func (s *Service) CreateBulkEvents(ctx context.Context, params CreateBulkEventsP
 		invitationSent := false
 
 		// Create invitation if email provided and vehicle is unowned
-		if vehicleID.Email != nil && *vehicleID.Email != "" && vehicle.OwnerID == nil {
-			email := *vehicleID.Email
+		if vhicle.Email != nil && *vhicle.Email != "" && vehicle.OwnerID == nil {
+			email := *vhicle.Email
 			if err := s.invitationService.CreateInvitation(ctx, vehicle.ID, email); err != nil {
 				result.Errors = append(result.Errors, BulkEventError{
-					ChassisNumber: getStringValue(vehicleID.ChassisNumber),
-					LicensePlate:  getStringValue(vehicleID.LicensePlate),
+					ChassisNumber: getStringValue(vhicle.ChassisNumber),
+					LicensePlate:  getStringValue(vhicle.LicensePlate),
 					Error:         fmt.Sprintf("failed to create invitation: %v", err),
 				})
 				continue
@@ -295,7 +286,7 @@ func (s *Service) CreateBulkEvents(ctx context.Context, params CreateBulkEventsP
 		result.Success = append(result.Success, BulkEventSuccess{
 			VehicleID:      vehicle.ID,
 			EventID:        createdEvent.ID,
-			Created:        vehicleID.ChassisNumber == nil && vehicleID.LicensePlate == nil,
+			Created:        vhicle.ChassisNumber == nil && vhicle.LicensePlate == nil,
 			InvitationSent: &invitationSent,
 		})
 	}

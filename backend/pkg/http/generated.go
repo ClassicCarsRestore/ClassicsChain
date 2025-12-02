@@ -538,7 +538,7 @@ type HealthResponseStatus string
 // InvitationValidationResponse defines model for InvitationValidationResponse.
 type InvitationValidationResponse struct {
 	// Email The email address associated with the invitation
-	Email openapi_types.Email `json:"email"`
+	Email string `json:"email"`
 
 	// Vehicles List of vehicles the user is invited to manage
 	Vehicles []InvitationVehicle `json:"vehicles"`

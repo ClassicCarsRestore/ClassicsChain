@@ -196,12 +196,12 @@ func main() {
 
 	// Initialize services
 	anchorerService := anchorer.New(algorandClient, vehicleRepo, eventRepo)
-	eventService := event.NewService(eventRepo, anchorerService)
 	vehicleService := vehicles.NewService(vehicleRepo, anchorerService)
 	photoService := photos.NewService(photoRepo, photoStorage)
 	documentService := documents.NewService(documentRepo, photoStorage)
 	shareLinksService := vehicleshare.NewService(shareLinkRepo)
-	invitationService := invitation.NewService(invitationRepo, vehicleService)
+	invitationService := invitation.NewService(invitationRepo, vehicleService, mailerClient)
+	eventService := event.NewService(eventRepo, anchorerService, vehicleService, invitationService)
 
 	// User invitation service
 	userInvitationService := user_invitation.NewService(userInvitationRepo, mailerClient)

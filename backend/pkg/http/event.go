@@ -228,15 +228,7 @@ func (a apiServer) CreateBulkEvents(ctx context.Context, request CreateBulkEvent
 		// Convert Email from openapi_types.Email to *string
 		var email *string
 		if v.Email != nil {
-			emailBytes, err := v.Email.MarshalJSON()
-			if err != nil {
-				return CreateBulkEvents400JSONResponse{
-					BadRequestJSONResponse: BadRequestJSONResponse{
-						Error: "invalid email format",
-					},
-				}, nil
-			}
-			emailStr := string(emailBytes)
+			emailStr := string(*v.Email)
 			email = &emailStr
 		}
 

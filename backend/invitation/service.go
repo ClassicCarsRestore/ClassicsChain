@@ -6,7 +6,6 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"net/url"
 	"time"
 
 	"github.com/google/uuid"
@@ -34,13 +33,15 @@ type VehicleService interface {
 type Service struct {
 	repo     Repository
 	vehicles VehicleService
+	mailer   Mailer
 }
 
 // NewService creates a new invitation service
-func NewService(repo Repository, vehicles VehicleService) *Service {
+func NewService(repo Repository, vehicles VehicleService, mailer Mailer) *Service {
 	return &Service{
 		repo:     repo,
 		vehicles: vehicles,
+		mailer:   mailer,
 	}
 }
 
@@ -101,20 +102,42 @@ func (s *Service) SendInvitationBatch(ctx context.Context, email string, vehicle
 		}
 	}
 
-	// TODO: Send invitation email with registration link
-	// The flow is: invitation page shows vehicles → redirects to registration
-	// Email should include:
-	// - Welcome message
-	// - List of vehicles they're invited to manage
-	// - Invitation link with token
-	invitationURL := fmt.Sprintf("http://localhost:5174/invitation?invitation=%s", url.QueryEscape(token))
-	_ = invitationURL // Will be used when email sending is implemented
+	// Convert vehicle data to VehicleInfo structs
+	vehicles := make([]VehicleInfo, len(vehicleData))
+	for i, v := range vehicleData {
+		vehicles[i] = VehicleInfo{
+			Make:         getStringFromMap(v, "make"),
+			Model:        getStringFromMap(v, "model"),
+			Year:         getIntFromMap(v, "year"),
+			LicensePlate: getStringFromMap(v, "licensePlate"),
+		}
+	}
 
-	// TODO: Implement email sending (could use Kratos courier or custom solution)
-	// For MVP, we log the invitation URL so admins can manually send it
-	fmt.Printf("Invitation for %s: %s\n", email, invitationURL)
+	// Send invitation email
+	if err := s.mailer.SendOwnerInvitation(ctx, email, token, vehicles); err != nil {
+		return fmt.Errorf("send invitation email: %w", err)
+	}
 
 	return nil
+}
+
+// getStringFromMap safely extracts a string value from a map
+func getStringFromMap(m map[string]interface{}, key string) string {
+	if v, ok := m[key].(string); ok {
+		return v
+	}
+	return ""
+}
+
+// getIntFromMap safely extracts an int value from a map
+func getIntFromMap(m map[string]interface{}, key string) int {
+	if v, ok := m[key].(float64); ok {
+		return int(v)
+	}
+	if v, ok := m[key].(int); ok {
+		return v
+	}
+	return 0
 }
 
 // ClaimInvitations marks invitations as claimed and assigns vehicle ownership
