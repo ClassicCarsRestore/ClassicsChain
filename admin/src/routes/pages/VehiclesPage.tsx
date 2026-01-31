@@ -70,6 +70,7 @@ export function VehiclesPage() {
           <VehiclesList
             entities={entityOptions}
             refreshTrigger={refreshTrigger}
+            onNavigateToCreate={() => setActiveSection('create')}
           />
         )}
       </div>

@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, Filter, ChevronDown, Eye, Award } from 'lucide-react';
+import { Search, Filter, ChevronDown, Eye, Award, Car } from 'lucide-react';
 import { useVehicles } from '../hooks/useVehicles';
 import { VehicleDetailModal } from './VehicleDetailModal';
 import type { Vehicle } from '../types';
@@ -14,11 +14,12 @@ interface Entity {
 interface VehiclesListProps {
   entities: Entity[];
   refreshTrigger: number;
+  onNavigateToCreate?: () => void;
 }
 
 type DetailTab = 'details' | 'certifications';
 
-export function VehiclesList({ entities, refreshTrigger }: VehiclesListProps) {
+export function VehiclesList({ entities, refreshTrigger, onNavigateToCreate }: VehiclesListProps) {
   const { t } = useTranslation('vehicles');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'orphaned' | 'owned'>(
@@ -27,6 +28,18 @@ export function VehiclesList({ entities, refreshTrigger }: VehiclesListProps) {
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [initialTab, setInitialTab] = useState<DetailTab>('details');
+  const [filterOpen, setFilterOpen] = useState(false);
+  const filterRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
+        setFilterOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const { data: vehicles = [], isLoading } = useVehicles(refreshTrigger);
 
@@ -79,40 +92,45 @@ export function VehiclesList({ entities, refreshTrigger }: VehiclesListProps) {
           </div>
 
           {/* Filter Dropdown */}
-          <div className="relative group h-10">
-            <button className="flex items-center gap-2 px-3 py-2 h-full border border-border rounded-md bg-background text-foreground hover:bg-muted">
+          <div className="relative h-10" ref={filterRef}>
+            <button
+              onClick={() => setFilterOpen(!filterOpen)}
+              className="flex items-center gap-2 px-3 py-2 h-full border border-border rounded-md bg-white text-foreground hover:bg-muted"
+            >
               <Filter className="w-4 h-4" />
               <span className="text-sm">{t('browse.filters.label')}</span>
-              <ChevronDown className="w-4 h-4" />
+              <ChevronDown className={`w-4 h-4 transition-transform ${filterOpen ? 'rotate-180' : ''}`} />
             </button>
-            <div className="absolute right-0 mt-1 w-48 bg-card border border-border rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
-              <button
-                onClick={() => setFilterType('all')}
-                className={`block w-full text-left px-4 py-2 text-sm hover:bg-muted ${
-                  filterType === 'all' ? 'bg-muted text-primary' : 'text-foreground'
-                }`}
-              >
-                {t('browse.filters.all')}
-              </button>
-              <button
-                onClick={() => setFilterType('orphaned')}
-                className={`block w-full text-left px-4 py-2 text-sm hover:bg-muted ${
-                  filterType === 'orphaned'
-                    ? 'bg-muted text-primary'
-                    : 'text-foreground'
-                }`}
-              >
-                {t('browse.filters.orphaned')}
-              </button>
-              <button
-                onClick={() => setFilterType('owned')}
-                className={`block w-full text-left px-4 py-2 text-sm hover:bg-muted ${
-                  filterType === 'owned' ? 'bg-muted text-primary' : 'text-foreground'
-                }`}
-              >
-                {t('browse.filters.owned')}
-              </button>
-            </div>
+            {filterOpen && (
+              <div className="absolute right-0 mt-1 w-48 bg-white border border-border rounded-md shadow-lg z-10">
+                <button
+                  onClick={() => { setFilterType('all'); setFilterOpen(false); }}
+                  className={`block w-full text-left px-4 py-2 text-sm hover:bg-muted ${
+                    filterType === 'all' ? 'bg-muted text-primary' : 'text-foreground'
+                  }`}
+                >
+                  {t('browse.filters.all')}
+                </button>
+                <button
+                  onClick={() => { setFilterType('orphaned'); setFilterOpen(false); }}
+                  className={`block w-full text-left px-4 py-2 text-sm hover:bg-muted ${
+                    filterType === 'orphaned'
+                      ? 'bg-muted text-primary'
+                      : 'text-foreground'
+                  }`}
+                >
+                  {t('browse.filters.orphaned')}
+                </button>
+                <button
+                  onClick={() => { setFilterType('owned'); setFilterOpen(false); }}
+                  className={`block w-full text-left px-4 py-2 text-sm hover:bg-muted ${
+                    filterType === 'owned' ? 'bg-muted text-primary' : 'text-foreground'
+                  }`}
+                >
+                  {t('browse.filters.owned')}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -154,8 +172,18 @@ export function VehiclesList({ entities, refreshTrigger }: VehiclesListProps) {
                 </tr>
               ) : filteredVehicles.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
-                    {t('browse.noVehicles')}
+                  <td colSpan={5} className="px-6 py-12 text-center">
+                    <Car className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                    <p className="text-gray-500 mb-3">{t('browse.noVehicles')}</p>
+                    {onNavigateToCreate && (
+                      <button
+                        onClick={onNavigateToCreate}
+                        className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary hover:text-primary/80 hover:bg-primary/5 rounded-md transition-colors"
+                      >
+                        {t('browse.addFirstVehicle')}
+                        <span aria-hidden="true">→</span>
+                      </button>
+                    )}
                   </td>
                 </tr>
               ) : (

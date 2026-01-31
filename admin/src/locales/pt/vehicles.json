@@ -94,6 +94,7 @@
     "resultsCount": "Exibindo {{count}} veículo(s)",
     "loading": "Carregando veículos...",
     "noVehicles": "Nenhum veículo encontrado",
+    "addFirstVehicle": "Adicione o seu primeiro veículo",
     "columns": {
       "vehicle": "Veículo",
       "chassisNumber": "Número de Chassis",
@@ -121,6 +122,11 @@
       "basic": "Informações Básicas",
       "technical": "Especificações Técnicas",
       "status": "Status de Propriedade"
+    },
+    "history": {
+      "empty": "Nenhum evento registado ainda",
+      "emptyHint": "O histórico de eventos aparecerá aqui após adicionar certificações ou eventos",
+      "addEvent": "Adicionar primeiro evento"
     }
   },
   "certification": {
@@ -236,5 +242,16 @@
       "create": "Criar Certificado de Evento",
       "creating": "Criando..."
     }
+  },
+  "toast": {
+    "vehicleCreated": "Veículo criado com sucesso",
+    "vehicleError": "Falha ao criar veículo",
+    "eventCreated": "Certificado de evento emitido com sucesso",
+    "eventError": "Falha ao emitir certificado",
+    "fillRequiredFields": "Por favor preencha todos os campos obrigatórios",
+    "addVehicle": "Por favor adicione pelo menos um veículo",
+    "bulkSuccess": "{{count}} certificados emitidos com sucesso",
+    "bulkPartial": "{{success}} emitidos, {{failed}} falharam",
+    "bulkError": "Falha ao emitir certificados"
   }
 }

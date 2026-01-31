@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { VehicleBasicsStep } from './steps/VehicleBasicsStep';
 import { VehicleDetailsStep } from './steps/VehicleDetailsStep';
 import { VehicleSummaryStep } from './steps/VehicleSummaryStep';
@@ -59,6 +60,7 @@ export function BulkVehicleForm({ entities, onSuccess }: BulkVehicleFormProps) {
       { vehicleData: formData, entityId: selectedEntity },
       {
         onSuccess: () => {
+          toast.success(t('toast.vehicleCreated', 'Vehicle created successfully'));
           onSuccess();
           // Reset form
           setStep(1);
@@ -76,6 +78,9 @@ export function BulkVehicleForm({ entities, onSuccess }: BulkVehicleFormProps) {
             gearType: '',
             suspensionType: '',
           });
+        },
+        onError: (error) => {
+          toast.error(error instanceof Error ? error.message : t('toast.vehicleError', 'Failed to create vehicle'));
         },
       }
     );

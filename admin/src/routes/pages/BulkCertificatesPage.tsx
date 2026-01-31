@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { Plus, Trash2, CheckCircle, AlertCircle } from 'lucide-react';
 import { EventCertificateFormFields } from '@/features/certifications/components/EventCertificateFormFields';
@@ -153,11 +154,11 @@ export function BulkCertificatesPage() {
     e.preventDefault();
 
     if (!selectedEventType || !metadata) {
-      alert('Please fill in all required fields');
+      toast.error(t('toast.fillRequiredFields', 'Please fill in all required fields'));
       return;
     }
     if (vehicles.length === 0 || vehicles.every((v) => !v.chassisNumber && !v.licensePlate)) {
-      alert('Please add at least one vehicle');
+      toast.error(t('toast.addVehicle', 'Please add at least one vehicle'));
       return;
     }
 
@@ -177,13 +178,18 @@ export function BulkCertificatesPage() {
       },
       {
         onSuccess: (response) => {
-          console.log('Bulk events created successfully', response);
+          const successCount = response?.success?.length ?? 0;
+          const errorCount = response?.errors?.length ?? 0;
+          if (errorCount === 0) {
+            toast.success(t('toast.bulkSuccess', { count: successCount, defaultValue: `${successCount} certificates issued successfully` }));
+          } else {
+            toast.warning(t('toast.bulkPartial', { success: successCount, failed: errorCount, defaultValue: `${successCount} issued, ${errorCount} failed` }));
+          }
           setResults(response);
           setShowResults(true);
         },
         onError: (error) => {
-          console.error('Failed to create bulk events', error);
-          alert(`Error: ${error instanceof Error ? error.message : 'Failed to issue certificates'}`);
+          toast.error(error instanceof Error ? error.message : t('toast.bulkError', 'Failed to issue certificates'));
         },
       }
     );

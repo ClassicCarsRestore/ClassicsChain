@@ -292,11 +292,18 @@ export function VehicleDetailModal({
                 </div>
               ) : events.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <Award className="w-12 h-12 text-muted-foreground mb-3" />
-                  <p className="text-muted-foreground">No events recorded yet</p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Event history will appear here once certifications or events are added
+                  <Award className="w-12 h-12 text-gray-300 mb-3" />
+                  <p className="text-muted-foreground">{t('modal.history.empty', 'No events recorded yet')}</p>
+                  <p className="text-sm text-muted-foreground mt-1 mb-4">
+                    {t('modal.history.emptyHint', 'Event history will appear here once certifications or events are added')}
                   </p>
+                  <button
+                    onClick={() => setActiveTab('event-certificates')}
+                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary hover:text-primary/80 hover:bg-primary/5 rounded-md transition-colors"
+                  >
+                    {t('modal.history.addEvent', 'Add first event')}
+                    <span aria-hidden="true">→</span>
+                  </button>
                 </div>
               ) : (
                 <div className="relative">

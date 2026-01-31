@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { useCreateEvent } from '../hooks/useVehicles';
+import { FieldHelp } from '@/components/common/FieldHelp';
 import type {
   EventMetadata,
   CarShowMetadata,
@@ -159,6 +161,7 @@ export function EventCertificateForm({ vehicleId, entities, onSuccess }: EventCe
       },
       {
         onSuccess: () => {
+          toast.success(t('toast.eventCreated', 'Event certificate issued successfully'));
           setTitle('');
           setDescription('');
           setEventDate(new Date().toISOString().split('T')[0]);
@@ -167,6 +170,9 @@ export function EventCertificateForm({ vehicleId, entities, onSuccess }: EventCe
           setMetadata(null);
           // Close modal
           onSuccess?.();
+        },
+        onError: (error) => {
+          toast.error(error instanceof Error ? error.message : t('toast.eventError', 'Failed to issue certificate'));
         },
       }
     );
@@ -289,7 +295,7 @@ export function EventCertificateForm({ vehicleId, entities, onSuccess }: EventCe
           </div>
 
           {/* Type-Specific Fields */}
-          {metadata && renderTypeSpecificFields(selectedEventType, metadata, handleMetadataChange, t)}
+          {metadata && renderTypeSpecificFields(selectedEventType, metadata, handleMetadataChange, t, FieldHelp)}
         </>
       )}
 
@@ -307,16 +313,29 @@ export function EventCertificateForm({ vehicleId, entities, onSuccess }: EventCe
   );
 }
 
+const fieldHelpTexts: Record<string, string> = {
+  judgingScore: 'Points awarded by judges, typically 0-100',
+  carNumber: 'Your assigned vehicle number for the event',
+  coDriver: 'Navigator or co-pilot for rally events',
+  bestLapTime: 'Format: M:SS.ms (e.g., 1:42.5)',
+  lotNumber: 'Auction catalog lot identifier',
+  saleStatus: 'e.g., Sold, Not Sold, Withdrawn',
+  dateRange: 'e.g., March 15-20, 2024',
+  totalDistance: 'Total kilometers driven during the trip',
+};
+
 function renderTypeSpecificFields(
   eventType: EventTypeOption,
   metadata: EventMetadata,
   handleChange: (field: string, value: unknown) => void,
-  t: (key: string) => string
+  t: (key: string) => string,
+  FieldHelp: React.ComponentType<{ text: string }>
 ) {
   const renderField = (label: string, field: string, type: string = 'text', required = false, placeholder = '') => (
     <div key={field}>
       <label className="block text-sm font-medium mb-1">
         {label} {required && '*'}
+        {fieldHelpTexts[field] && <FieldHelp text={fieldHelpTexts[field]} />}
       </label>
       {type === 'textarea' ? (
         <textarea

@@ -63,6 +63,7 @@
   "members": {
     "title": "Membros da Entidade",
     "addMember": "Convidar Membro",
+    "addFirstMember": "Adicione o seu primeiro membro",
     "noMembers": "Nenhum membro encontrado",
     "loading": "A carregar membros...",
     "errorLoading": "Erro ao carregar membros",
@@ -71,6 +72,9 @@
     "errorUpdatingRole": "Erro ao atualizar função do membro",
     "confirmRemove": "Tem a certeza que deseja remover este membro?",
     "emailHelp": "O utilizador receberá um email com link para definir a password",
+    "memberAdded": "Membro adicionado com sucesso",
+    "memberRemoved": "Membro removido",
+    "roleUpdated": "Função atualizada",
     "fields": {
       "name": "Nome",
       "email": "Email",

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { UserPlus, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { UserPlus, Trash2, Users } from 'lucide-react';
 import { useEntityMembers, useRemoveEntityMember, useUpdateEntityMemberRole } from '../hooks/useEntityMembers';
 import { AddEntityMemberForm } from './AddEntityMemberForm';
 import type { EntityMember } from '../types/member';
@@ -21,16 +22,18 @@ export function EntityMembersTab({ entityId }: EntityMembersTabProps) {
 
     try {
       await removeMember.mutateAsync({ entityId, userId });
+      toast.success(t('members.memberRemoved', 'Member removed'));
     } catch (error) {
-      alert(t('members.errorRemoving'));
+      toast.error(error instanceof Error ? error.message : t('members.errorRemoving'));
     }
   };
 
   const handleRoleChange = async (userId: string, newRole: 'admin' | 'member') => {
     try {
       await updateRole.mutateAsync({ entityId, userId, data: { role: newRole } });
+      toast.success(t('members.roleUpdated', 'Role updated'));
     } catch (error) {
-      alert(t('members.errorUpdatingRole'));
+      toast.error(error instanceof Error ? error.message : t('members.errorUpdatingRole'));
     }
   };
 
@@ -61,7 +64,17 @@ export function EntityMembersTab({ entityId }: EntityMembersTabProps) {
         </div>
 
         {!members || members.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">{t('members.noMembers')}</div>
+          <div className="text-center py-12">
+            <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+            <p className="text-gray-500 mb-4">{t('members.noMembers')}</p>
+            <button
+              onClick={() => setShowAddForm(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary hover:text-primary/80 hover:bg-primary/5 rounded-md transition-colors"
+            >
+              {t('members.addFirstMember', 'Add your first member')}
+              <span aria-hidden="true">→</span>
+            </button>
+          </div>
         ) : (
           <div className="overflow-hidden border border-gray-200 rounded-lg">
             <table className="min-w-full divide-y divide-gray-200">

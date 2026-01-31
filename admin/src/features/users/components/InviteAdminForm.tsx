@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { useCreateUser } from '../hooks/useUsers';
 
 interface InviteAdminFormProps {
@@ -20,9 +21,10 @@ export function InviteAdminForm({ onSuccess, onCancel }: InviteAdminFormProps) {
         name: name || undefined,
       });
 
+      toast.success('Admin invited successfully');
       onSuccess?.();
     } catch (error) {
-      console.error('Failed to invite admin:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to invite admin');
     }
   };
 

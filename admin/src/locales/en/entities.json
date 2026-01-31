@@ -63,6 +63,7 @@
   "members": {
     "title": "Entity Members",
     "addMember": "Invite Member",
+    "addFirstMember": "Add your first member",
     "noMembers": "No members found",
     "loading": "Loading members...",
     "errorLoading": "Error loading members",
@@ -71,6 +72,9 @@
     "errorUpdatingRole": "Error updating member role",
     "confirmRemove": "Are you sure you want to remove this member?",
     "emailHelp": "User will receive an email with a link to set their password",
+    "memberAdded": "Member added successfully",
+    "memberRemoved": "Member removed",
+    "roleUpdated": "Role updated",
     "fields": {
       "name": "Name",
       "email": "Email",

@@ -94,6 +94,7 @@
     "resultsCount": "Showing {{count}} vehicle(s)",
     "loading": "Loading vehicles...",
     "noVehicles": "No vehicles found",
+    "addFirstVehicle": "Add your first vehicle",
     "columns": {
       "vehicle": "Vehicle",
       "chassisNumber": "Chassis Number",
@@ -121,6 +122,11 @@
       "basic": "Basic Information",
       "technical": "Technical Specifications",
       "status": "Ownership Status"
+    },
+    "history": {
+      "empty": "No events recorded yet",
+      "emptyHint": "Event history will appear here once certifications or events are added",
+      "addEvent": "Add first event"
     }
   },
   "certification": {
@@ -236,5 +242,16 @@
       "create": "Issue",
       "creating": "Creating..."
     }
+  },
+  "toast": {
+    "vehicleCreated": "Vehicle created successfully",
+    "vehicleError": "Failed to create vehicle",
+    "eventCreated": "Event certificate issued successfully",
+    "eventError": "Failed to issue certificate",
+    "fillRequiredFields": "Please fill in all required fields",
+    "addVehicle": "Please add at least one vehicle",
+    "bulkSuccess": "{{count}} certificates issued successfully",
+    "bulkPartial": "{{success}} issued, {{failed}} failed",
+    "bulkError": "Failed to issue certificates"
   }
 }

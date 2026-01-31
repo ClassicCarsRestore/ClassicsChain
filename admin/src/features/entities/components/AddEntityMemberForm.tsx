@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { useAddEntityMember } from '../hooks/useEntityMembers';
 
 interface AddEntityMemberFormProps {
@@ -28,9 +29,10 @@ export function AddEntityMemberForm({ entityId, onSuccess, onCancel }: AddEntity
           role
         },
       });
+      toast.success(t('members.memberAdded', 'Member added successfully'));
       onSuccess();
     } catch (error) {
-      alert(t('members.errorInviting'));
+      toast.error(error instanceof Error ? error.message : t('members.errorInviting'));
     }
   };
 

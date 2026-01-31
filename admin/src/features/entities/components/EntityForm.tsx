@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { useCreateEntity, useUpdateEntity } from '../hooks/useEntities';
 import { EntityType, type Entity, type CreateEntityDto, type Address } from '../types';
 
@@ -28,10 +29,18 @@ export function EntityForm({ entity, fixedEntityType, onSuccess, onCancel }: Ent
   const isEdit = !!entity;
 
   useEffect(() => {
-    if (createEntity.isSuccess || updateEntity.isSuccess) {
+    if (createEntity.isSuccess) {
+      toast.success(isEdit ? 'Entity updated successfully' : 'Entity created successfully');
       onSuccess?.();
     }
-  }, [createEntity.isSuccess, updateEntity.isSuccess, onSuccess]);
+  }, [createEntity.isSuccess, onSuccess, isEdit]);
+
+  useEffect(() => {
+    if (updateEntity.isSuccess) {
+      toast.success('Entity updated successfully');
+      onSuccess?.();
+    }
+  }, [updateEntity.isSuccess, onSuccess]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
