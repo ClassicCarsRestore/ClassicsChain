@@ -1,0 +1,80 @@
+{
+  "title": "Verificação Passo a Passo",
+  "common": {
+    "back": "Voltar",
+    "next": "Próximo"
+  },
+  "intro": {
+    "title": "Vamos Verificar Este Evento",
+    "description": "Vamos provar que os dados deste evento não foram alterados desde que foram registados na blockchain.",
+    "stepsTitle": "Eis o que vamos fazer:",
+    "steps": {
+      "1": "Ver os dados originais do evento",
+      "2": "Ver como foram codificados (formato CBOR)",
+      "3": "Calcular a sua impressão digital única (hash SHA-256)",
+      "4": "Verificar que a impressão digital corresponde ao CID",
+      "5": "Confirmar que o CID está armazenado na Algorand"
+    },
+    "note": "Em cada passo, pode verificar de forma independente usando ferramentas externas. Não precisa de confiar em nós.",
+    "startButton": "Começar"
+  },
+  "eventData": {
+    "title": "Dados do Evento",
+    "description": "Esta é a informação que foi registada para este evento. Está armazenada como dados estruturados (JSON).",
+    "note": "São exatamente estes dados que vamos verificar contra o registo na blockchain."
+  },
+  "cbor": {
+    "title": "Codificação para CBOR",
+    "description": "Os dados do evento são convertidos para CBOR, um formato binário compacto. Pense nisto como uma forma mais eficiente de representar a mesma informação.",
+    "jsonLabel": "Dados originais (JSON)",
+    "cborLabel": "Dados codificados (CBOR, Base64)",
+    "verifyLink": "Verificar: Descodificar este CBOR",
+    "verifyDescription": "Abrir cbor.me para confirmar que o CBOR descodifica para o JSON original"
+  },
+  "hashing": {
+    "title": "Criar a Impressão Digital",
+    "description": "Os dados CBOR passam pelo SHA-256, uma função matemática que produz uma \"impressão digital\" única. Qualquer alteração aos dados, mesmo um único carácter, produziria um resultado completamente diferente.",
+    "cborLabel": "Dados CBOR (Base64)",
+    "hashLabel": "Hash SHA-256 (calculado no seu navegador)",
+    "verifyLink": "Verificar: Calcular o hash você mesmo",
+    "verifyDescription": "Use uma calculadora SHA-256 independente para verificar"
+  },
+  "cid": {
+    "title": "O Identificador de Conteúdo (CID)",
+    "description": "O hash é encapsulado num CID, um identificador auto-descritivo que inclui o hash mais metadados sobre como foi criado.",
+    "cidLabel": "Identificador de Conteúdo",
+    "inspectTitle": "Ao inspecionar este CID, encontrará:",
+    "hashMatch": "O digest corresponde ao hash que calculámos",
+    "verifyLink": "Verificar: Inspecionar este CID",
+    "verifyDescription": "Abrir o CID Inspector para ver o hash embutido neste identificador"
+  },
+  "blockchain": {
+    "title": "Armazenado na Algorand",
+    "description": "Este CID foi escrito na blockchain Algorand numa transação.",
+    "providesTitle": "A blockchain fornece:",
+    "provides": {
+      "immutability": "Imutabilidade: nunca pode ser alterado",
+      "timestamp": "Timestamp: prova de quando foi registado",
+      "public": "Registo público: qualquer pessoa pode verificar"
+    },
+    "txLabel": "ID da Transação",
+    "verifyLink": "Verificar: Ver na Algorand",
+    "verifyDescription": "Abrir o Algorand Explorer para ver esta transação",
+    "note": "Procure o campo \"Note\" na transação. Contém o nosso CID."
+  },
+  "verified": {
+    "title": "Verificação Completa",
+    "chain": {
+      "eventData": "Dados",
+      "cbor": "CBOR",
+      "hash": "Hash",
+      "cid": "CID",
+      "blockchain": "Chain"
+    },
+    "description": "Os dados deste evento são autênticos e não foram modificados desde que foram ancorados em {{date}}.",
+    "learnMoreLink": "Quer saber mais?",
+    "learnMoreDescription": "Leia sobre como funciona a ancoragem em blockchain",
+    "doneButton": "Fechar"
+  },
+  "button": "Guia de Verificação"
+}

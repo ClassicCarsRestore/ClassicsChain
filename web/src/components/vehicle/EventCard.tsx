@@ -21,8 +21,10 @@ import {
   Copy,
   Check,
   ExternalLink,
+  Search,
 } from 'lucide-react';
 import type { Event, EventType } from '@/types/vehicle';
+import { VerificationModal } from './VerificationModal';
 
 interface EventCardProps {
   event: Event;
@@ -31,9 +33,13 @@ interface EventCardProps {
 }
 
 export function EventCard({ event, isCertified, entityName }: EventCardProps) {
-  const { t } = useTranslation('vehicle');
+  const { t } = useTranslation(['vehicle', 'verification']);
   const [showBlockchainDetails, setShowBlockchainDetails] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
+
+  const canVerify = event.blockchainTxId && event.cid && event.cidSourceJSON && event.cidSourceCBOR;
+  const network = import.meta.env.VITE_ALGORAND_NETWORK || 'testnet';
 
   const copyToClipboard = (text: string, field: string) => {
     navigator.clipboard.writeText(text);
@@ -52,7 +58,6 @@ export function EventCard({ event, isCertified, entityName }: EventCardProps) {
   }) => {
     const isTransactionId = fieldId === 'tx-id';
     const isCid = fieldId === 'cid';
-    const network = import.meta.env.VITE_ALGORAND_NETWORK || 'testnet';
 
     let explorerUrl: string | undefined;
     if (isTransactionId) {
@@ -286,6 +291,17 @@ export function EventCard({ event, isCertified, entityName }: EventCardProps) {
                           fieldId="cid-cbor"
                         />
                       )}
+
+                      {canVerify && (
+                        <button
+                          type="button"
+                          onClick={() => setShowVerificationModal(true)}
+                          className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-xs font-medium text-primary hover:bg-primary/10 transition-colors"
+                        >
+                          <Search className="h-3.5 w-3.5" />
+                          {t('verification:button')}
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>
@@ -294,6 +310,22 @@ export function EventCard({ event, isCertified, entityName }: EventCardProps) {
           </div>
         </div>
       </div>
+
+      {canVerify && (
+        <VerificationModal
+          open={showVerificationModal}
+          onOpenChange={setShowVerificationModal}
+          data={{
+            eventTitle: event.title,
+            eventDate: event.date,
+            cidSourceJSON: event.cidSourceJSON!,
+            cidSourceCBOR: event.cidSourceCBOR!,
+            cid: event.cid!,
+            blockchainTxId: event.blockchainTxId!,
+            network,
+          }}
+        />
+      )}
     </div>
   );
 }

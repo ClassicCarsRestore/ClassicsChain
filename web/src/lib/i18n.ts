@@ -12,6 +12,7 @@ import enVehicle from '@/locales/en/vehicle.json';
 import enConcepts from '@/locales/en/concepts.json';
 import enEntities from '@/locales/en/entities.json';
 import enErrors from '@/locales/en/errors.json';
+import enVerification from '@/locales/en/verification.json';
 
 import ptCommon from '@/locales/pt/common.json';
 import ptNavigation from '@/locales/pt/navigation.json';
@@ -22,6 +23,7 @@ import ptVehicle from '@/locales/pt/vehicle.json';
 import ptConcepts from '@/locales/pt/concepts.json';
 import ptEntities from '@/locales/pt/entities.json';
 import ptErrors from '@/locales/pt/errors.json';
+import ptVerification from '@/locales/pt/verification.json';
 
 const resources = {
   en: {
@@ -34,6 +36,7 @@ const resources = {
     concepts: enConcepts,
     entities: enEntities,
     errors: enErrors,
+    verification: enVerification,
   },
   pt: {
     common: ptCommon,
@@ -45,6 +48,7 @@ const resources = {
     concepts: ptConcepts,
     entities: ptEntities,
     errors: ptErrors,
+    verification: ptVerification,
   },
 };
 
@@ -55,7 +59,7 @@ i18n
     resources,
     fallbackLng: 'en',
     defaultNS: 'common',
-    ns: ['common', 'navigation', 'landing', 'auth', 'dashboard', 'vehicle', 'concepts', 'entities', 'errors'],
+    ns: ['common', 'navigation', 'landing', 'auth', 'dashboard', 'vehicle', 'concepts', 'entities', 'errors', 'verification'],
 
     detection: {
       // Detection order and caches

@@ -1,0 +1,80 @@
+{
+  "title": "Verification Walkthrough",
+  "common": {
+    "back": "Back",
+    "next": "Next"
+  },
+  "intro": {
+    "title": "Let's Verify This Event",
+    "description": "We're going to prove that this event data hasn't been changed since it was recorded on the blockchain.",
+    "stepsTitle": "Here's what we'll do:",
+    "steps": {
+      "1": "Look at the original event data",
+      "2": "See how it was encoded (CBOR format)",
+      "3": "Calculate its unique fingerprint (SHA-256 hash)",
+      "4": "Check that fingerprint matches what's in the CID",
+      "5": "Confirm the CID is stored on Algorand"
+    },
+    "note": "At each step, you can verify independently using external tools. No need to trust us.",
+    "startButton": "Let's Start"
+  },
+  "eventData": {
+    "title": "Your Event Data",
+    "description": "This is the information that was recorded for this event. It's stored as structured data (JSON).",
+    "note": "This exact data is what we'll verify against the blockchain record."
+  },
+  "cbor": {
+    "title": "Encoding to CBOR",
+    "description": "The event data is converted to CBOR, a compact binary format. Think of it as a more efficient way to represent the same information.",
+    "jsonLabel": "Original data (JSON)",
+    "cborLabel": "Encoded data (CBOR, Base64)",
+    "verifyLink": "Verify: Decode this CBOR",
+    "verifyDescription": "Open cbor.me to confirm the CBOR decodes back to the original JSON"
+  },
+  "hashing": {
+    "title": "Creating the Fingerprint",
+    "description": "The CBOR data is run through SHA-256, a mathematical function that produces a unique \"fingerprint\". Any change to the data, even one character, would produce a completely different result.",
+    "cborLabel": "CBOR data (Base64)",
+    "hashLabel": "SHA-256 Hash (computed in your browser)",
+    "verifyLink": "Verify: Hash the data yourself",
+    "verifyDescription": "Use an independent SHA-256 calculator to verify"
+  },
+  "cid": {
+    "title": "The Content Identifier (CID)",
+    "description": "The hash is wrapped in a CID, a self-describing identifier that includes the hash plus metadata about how it was created.",
+    "cidLabel": "Content Identifier",
+    "inspectTitle": "When you inspect this CID, you'll find:",
+    "hashMatch": "The digest matches our calculated hash",
+    "verifyLink": "Verify: Inspect this CID",
+    "verifyDescription": "Open CID Inspector to see the hash embedded in this identifier"
+  },
+  "blockchain": {
+    "title": "Stored on Algorand",
+    "description": "This CID was written to the Algorand blockchain in a transaction.",
+    "providesTitle": "The blockchain provides:",
+    "provides": {
+      "immutability": "Immutability: it can never be changed",
+      "timestamp": "Timestamp: proof of when it was recorded",
+      "public": "Public record: anyone can verify it"
+    },
+    "txLabel": "Transaction ID",
+    "verifyLink": "Verify: View on Algorand",
+    "verifyDescription": "Open Algorand Explorer to see this transaction",
+    "note": "Look for the \"Note\" field in the transaction. It contains our CID."
+  },
+  "verified": {
+    "title": "Verification Complete",
+    "chain": {
+      "eventData": "Data",
+      "cbor": "CBOR",
+      "hash": "Hash",
+      "cid": "CID",
+      "blockchain": "Chain"
+    },
+    "description": "This event data is authentic and hasn't been modified since it was anchored on {{date}}.",
+    "learnMoreLink": "Want to learn more?",
+    "learnMoreDescription": "Read about how blockchain anchoring works",
+    "doneButton": "Done"
+  },
+  "button": "Walk Me Through Verification"
+}
