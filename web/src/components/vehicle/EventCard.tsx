@@ -173,13 +173,7 @@ export function EventCard({ event, isCertified, entityName }: EventCardProps) {
   });
 
   return (
-    <div className="relative pl-8">
-      {/* Timeline dot */}
-      <div className="absolute left-0 top-2 flex h-4 w-4 items-center justify-center rounded-full border-2 border-primary bg-background">
-        <div className={`h-2 w-2 rounded-full ${isCertified ? 'bg-primary' : 'bg-muted-foreground'}`} />
-      </div>
-
-      {/* Event card */}
+    <>
       <div className="rounded-lg border border-border bg-card p-4">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
@@ -326,6 +320,6 @@ export function EventCard({ event, isCertified, entityName }: EventCardProps) {
           }}
         />
       )}
-    </div>
+    </>
   );
 }

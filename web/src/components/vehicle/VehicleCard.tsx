@@ -53,24 +53,24 @@ export function VehicleCard({ vehicle }: VehicleCardProps) {
             <Car className="h-12 w-12 text-muted-foreground/50" />
           </div>
         )}
-
-        {/* Verification Badge Overlay */}
-        {hasVerifiedEvents && (
-          <div className="absolute top-2 right-2">
-            <VerificationBadge isVerified={true} size="sm" />
-          </div>
-        )}
       </div>
 
       {/* Vehicle Info */}
       <div className="p-4">
-        <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
-          {vehicle.make} {vehicle.model}
-        </h3>
-        <p className="text-sm text-muted-foreground">{vehicle.year}</p>
-        {vehicle.color && (
-          <p className="mt-1 text-xs text-muted-foreground">{vehicle.color}</p>
-        )}
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
+              {vehicle.make} {vehicle.model}
+            </h3>
+            <p className="text-sm text-muted-foreground">{vehicle.year}</p>
+            {vehicle.color && (
+              <p className="mt-1 text-xs text-muted-foreground">{vehicle.color}</p>
+            )}
+          </div>
+          {hasVerifiedEvents && (
+            <VerificationBadge isVerified={true} size="sm" showLabel={false} />
+          )}
+        </div>
       </div>
     </button>
   );

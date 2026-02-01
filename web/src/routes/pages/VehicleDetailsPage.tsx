@@ -6,7 +6,7 @@ import { ArrowLeft, Plus, FileText, Share2 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Vehicle, Event, EventListResponse, CreateOwnerEventRequest } from '@/types/vehicle';
-import { EventCard } from '@/components/vehicle/EventCard';
+import { EventTimeline } from '@/components/vehicle/EventTimeline';
 import { VehicleInfoCard } from '@/components/vehicle/VehicleInfoCard';
 import { VehicleStats } from '@/components/vehicle/VehicleStats';
 import { VehicleEventCreateModal } from '@/features/vehicles/components/VehicleEventCreateModal';
@@ -250,15 +250,7 @@ export function VehicleDetailsPage() {
             <p className="mt-1 text-sm text-muted-foreground">{t('vehicle:events.empty.description')}</p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {events.map((event) => (
-              <EventCard
-                key={event.id}
-                event={event}
-                isCertified={isCertified(event)}
-              />
-            ))}
-          </div>
+          <EventTimeline events={events} isCertified={isCertified} />
         )}
       </div>
 

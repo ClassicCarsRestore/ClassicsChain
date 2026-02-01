@@ -185,5 +185,9 @@
     "photos": "Photos",
     "documents": "Documents",
     "historySince": "History since"
+  },
+  "timeline": {
+    "event": "event",
+    "events": "events"
   }
 }
