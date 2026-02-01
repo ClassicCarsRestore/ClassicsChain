@@ -1,12 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Plus, FileText, Share2 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Vehicle, Event, EventListResponse, CreateOwnerEventRequest } from '@/types/vehicle';
 import { EventCard } from '@/components/vehicle/EventCard';
 import { VehicleInfoCard } from '@/components/vehicle/VehicleInfoCard';
+import { VehicleStats } from '@/components/vehicle/VehicleStats';
 import { VehicleEventCreateModal } from '@/features/vehicles/components/VehicleEventCreateModal';
 import { VehiclePhotosSection } from '@/features/vehicles';
 import { VehicleDocumentsSection } from '@/features/vehicles/components/VehicleDocumentsSection';
@@ -14,6 +16,8 @@ import { ShareLinkModal } from '@/features/vehicles/components/ShareLinkModal';
 import { ShareLinksList } from '@/features/vehicles/components/ShareLinksList';
 import { useCreateShareLink } from '@/features/vehicles/hooks/useVehicleShareLinks';
 import { eventsApi } from '@/features/vehicles/api/eventsApi';
+import type { PhotoListResponse } from '@/features/vehicles/types/photo';
+import type { DocumentListResponse } from '@/features/vehicles/types/document';
 
 export function VehicleDetailsPage() {
   const { t } = useTranslation('vehicle');
@@ -30,6 +34,44 @@ export function VehicleDetailsPage() {
   const [isSubmittingEvent, setIsSubmittingEvent] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const createShareLink = useCreateShareLink(vehicleId || '');
+
+  const { data: photosData } = useQuery({
+    queryKey: ['vehicle-photos-count', vehicleId],
+    queryFn: async () => {
+      const response = await api.get<PhotoListResponse>(`/v1/vehicles/${vehicleId}/photos`);
+      return response.data || [];
+    },
+    enabled: !!vehicleId,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const { data: documentsData } = useQuery({
+    queryKey: ['vehicle-documents-count', vehicleId],
+    queryFn: async () => {
+      const response = await api.get<DocumentListResponse>(`/v1/vehicles/${vehicleId}/documents`);
+      return response.data || [];
+    },
+    enabled: !!vehicleId,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const vehicleStats = useMemo(() => {
+    const anchoredEvents = events.filter(e => !!e.blockchainTxId).length;
+    const earliestEvent = events.length > 0
+      ? events.reduce((earliest, event) =>
+          new Date(event.date) < new Date(earliest.date) ? event : earliest
+        )
+      : null;
+
+    return {
+      totalEvents: events.length,
+      anchoredEvents,
+      photosCount: photosData?.length || 0,
+      documentsCount: documentsData?.length || 0,
+      earliestEventDate: earliestEvent?.date,
+      hasVerifiedEvents: anchoredEvents > 0,
+    };
+  }, [events, photosData, documentsData]);
 
   // Fetch vehicle details
   useEffect(() => {
@@ -141,8 +183,19 @@ export function VehicleDetailsPage() {
           <ArrowLeft className="h-4 w-4" />
           {t('vehicle:buttons.backToDashboard')}
         </button>
-        <VehicleInfoCard vehicle={vehicle} />
+        <VehicleInfoCard vehicle={vehicle} hasVerifiedEvents={vehicleStats.hasVerifiedEvents} />
       </div>
+
+      {/* Quick Stats */}
+      {!isLoadingEvents && (
+        <VehicleStats
+          totalEvents={vehicleStats.totalEvents}
+          anchoredEvents={vehicleStats.anchoredEvents}
+          photosCount={vehicleStats.photosCount}
+          documentsCount={vehicleStats.documentsCount}
+          earliestEventDate={vehicleStats.earliestEventDate}
+        />
+      )}
 
       {/* Photos Section */}
       <div className="mb-8">

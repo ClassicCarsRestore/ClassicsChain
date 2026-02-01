@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { Car, Plus, Gift, Check } from 'lucide-react';
 import { api } from '@/lib/api';
+import { VehicleCard } from '@/components/vehicle/VehicleCard';
 import type { Vehicle, VehicleListResponse } from '@/types/vehicle';
 import type { InvitationVehicle } from '@/types/user';
 
@@ -168,26 +169,7 @@ export function DashboardPage() {
           /* Vehicle List */
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {vehicles.map((vehicle) => (
-              <button
-                key={vehicle.id}
-                onClick={() => navigate(`/vehicles/${vehicle.id}`)}
-                className="cursor-pointer rounded-lg border border-border bg-background p-4 text-left transition-colors hover:bg-accent"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                    <Car className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="flex-1 overflow-hidden">
-                    <h3 className="font-semibold text-foreground">
-                      {vehicle.make} {vehicle.model}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">{vehicle.year}</p>
-                    {vehicle.color && (
-                      <p className="mt-1 text-xs text-muted-foreground">{vehicle.color}</p>
-                    )}
-                  </div>
-                </div>
-              </button>
+              <VehicleCard key={vehicle.id} vehicle={vehicle} />
             ))}
           </div>
         )}
