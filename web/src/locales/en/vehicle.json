@@ -173,5 +173,21 @@
   },
   "error": {
     "notFound": "Vehicle not found"
+  },
+  "verification": {
+    "badge": "Verified",
+    "badgeTooltip": "This vehicle has blockchain-verified records",
+    "anchoredTooltip": "Anchored on blockchain"
+  },
+  "stats": {
+    "events": "Events",
+    "verified": "Verified",
+    "photos": "Photos",
+    "documents": "Documents",
+    "historySince": "History since"
+  },
+  "timeline": {
+    "event": "event",
+    "events": "events"
   }
 }

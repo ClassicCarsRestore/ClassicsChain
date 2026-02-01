@@ -2,14 +2,16 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Copy, Check, ChevronDown } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { VerificationBadge } from './VerificationBadge';
 import type { Vehicle } from '@/types/vehicle';
 import type { SharedVehicle } from '@/types/shareLink';
 
 interface VehicleInfoCardProps {
   vehicle: Vehicle | SharedVehicle;
+  hasVerifiedEvents?: boolean;
 }
 
-export function VehicleInfoCard({ vehicle }: VehicleInfoCardProps) {
+export function VehicleInfoCard({ vehicle, hasVerifiedEvents = false }: VehicleInfoCardProps) {
   const { t } = useTranslation('vehicle');
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
@@ -32,9 +34,12 @@ export function VehicleInfoCard({ vehicle }: VehicleInfoCardProps) {
   return (
     <>
       <div className="rounded-lg border border-border bg-card p-6 mb-8">
-        <h1 className="text-3xl font-bold text-foreground">
-          {vehicle.make} {vehicle.model}
-        </h1>
+        <div className="flex items-center gap-3 flex-wrap">
+          <h1 className="text-3xl font-bold text-foreground">
+            {vehicle.make} {vehicle.model}
+          </h1>
+          <VerificationBadge isVerified={hasVerifiedEvents} />
+        </div>
 
         {/* Basic Information - Always Visible */}
         <div className="mt-6 space-y-4">
