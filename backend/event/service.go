@@ -23,7 +23,7 @@ type VehicleRepository interface {
 }
 
 type EventAnchorer interface {
-	AnchorEvent(ctx context.Context, vehicle vehicles.Vehicle, event Event) error
+	AnchorEvent(ctx context.Context, vehicle vehicles.Vehicle, event Event, imageCIDs []string) error
 }
 
 type InvitationService interface {
@@ -35,12 +35,18 @@ type VehicleService interface {
 	FindOrCreateVehicle(ctx context.Context, chassisNumber, licensePlate *string) (*vehicles.Vehicle, error)
 }
 
+type EventImageService interface {
+	ValidateSessionForEvent(ctx context.Context, sessionID uuid.UUID) ([]string, error)
+	AttachToEvent(ctx context.Context, sessionID, eventID uuid.UUID) error
+}
+
 // Service handles business logic for event management
 type Service struct {
 	repo              Repository
 	anchorer          EventAnchorer
 	vehicleService    VehicleService
 	invitationService InvitationService
+	eventImageService EventImageService
 }
 
 // NewService creates a new event service with all dependencies
@@ -51,6 +57,11 @@ func NewService(repo Repository, anchorer EventAnchorer, vehicleService VehicleS
 		vehicleService:    vehicleService,
 		invitationService: invitationService,
 	}
+}
+
+// SetEventImageService sets the event image service (allows optional dependency injection)
+func (s *Service) SetEventImageService(eis EventImageService) {
+	s.eventImageService = eis
 }
 
 // GetByVehicle retrieves events for a specific vehicle
@@ -65,6 +76,16 @@ func (s *Service) GetByID(ctx context.Context, id uuid.UUID) (*Event, error) {
 
 // Create creates a new event
 func (s *Service) Create(ctx context.Context, vehicle vehicles.Vehicle, params CreateEventParams) (*Event, error) {
+	var imageCIDs []string
+
+	if params.ImageSessionID != nil && s.eventImageService != nil {
+		cids, err := s.eventImageService.ValidateSessionForEvent(ctx, *params.ImageSessionID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to validate image session: %w", err)
+		}
+		imageCIDs = cids
+	}
+
 	eventDate := time.Now().UTC()
 	if params.Date != nil {
 		eventDate = *params.Date
@@ -86,8 +107,14 @@ func (s *Service) Create(ctx context.Context, vehicle vehicles.Vehicle, params C
 		return nil, err
 	}
 
+	if params.ImageSessionID != nil && s.eventImageService != nil {
+		if err := s.eventImageService.AttachToEvent(ctx, *params.ImageSessionID, created.ID); err != nil {
+			return nil, fmt.Errorf("failed to attach images to event: %w", err)
+		}
+	}
+
 	if params.ShouldAnchor {
-		if err := s.anchorer.AnchorEvent(ctx, vehicle, *created); err != nil {
+		if err := s.anchorer.AnchorEvent(ctx, vehicle, *created, imageCIDs); err != nil {
 			return nil, err
 		}
 	}

@@ -1,7 +1,8 @@
 import { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, Calendar } from 'lucide-react';
-import type { EventType, CreateOwnerEventRequest } from '@/types/vehicle';
+import type { EventType, CreateOwnerEventRequest, EventImage } from '@/types/vehicle';
+import { EventImageUploader } from './EventImageUploader';
 
 interface VehicleEventCreateModalProps {
   isOpen: boolean;
@@ -26,6 +27,8 @@ export function VehicleEventCreateModal({
   const [location, setLocation] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [imageSessionId, setImageSessionId] = useState<string | null>(null);
+  const [images, setImages] = useState<EventImage[]>([]);
 
   const eventTypes: EventType[] = [
     'maintenance',
@@ -85,6 +88,7 @@ export function VehicleEventCreateModal({
         description: description || undefined,
         date: date || undefined,
         location: location || undefined,
+        imageSessionId: imageSessionId || undefined,
       };
 
       await onSubmit(eventData);
@@ -102,6 +106,8 @@ export function VehicleEventCreateModal({
     setDate('');
     setLocation('');
     setValidationErrors({});
+    setImageSessionId(null);
+    setImages([]);
   };
 
   if (!isOpen) {
@@ -109,8 +115,8 @@ export function VehicleEventCreateModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="w-full max-w-md rounded-lg bg-card shadow-lg">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-lg bg-card shadow-lg">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border p-6">
           <h2 className="text-lg font-semibold text-foreground">
@@ -226,6 +232,15 @@ export function VehicleEventCreateModal({
                 className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
+
+            {/* Event Images */}
+            <EventImageUploader
+              sessionId={imageSessionId}
+              onSessionCreated={setImageSessionId}
+              images={images}
+              onImagesChange={setImages}
+              disabled={isSubmitting}
+            />
           </div>
 
           {/* Actions */}

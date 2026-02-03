@@ -302,6 +302,9 @@ type CreateEventRequest struct {
 	// EntityId Optional entity ID for entity-backed events (certifications). If provided, checks entity membership authorization. If absent, checks vehicle ownership.
 	EntityId *openapi_types.UUID `json:"entityId,omitempty"`
 
+	// ImageSessionId Optional upload session ID containing pre-uploaded images to attach to this event
+	ImageSessionId *openapi_types.UUID `json:"imageSessionId,omitempty"`
+
 	// Location Optional location where the event occurred
 	Location *string `json:"location,omitempty"`
 
@@ -323,6 +326,9 @@ type CreateOwnerEventRequest struct {
 
 	// Description Optional detailed description of the event
 	Description *string `json:"description,omitempty"`
+
+	// ImageSessionId Optional upload session ID containing pre-uploaded images to attach to this event
+	ImageSessionId *openapi_types.UUID `json:"imageSessionId,omitempty"`
 
 	// Location Optional location where the event occurred
 	Location *string `json:"location,omitempty"`
@@ -480,13 +486,48 @@ type Event struct {
 	EntityId    *openapi_types.UUID `json:"entityId,omitempty"`
 
 	// EntityName Name of the issuing entity (for certified events)
-	EntityName *string                 `json:"entityName,omitempty"`
-	Id         openapi_types.UUID      `json:"id"`
-	Location   *string                 `json:"location,omitempty"`
-	Metadata   *map[string]interface{} `json:"metadata,omitempty"`
-	Title      string                  `json:"title"`
-	Type       EventType               `json:"type"`
-	VehicleId  openapi_types.UUID      `json:"vehicleId"`
+	EntityName *string            `json:"entityName,omitempty"`
+	Id         openapi_types.UUID `json:"id"`
+
+	// Images Images attached to this event
+	Images    *[]EventImage           `json:"images,omitempty"`
+	Location  *string                 `json:"location,omitempty"`
+	Metadata  *map[string]interface{} `json:"metadata,omitempty"`
+	Title     string                  `json:"title"`
+	Type      EventType               `json:"type"`
+	VehicleId openapi_types.UUID      `json:"vehicleId"`
+}
+
+// EventImage defines model for EventImage.
+type EventImage struct {
+	// Cid Content Identifier (CID) for the image
+	Cid *string `json:"cid,omitempty"`
+
+	// CreatedAt When the image was uploaded
+	CreatedAt time.Time `json:"createdAt"`
+
+	// EventId Event ID (null if not yet attached)
+	EventId *openapi_types.UUID `json:"eventId,omitempty"`
+
+	// Id Event image ID
+	Id openapi_types.UUID `json:"id"`
+
+	// ObjectKey S3-compatible object key
+	ObjectKey string `json:"objectKey"`
+
+	// UploadSessionId Upload session ID
+	UploadSessionId openapi_types.UUID `json:"uploadSessionId"`
+}
+
+// EventImageListResponse defines model for EventImageListResponse.
+type EventImageListResponse struct {
+	Data []EventImage `json:"data"`
+}
+
+// EventImageUploadSessionResponse defines model for EventImageUploadSessionResponse.
+type EventImageUploadSessionResponse struct {
+	// SessionId Upload session ID to use for image uploads
+	SessionId openapi_types.UUID `json:"sessionId"`
 }
 
 // EventListResponse defines model for EventListResponse.
@@ -510,6 +551,21 @@ type GenerateDocumentUploadUrlResponse struct {
 	DocumentId openapi_types.UUID `json:"documentId"`
 
 	// UploadUrl Pre-signed URL for uploading the file
+	UploadUrl string `json:"uploadUrl"`
+}
+
+// GenerateEventImageUploadUrlRequest defines model for GenerateEventImageUploadUrlRequest.
+type GenerateEventImageUploadUrlRequest struct {
+	// Filename Name of the file to upload (used to determine file extension)
+	Filename string `json:"filename"`
+}
+
+// GenerateEventImageUploadUrlResponse defines model for GenerateEventImageUploadUrlResponse.
+type GenerateEventImageUploadUrlResponse struct {
+	// ImageId Image ID for later confirmation
+	ImageId openapi_types.UUID `json:"imageId"`
+
+	// UploadUrl Pre-signed URL for uploading the image
 	UploadUrl string `json:"uploadUrl"`
 }
 
@@ -833,6 +889,12 @@ type EntityIdParam = openapi_types.UUID
 // EventIdParam defines model for EventIdParam.
 type EventIdParam = openapi_types.UUID
 
+// EventImageIdParam defines model for EventImageIdParam.
+type EventImageIdParam = openapi_types.UUID
+
+// EventImageSessionIdParam defines model for EventImageSessionIdParam.
+type EventImageSessionIdParam = openapi_types.UUID
+
 // LimitParam defines model for LimitParam.
 type LimitParam = int
 
@@ -962,6 +1024,9 @@ type UpdateEntityMemberRoleJSONRequestBody = UpdateEntityMemberRoleRequest
 // CreateEntityOAuth2ClientJSONRequestBody defines body for CreateEntityOAuth2Client for application/json ContentType.
 type CreateEntityOAuth2ClientJSONRequestBody = CreateEntityOAuth2ClientRequest
 
+// GenerateEventImageUploadUrlJSONRequestBody defines body for GenerateEventImageUploadUrl for application/json ContentType.
+type GenerateEventImageUploadUrlJSONRequestBody = GenerateEventImageUploadUrlRequest
+
 // CreateEventJSONRequestBody defines body for CreateEvent for application/json ContentType.
 type CreateEventJSONRequestBody = CreateEventRequest
 
@@ -1045,6 +1110,21 @@ type ServerInterface interface {
 	// Get OAuth2 client details
 	// (GET /entities/{entityId}/oauth2/clients/{clientId})
 	GetEntityOAuth2Client(w http.ResponseWriter, r *http.Request, entityId EntityIdParam, clientId ClientIdParam)
+	// Create an upload session for event images
+	// (POST /event-images/upload-session)
+	CreateEventImageUploadSession(w http.ResponseWriter, r *http.Request)
+	// Delete an event image
+	// (DELETE /event-images/{imageId})
+	DeleteEventImage(w http.ResponseWriter, r *http.Request, imageId EventImageIdParam)
+	// Confirm an event image upload
+	// (POST /event-images/{imageId}/confirm)
+	ConfirmEventImageUpload(w http.ResponseWriter, r *http.Request, imageId EventImageIdParam)
+	// Get images in an upload session
+	// (GET /event-images/{sessionId})
+	GetEventImagesBySession(w http.ResponseWriter, r *http.Request, sessionId EventImageSessionIdParam)
+	// Generate a pre-signed URL for uploading an event image
+	// (POST /event-images/{sessionId}/upload-url)
+	GenerateEventImageUploadUrl(w http.ResponseWriter, r *http.Request, sessionId EventImageSessionIdParam)
 	// Create a new history event
 	// (POST /events)
 	CreateEvent(w http.ResponseWriter, r *http.Request)
@@ -1054,6 +1134,9 @@ type ServerInterface interface {
 	// Get event by ID
 	// (GET /events/{eventId})
 	GetEvent(w http.ResponseWriter, r *http.Request, eventId EventIdParam)
+	// Get images for an event
+	// (GET /events/{eventId}/images)
+	GetEventImages(w http.ResponseWriter, r *http.Request, eventId EventIdParam)
 	// Health check endpoint
 	// (GET /health)
 	GetHealth(w http.ResponseWriter, r *http.Request)
@@ -1733,6 +1816,150 @@ func (siw *ServerInterfaceWrapper) GetEntityOAuth2Client(w http.ResponseWriter, 
 	handler.ServeHTTP(w, r)
 }
 
+// CreateEventImageUploadSession operation middleware
+func (siw *ServerInterfaceWrapper) CreateEventImageUploadSession(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateEventImageUploadSession(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// DeleteEventImage operation middleware
+func (siw *ServerInterfaceWrapper) DeleteEventImage(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "imageId" -------------
+	var imageId EventImageIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "imageId", r.PathValue("imageId"), &imageId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "imageId", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.DeleteEventImage(w, r, imageId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ConfirmEventImageUpload operation middleware
+func (siw *ServerInterfaceWrapper) ConfirmEventImageUpload(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "imageId" -------------
+	var imageId EventImageIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "imageId", r.PathValue("imageId"), &imageId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "imageId", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ConfirmEventImageUpload(w, r, imageId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetEventImagesBySession operation middleware
+func (siw *ServerInterfaceWrapper) GetEventImagesBySession(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "sessionId" -------------
+	var sessionId EventImageSessionIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "sessionId", r.PathValue("sessionId"), &sessionId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "sessionId", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetEventImagesBySession(w, r, sessionId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GenerateEventImageUploadUrl operation middleware
+func (siw *ServerInterfaceWrapper) GenerateEventImageUploadUrl(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "sessionId" -------------
+	var sessionId EventImageSessionIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "sessionId", r.PathValue("sessionId"), &sessionId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "sessionId", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GenerateEventImageUploadUrl(w, r, sessionId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // CreateEvent operation middleware
 func (siw *ServerInterfaceWrapper) CreateEvent(w http.ResponseWriter, r *http.Request) {
 
@@ -1795,6 +2022,37 @@ func (siw *ServerInterfaceWrapper) GetEvent(w http.ResponseWriter, r *http.Reque
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetEvent(w, r, eventId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetEventImages operation middleware
+func (siw *ServerInterfaceWrapper) GetEventImages(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "eventId" -------------
+	var eventId EventIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "eventId", r.PathValue("eventId"), &eventId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "eventId", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetEventImages(w, r, eventId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -2727,9 +2985,15 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("POST "+options.BaseURL+"/entities/{entityId}/oauth2/clients", wrapper.CreateEntityOAuth2Client)
 	m.HandleFunc("DELETE "+options.BaseURL+"/entities/{entityId}/oauth2/clients/{clientId}", wrapper.DeleteEntityOAuth2Client)
 	m.HandleFunc("GET "+options.BaseURL+"/entities/{entityId}/oauth2/clients/{clientId}", wrapper.GetEntityOAuth2Client)
+	m.HandleFunc("POST "+options.BaseURL+"/event-images/upload-session", wrapper.CreateEventImageUploadSession)
+	m.HandleFunc("DELETE "+options.BaseURL+"/event-images/{imageId}", wrapper.DeleteEventImage)
+	m.HandleFunc("POST "+options.BaseURL+"/event-images/{imageId}/confirm", wrapper.ConfirmEventImageUpload)
+	m.HandleFunc("GET "+options.BaseURL+"/event-images/{sessionId}", wrapper.GetEventImagesBySession)
+	m.HandleFunc("POST "+options.BaseURL+"/event-images/{sessionId}/upload-url", wrapper.GenerateEventImageUploadUrl)
 	m.HandleFunc("POST "+options.BaseURL+"/events", wrapper.CreateEvent)
 	m.HandleFunc("POST "+options.BaseURL+"/events/bulk", wrapper.CreateBulkEvents)
 	m.HandleFunc("GET "+options.BaseURL+"/events/{eventId}", wrapper.GetEvent)
+	m.HandleFunc("GET "+options.BaseURL+"/events/{eventId}/images", wrapper.GetEventImages)
 	m.HandleFunc("GET "+options.BaseURL+"/health", wrapper.GetHealth)
 	m.HandleFunc("POST "+options.BaseURL+"/invitations/claim", wrapper.ClaimInvitations)
 	m.HandleFunc("GET "+options.BaseURL+"/invitations/validate", wrapper.ValidateInvitation)
@@ -3540,6 +3804,198 @@ func (response GetEntityOAuth2Client404JSONResponse) VisitGetEntityOAuth2ClientR
 	return json.NewEncoder(w).Encode(response)
 }
 
+type CreateEventImageUploadSessionRequestObject struct {
+}
+
+type CreateEventImageUploadSessionResponseObject interface {
+	VisitCreateEventImageUploadSessionResponse(w http.ResponseWriter) error
+}
+
+type CreateEventImageUploadSession201JSONResponse EventImageUploadSessionResponse
+
+func (response CreateEventImageUploadSession201JSONResponse) VisitCreateEventImageUploadSessionResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CreateEventImageUploadSession401JSONResponse struct{ UnauthorizedJSONResponse }
+
+func (response CreateEventImageUploadSession401JSONResponse) VisitCreateEventImageUploadSessionResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CreateEventImageUploadSession403JSONResponse struct{ ForbiddenJSONResponse }
+
+func (response CreateEventImageUploadSession403JSONResponse) VisitCreateEventImageUploadSessionResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type DeleteEventImageRequestObject struct {
+	ImageId EventImageIdParam `json:"imageId"`
+}
+
+type DeleteEventImageResponseObject interface {
+	VisitDeleteEventImageResponse(w http.ResponseWriter) error
+}
+
+type DeleteEventImage204Response struct {
+}
+
+func (response DeleteEventImage204Response) VisitDeleteEventImageResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
+}
+
+type DeleteEventImage400JSONResponse struct{ BadRequestJSONResponse }
+
+func (response DeleteEventImage400JSONResponse) VisitDeleteEventImageResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type DeleteEventImage401JSONResponse struct{ UnauthorizedJSONResponse }
+
+func (response DeleteEventImage401JSONResponse) VisitDeleteEventImageResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type DeleteEventImage404JSONResponse struct{ NotFoundJSONResponse }
+
+func (response DeleteEventImage404JSONResponse) VisitDeleteEventImageResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ConfirmEventImageUploadRequestObject struct {
+	ImageId EventImageIdParam `json:"imageId"`
+}
+
+type ConfirmEventImageUploadResponseObject interface {
+	VisitConfirmEventImageUploadResponse(w http.ResponseWriter) error
+}
+
+type ConfirmEventImageUpload200JSONResponse EventImage
+
+func (response ConfirmEventImageUpload200JSONResponse) VisitConfirmEventImageUploadResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ConfirmEventImageUpload400JSONResponse struct{ BadRequestJSONResponse }
+
+func (response ConfirmEventImageUpload400JSONResponse) VisitConfirmEventImageUploadResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ConfirmEventImageUpload401JSONResponse struct{ UnauthorizedJSONResponse }
+
+func (response ConfirmEventImageUpload401JSONResponse) VisitConfirmEventImageUploadResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ConfirmEventImageUpload404JSONResponse struct{ NotFoundJSONResponse }
+
+func (response ConfirmEventImageUpload404JSONResponse) VisitConfirmEventImageUploadResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetEventImagesBySessionRequestObject struct {
+	SessionId EventImageSessionIdParam `json:"sessionId"`
+}
+
+type GetEventImagesBySessionResponseObject interface {
+	VisitGetEventImagesBySessionResponse(w http.ResponseWriter) error
+}
+
+type GetEventImagesBySession200JSONResponse EventImageListResponse
+
+func (response GetEventImagesBySession200JSONResponse) VisitGetEventImagesBySessionResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetEventImagesBySession401JSONResponse struct{ UnauthorizedJSONResponse }
+
+func (response GetEventImagesBySession401JSONResponse) VisitGetEventImagesBySessionResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GenerateEventImageUploadUrlRequestObject struct {
+	SessionId EventImageSessionIdParam `json:"sessionId"`
+	Body      *GenerateEventImageUploadUrlJSONRequestBody
+}
+
+type GenerateEventImageUploadUrlResponseObject interface {
+	VisitGenerateEventImageUploadUrlResponse(w http.ResponseWriter) error
+}
+
+type GenerateEventImageUploadUrl200JSONResponse GenerateEventImageUploadUrlResponse
+
+func (response GenerateEventImageUploadUrl200JSONResponse) VisitGenerateEventImageUploadUrlResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GenerateEventImageUploadUrl400JSONResponse struct{ BadRequestJSONResponse }
+
+func (response GenerateEventImageUploadUrl400JSONResponse) VisitGenerateEventImageUploadUrlResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GenerateEventImageUploadUrl401JSONResponse struct{ UnauthorizedJSONResponse }
+
+func (response GenerateEventImageUploadUrl401JSONResponse) VisitGenerateEventImageUploadUrlResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GenerateEventImageUploadUrl403JSONResponse struct{ ForbiddenJSONResponse }
+
+func (response GenerateEventImageUploadUrl403JSONResponse) VisitGenerateEventImageUploadUrlResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
 type CreateEventRequestObject struct {
 	Body *CreateEventJSONRequestBody
 }
@@ -3657,6 +4113,32 @@ func (response GetEvent200JSONResponse) VisitGetEventResponse(w http.ResponseWri
 type GetEvent404JSONResponse struct{ NotFoundJSONResponse }
 
 func (response GetEvent404JSONResponse) VisitGetEventResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetEventImagesRequestObject struct {
+	EventId EventIdParam `json:"eventId"`
+}
+
+type GetEventImagesResponseObject interface {
+	VisitGetEventImagesResponse(w http.ResponseWriter) error
+}
+
+type GetEventImages200JSONResponse EventImageListResponse
+
+func (response GetEventImages200JSONResponse) VisitGetEventImagesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetEventImages404JSONResponse struct{ NotFoundJSONResponse }
+
+func (response GetEventImages404JSONResponse) VisitGetEventImagesResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(404)
 
@@ -4763,6 +5245,21 @@ type StrictServerInterface interface {
 	// Get OAuth2 client details
 	// (GET /entities/{entityId}/oauth2/clients/{clientId})
 	GetEntityOAuth2Client(ctx context.Context, request GetEntityOAuth2ClientRequestObject) (GetEntityOAuth2ClientResponseObject, error)
+	// Create an upload session for event images
+	// (POST /event-images/upload-session)
+	CreateEventImageUploadSession(ctx context.Context, request CreateEventImageUploadSessionRequestObject) (CreateEventImageUploadSessionResponseObject, error)
+	// Delete an event image
+	// (DELETE /event-images/{imageId})
+	DeleteEventImage(ctx context.Context, request DeleteEventImageRequestObject) (DeleteEventImageResponseObject, error)
+	// Confirm an event image upload
+	// (POST /event-images/{imageId}/confirm)
+	ConfirmEventImageUpload(ctx context.Context, request ConfirmEventImageUploadRequestObject) (ConfirmEventImageUploadResponseObject, error)
+	// Get images in an upload session
+	// (GET /event-images/{sessionId})
+	GetEventImagesBySession(ctx context.Context, request GetEventImagesBySessionRequestObject) (GetEventImagesBySessionResponseObject, error)
+	// Generate a pre-signed URL for uploading an event image
+	// (POST /event-images/{sessionId}/upload-url)
+	GenerateEventImageUploadUrl(ctx context.Context, request GenerateEventImageUploadUrlRequestObject) (GenerateEventImageUploadUrlResponseObject, error)
 	// Create a new history event
 	// (POST /events)
 	CreateEvent(ctx context.Context, request CreateEventRequestObject) (CreateEventResponseObject, error)
@@ -4772,6 +5269,9 @@ type StrictServerInterface interface {
 	// Get event by ID
 	// (GET /events/{eventId})
 	GetEvent(ctx context.Context, request GetEventRequestObject) (GetEventResponseObject, error)
+	// Get images for an event
+	// (GET /events/{eventId}/images)
+	GetEventImages(ctx context.Context, request GetEventImagesRequestObject) (GetEventImagesResponseObject, error)
 	// Health check endpoint
 	// (GET /health)
 	GetHealth(ctx context.Context, request GetHealthRequestObject) (GetHealthResponseObject, error)
@@ -5398,6 +5898,141 @@ func (sh *strictHandler) GetEntityOAuth2Client(w http.ResponseWriter, r *http.Re
 	}
 }
 
+// CreateEventImageUploadSession operation middleware
+func (sh *strictHandler) CreateEventImageUploadSession(w http.ResponseWriter, r *http.Request) {
+	var request CreateEventImageUploadSessionRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.CreateEventImageUploadSession(ctx, request.(CreateEventImageUploadSessionRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CreateEventImageUploadSession")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(CreateEventImageUploadSessionResponseObject); ok {
+		if err := validResponse.VisitCreateEventImageUploadSessionResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// DeleteEventImage operation middleware
+func (sh *strictHandler) DeleteEventImage(w http.ResponseWriter, r *http.Request, imageId EventImageIdParam) {
+	var request DeleteEventImageRequestObject
+
+	request.ImageId = imageId
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.DeleteEventImage(ctx, request.(DeleteEventImageRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "DeleteEventImage")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(DeleteEventImageResponseObject); ok {
+		if err := validResponse.VisitDeleteEventImageResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ConfirmEventImageUpload operation middleware
+func (sh *strictHandler) ConfirmEventImageUpload(w http.ResponseWriter, r *http.Request, imageId EventImageIdParam) {
+	var request ConfirmEventImageUploadRequestObject
+
+	request.ImageId = imageId
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ConfirmEventImageUpload(ctx, request.(ConfirmEventImageUploadRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ConfirmEventImageUpload")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ConfirmEventImageUploadResponseObject); ok {
+		if err := validResponse.VisitConfirmEventImageUploadResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetEventImagesBySession operation middleware
+func (sh *strictHandler) GetEventImagesBySession(w http.ResponseWriter, r *http.Request, sessionId EventImageSessionIdParam) {
+	var request GetEventImagesBySessionRequestObject
+
+	request.SessionId = sessionId
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetEventImagesBySession(ctx, request.(GetEventImagesBySessionRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetEventImagesBySession")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetEventImagesBySessionResponseObject); ok {
+		if err := validResponse.VisitGetEventImagesBySessionResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GenerateEventImageUploadUrl operation middleware
+func (sh *strictHandler) GenerateEventImageUploadUrl(w http.ResponseWriter, r *http.Request, sessionId EventImageSessionIdParam) {
+	var request GenerateEventImageUploadUrlRequestObject
+
+	request.SessionId = sessionId
+
+	var body GenerateEventImageUploadUrlJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GenerateEventImageUploadUrl(ctx, request.(GenerateEventImageUploadUrlRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GenerateEventImageUploadUrl")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GenerateEventImageUploadUrlResponseObject); ok {
+		if err := validResponse.VisitGenerateEventImageUploadUrlResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // CreateEvent operation middleware
 func (sh *strictHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	var request CreateEventRequestObject
@@ -5479,6 +6114,32 @@ func (sh *strictHandler) GetEvent(w http.ResponseWriter, r *http.Request, eventI
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(GetEventResponseObject); ok {
 		if err := validResponse.VisitGetEventResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetEventImages operation middleware
+func (sh *strictHandler) GetEventImages(w http.ResponseWriter, r *http.Request, eventId EventIdParam) {
+	var request GetEventImagesRequestObject
+
+	request.EventId = eventId
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetEventImages(ctx, request.(GetEventImagesRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetEventImages")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetEventImagesResponseObject); ok {
+		if err := validResponse.VisitGetEventImagesResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

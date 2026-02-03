@@ -55,15 +55,16 @@ const (
 // CreateEventParams represents parameters for creating a new event
 // If Date is nil, it will be set to the current time (NOW() UTC) by the service
 type CreateEventParams struct {
-	ShouldAnchor bool
-	VehicleID    uuid.UUID
-	EntityID     *uuid.UUID
-	Type         EventType
-	Title        string
-	Description  *string
-	Date         *time.Time
-	Location     *string
-	Metadata     map[string]interface{}
+	ShouldAnchor   bool
+	VehicleID      uuid.UUID
+	EntityID       *uuid.UUID
+	Type           EventType
+	Title          string
+	Description    *string
+	Date           *time.Time
+	Location       *string
+	Metadata       map[string]interface{}
+	ImageSessionID *uuid.UUID
 }
 
 // UpdateEventParams represents parameters for updating an existing event

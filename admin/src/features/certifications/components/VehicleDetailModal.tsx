@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Calendar, MapPin, Award, ExternalLink } from 'lucide-react';
+import { X, Calendar, MapPin, Award, ExternalLink, ImageIcon } from 'lucide-react';
 import { CertificationForm } from './CertificationForm';
 import { EventCertificateForm } from './EventCertificateForm';
 import { useVehicleEvents } from '../hooks/useVehicles';
+import { generateStorageUrl } from '@/lib/storage';
 import type { Vehicle, EventType } from '../types';
 
 interface Entity {
@@ -22,6 +23,14 @@ interface VehicleDetailModalProps {
 
 type Tab = 'details' | 'history' | 'certifications' | 'event-certificates';
 
+interface EventImage {
+  id: string;
+  eventId?: string;
+  objectKey: string;
+  cid?: string;
+  createdAt: string;
+}
+
 interface VehicleEvent {
   id: string;
   vehicleId: string;
@@ -35,6 +44,7 @@ interface VehicleEvent {
   blockchainTxId?: string;
   cid?: string;
   createdAt: string;
+  images?: EventImage[];
 }
 
 const getEventTypeBadgeColor = (type: EventType): string => {
@@ -341,6 +351,35 @@ export function VehicleDetailModal({
                             {/* Description */}
                             {event.description && (
                               <p className="text-sm text-muted-foreground">{event.description}</p>
+                            )}
+
+                            {/* Event Images */}
+                            {event.images && event.images.length > 0 && (
+                              <div>
+                                <div className="flex items-center gap-1.5 mb-2 text-xs text-muted-foreground">
+                                  <ImageIcon className="h-3 w-3" />
+                                  <span>{event.images.length} {event.images.length === 1 ? 'image' : 'images'}</span>
+                                </div>
+                                <div className="grid grid-cols-4 gap-1.5">
+                                  {event.images.slice(0, 4).map((image, index) => (
+                                    <div
+                                      key={image.id}
+                                      className="relative aspect-square overflow-hidden rounded-md border border-border bg-muted"
+                                    >
+                                      <img
+                                        src={generateStorageUrl(image.objectKey)}
+                                        alt=""
+                                        className="h-full w-full object-cover"
+                                      />
+                                      {index === 3 && event.images!.length > 4 && (
+                                        <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-white text-sm font-medium">
+                                          +{event.images!.length - 4}
+                                        </div>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
                             )}
 
                             {/* Metadata */}

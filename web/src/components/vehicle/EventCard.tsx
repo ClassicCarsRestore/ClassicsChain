@@ -22,9 +22,12 @@ import {
   Check,
   ExternalLink,
   Search,
+  ImageIcon,
 } from 'lucide-react';
 import type { Event, EventType } from '@/types/vehicle';
 import { VerificationModal } from './VerificationModal';
+import { PhotoLightbox } from './PhotoLightbox';
+import { generateStorageUrl } from '@/lib/storage';
 
 interface EventCardProps {
   event: Event;
@@ -37,6 +40,8 @@ export function EventCard({ event, isCertified, entityName }: EventCardProps) {
   const [showBlockchainDetails, setShowBlockchainDetails] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   const canVerify = event.blockchainTxId && event.cid && event.cidSourceJSON && event.cidSourceCBOR;
   const network = import.meta.env.VITE_ALGORAND_NETWORK || 'testnet';
@@ -221,6 +226,40 @@ export function EventCard({ event, isCertified, entityName }: EventCardProps) {
               <p className="mb-3 text-sm text-foreground">{event.description}</p>
             )}
 
+            {/* Event Images */}
+            {event.images && event.images.length > 0 && (
+              <div className="mb-3">
+                <div className="flex items-center gap-1.5 mb-2 text-xs text-muted-foreground">
+                  <ImageIcon className="h-3 w-3" />
+                  <span>{event.images.length} {event.images.length === 1 ? 'image' : 'images'}</span>
+                </div>
+                <div className="grid grid-cols-4 gap-1.5">
+                  {event.images.slice(0, 4).map((image, index) => (
+                    <button
+                      key={image.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedImageIndex(index);
+                        setLightboxOpen(true);
+                      }}
+                      className="relative aspect-square overflow-hidden rounded-md border border-border bg-muted cursor-pointer group"
+                    >
+                      <img
+                        src={generateStorageUrl(image.objectKey)}
+                        alt=""
+                        className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                      />
+                      {index === 3 && event.images!.length > 4 && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-white text-sm font-medium">
+                          +{event.images!.length - 4}
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Event details */}
             <div className="space-y-2 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
@@ -316,6 +355,17 @@ export function EventCard({ event, isCertified, entityName }: EventCardProps) {
             blockchainTxId: event.blockchainTxId!,
             network,
           }}
+        />
+      )}
+
+      {event.images && event.images.length > 0 && (
+        <PhotoLightbox
+          isOpen={lightboxOpen}
+          photos={event.images}
+          selectedIndex={selectedImageIndex}
+          onClose={() => setLightboxOpen(false)}
+          onNext={() => setSelectedImageIndex((prev) => (prev + 1) % event.images!.length)}
+          onPrevious={() => setSelectedImageIndex((prev) => (prev - 1 + event.images!.length) % event.images!.length)}
         />
       )}
     </>

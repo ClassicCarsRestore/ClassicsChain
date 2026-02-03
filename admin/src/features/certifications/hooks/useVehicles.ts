@@ -82,6 +82,7 @@ export function useCreateEvent() {
       date,
       location,
       metadata,
+      imageSessionId,
     }: {
       vehicleId: string;
       entityId: string;
@@ -91,6 +92,7 @@ export function useCreateEvent() {
       date?: Date;
       location?: string;
       metadata: EventMetadata;
+      imageSessionId?: string;
     }) => {
       const response = await api.post('/v1/events', {
         vehicleId,
@@ -101,6 +103,7 @@ export function useCreateEvent() {
         date,
         location,
         metadata,
+        imageSessionId,
       });
 
       return response;

@@ -190,5 +190,18 @@
   "timeline": {
     "event": "event",
     "events": "events"
+  },
+  "eventImages": {
+    "title": "Event Images",
+    "uploading": "Uploading...",
+    "dropzone": "Click or drag images here",
+    "formats": "JPEG, PNG, WebP (max 10MB each)",
+    "help": "Images will be included in the blockchain-anchored event data.",
+    "errors": {
+      "fileTooLarge": "File too large (max 10MB)",
+      "invalidFileType": "Invalid file type. Use JPEG, PNG, or WebP",
+      "maxImagesExceeded": "Maximum number of images reached (10)",
+      "someFilesSkipped": "Only {{count}} file(s) uploaded (max 10 total)"
+    }
   }
 }

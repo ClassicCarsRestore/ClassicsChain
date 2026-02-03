@@ -41,6 +41,16 @@ type Event struct {
 	CreatedAt        time.Time
 }
 
+type EventImage struct {
+	ID              uuid.UUID
+	EventID         *uuid.UUID
+	UploadSessionID uuid.UUID
+	ObjectKey       string
+	Cid             *string
+	UploadUrl       *string
+	CreatedAt       pgtype.Timestamptz
+}
+
 type User struct {
 	ID        uuid.UUID
 	IsAdmin   bool

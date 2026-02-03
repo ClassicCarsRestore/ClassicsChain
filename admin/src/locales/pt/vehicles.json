@@ -253,5 +253,18 @@
     "bulkSuccess": "{{count}} certificados emitidos com sucesso",
     "bulkPartial": "{{success}} emitidos, {{failed}} falharam",
     "bulkError": "Falha ao emitir certificados"
+  },
+  "eventImages": {
+    "title": "Imagens do Evento",
+    "uploading": "A carregar...",
+    "dropzone": "Clique ou arraste imagens aqui",
+    "formats": "JPEG, PNG, WebP (máx. 10MB cada)",
+    "help": "As imagens serão incluídas nos dados do evento ancorados na blockchain. Os CIDs são calculados no upload.",
+    "errors": {
+      "fileTooLarge": "Ficheiro demasiado grande (máx. 10MB)",
+      "invalidFileType": "Tipo de ficheiro inválido. Use JPEG, PNG ou WebP",
+      "maxImagesExceeded": "Número máximo de imagens atingido (10)",
+      "someFilesSkipped": "Apenas {{count}} ficheiro(s) carregado(s) (máx. 10 no total)"
+    }
   }
 }

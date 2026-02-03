@@ -14,6 +14,7 @@ import (
 
 type mockDocumentOps struct {
 	deleteObjectFunc func(ctx context.Context, params *s3.DeleteObjectInput, optFns ...func(*s3.Options)) (*s3.DeleteObjectOutput, error)
+	getObjectFunc    func(ctx context.Context, params *s3.GetObjectInput, optFns ...func(*s3.Options)) (*s3.GetObjectOutput, error)
 }
 
 func (m *mockDocumentOps) DeleteObject(ctx context.Context, params *s3.DeleteObjectInput, optFns ...func(*s3.Options)) (*s3.DeleteObjectOutput, error) {
@@ -21,6 +22,13 @@ func (m *mockDocumentOps) DeleteObject(ctx context.Context, params *s3.DeleteObj
 		return m.deleteObjectFunc(ctx, params, optFns...)
 	}
 	return &s3.DeleteObjectOutput{}, nil
+}
+
+func (m *mockDocumentOps) GetObject(ctx context.Context, params *s3.GetObjectInput, optFns ...func(*s3.Options)) (*s3.GetObjectOutput, error) {
+	if m.getObjectFunc != nil {
+		return m.getObjectFunc(ctx, params, optFns...)
+	}
+	return nil, nil
 }
 
 type mockPresigner struct {

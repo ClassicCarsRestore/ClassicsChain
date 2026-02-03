@@ -9,6 +9,7 @@ import (
 	openapi_types "github.com/oapi-codegen/runtime/types"
 	"github.com/s1moe2/classics-chain/auth"
 	"github.com/s1moe2/classics-chain/event"
+	"github.com/s1moe2/classics-chain/eventimages"
 )
 
 func (a apiServer) GetVehicleEvents(ctx context.Context, request GetVehicleEventsRequestObject) (GetVehicleEventsResponseObject, error) {
@@ -54,7 +55,8 @@ func (a apiServer) GetVehicleEvents(ctx context.Context, request GetVehicleEvent
 
 	httpEvents := make([]Event, len(events))
 	for i, evt := range events {
-		httpEvents[i] = domainToHTTPEvent(evt)
+		images, _ := a.eventImageService.ListByEvent(ctx, evt.ID)
+		httpEvents[i] = domainToHTTPEvent(evt, images)
 	}
 
 	totalPages := (total + limit - 1) / limit
@@ -101,15 +103,16 @@ func (a apiServer) CreateEvent(ctx context.Context, request CreateEventRequestOb
 	}
 
 	params := event.CreateEventParams{
-		VehicleID:    request.Body.VehicleId,
-		EntityID:     request.Body.EntityId,
-		Type:         event.EventType(request.Body.Type),
-		Title:        request.Body.Title,
-		Description:  request.Body.Description,
-		Date:         request.Body.Date,
-		Location:     request.Body.Location,
-		Metadata:     getMetadataValue(request.Body.Metadata),
-		ShouldAnchor: true,
+		VehicleID:      request.Body.VehicleId,
+		EntityID:       request.Body.EntityId,
+		Type:           event.EventType(request.Body.Type),
+		Title:          request.Body.Title,
+		Description:    request.Body.Description,
+		Date:           request.Body.Date,
+		Location:       request.Body.Location,
+		Metadata:       getMetadataValue(request.Body.Metadata),
+		ShouldAnchor:   true,
+		ImageSessionID: request.Body.ImageSessionId,
 	}
 
 	createdEvent, err := a.eventService.Create(ctx, *vehicle, params)
@@ -117,7 +120,8 @@ func (a apiServer) CreateEvent(ctx context.Context, request CreateEventRequestOb
 		return nil, err
 	}
 
-	httpEvent := domainToHTTPEvent(*createdEvent)
+	images, _ := a.eventImageService.ListByEvent(ctx, createdEvent.ID)
+	httpEvent := domainToHTTPEvent(*createdEvent, images)
 	return CreateEvent201JSONResponse(httpEvent), nil
 }
 
@@ -168,11 +172,12 @@ func (a apiServer) CreateOwnerEvent(ctx context.Context, request CreateOwnerEven
 	}
 
 	params := event.CreateEventParams{
-		VehicleID:   request.VehicleId,
-		Type:        event.EventType(request.Body.Type),
-		Title:       request.Body.Title,
-		Description: request.Body.Description,
-		Location:    request.Body.Location,
+		VehicleID:      request.VehicleId,
+		Type:           event.EventType(request.Body.Type),
+		Title:          request.Body.Title,
+		Description:    request.Body.Description,
+		Location:       request.Body.Location,
+		ImageSessionID: request.Body.ImageSessionId,
 	}
 
 	if request.Body.Date != nil {
@@ -184,7 +189,8 @@ func (a apiServer) CreateOwnerEvent(ctx context.Context, request CreateOwnerEven
 		return nil, err
 	}
 
-	httpEvent := domainToHTTPEvent(*createdEvent)
+	images, _ := a.eventImageService.ListByEvent(ctx, createdEvent.ID)
+	httpEvent := domainToHTTPEvent(*createdEvent, images)
 	return CreateOwnerEvent201JSONResponse(httpEvent), nil
 }
 
@@ -201,7 +207,8 @@ func (a apiServer) GetEvent(ctx context.Context, request GetEventRequestObject) 
 		return nil, err
 	}
 
-	httpEvent := domainToHTTPEvent(*evt)
+	images, _ := a.eventImageService.ListByEvent(ctx, evt.ID)
+	httpEvent := domainToHTTPEvent(*evt, images)
 	return GetEvent200JSONResponse(httpEvent), nil
 }
 
@@ -290,7 +297,23 @@ func (a apiServer) CreateBulkEvents(ctx context.Context, request CreateBulkEvent
 	}, nil
 }
 
-func domainToHTTPEvent(domainEvent event.Event) Event {
+func domainToHTTPEvent(domainEvent event.Event, images []eventimages.EventImage) Event {
+	var httpImages *[]EventImage
+	if len(images) > 0 {
+		imgs := make([]EventImage, len(images))
+		for i, img := range images {
+			imgs[i] = EventImage{
+				Id:              img.ID,
+				EventId:         img.EventID,
+				UploadSessionId: img.UploadSessionID,
+				ObjectKey:       img.ObjectKey,
+				Cid:             img.CID,
+				CreatedAt:       img.CreatedAt,
+			}
+		}
+		httpImages = &imgs
+	}
+
 	return Event{
 		BlockchainTxId: domainEvent.BlockchainTxID,
 		Cid:            domainEvent.CID,
@@ -302,6 +325,7 @@ func domainToHTTPEvent(domainEvent event.Event) Event {
 		EntityId:       domainEvent.EntityID,
 		EntityName:     domainEvent.EntityName,
 		Id:             domainEvent.ID,
+		Images:         httpImages,
 		Location:       domainEvent.Location,
 		Metadata:       &domainEvent.Metadata,
 		Title:          domainEvent.Title,

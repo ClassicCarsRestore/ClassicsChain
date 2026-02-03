@@ -218,7 +218,8 @@ func (a apiServer) GetSharedVehicle(ctx context.Context, request GetSharedVehicl
 		if err == nil {
 			events := make([]Event, len(dbEvents))
 			for i, e := range dbEvents {
-				events[i] = domainToHTTPEvent(e)
+				images, _ := a.eventImageService.ListByEvent(ctx, e.ID)
+				events[i] = domainToHTTPEvent(e, images)
 			}
 			httpEvents = &events
 		}

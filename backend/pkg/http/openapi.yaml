@@ -1164,6 +1164,136 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+  /events/{eventId}/images:
+    get:
+      operationId: getEventImages
+      summary: Get images for an event
+      description: Retrieve all images associated with a specific event
+      tags:
+        - Events
+        - EventImages
+      parameters:
+        - $ref: '#/components/parameters/EventIdParam'
+      responses:
+        '200':
+          description: List of event images
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventImageListResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # Event Images
+  /event-images/upload-session:
+    post:
+      operationId: createEventImageUploadSession
+      summary: Create an upload session for event images
+      description: Creates a new upload session. Use the returned sessionId for subsequent image uploads before creating the event.
+      tags:
+        - EventImages
+      responses:
+        '201':
+          description: Upload session created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventImageUploadSessionResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /event-images/{sessionId}/upload-url:
+    post:
+      operationId: generateEventImageUploadUrl
+      summary: Generate a pre-signed URL for uploading an event image
+      description: Creates an image record and generates a pre-signed URL for uploading. Maximum 10 images per session.
+      tags:
+        - EventImages
+      parameters:
+        - $ref: '#/components/parameters/EventImageSessionIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateEventImageUploadUrlRequest'
+      responses:
+        '200':
+          description: Upload URL generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerateEventImageUploadUrlResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /event-images/{sessionId}:
+    get:
+      operationId: getEventImagesBySession
+      summary: Get images in an upload session
+      description: Retrieve all images that have been uploaded to a session
+      tags:
+        - EventImages
+      parameters:
+        - $ref: '#/components/parameters/EventImageSessionIdParam'
+      responses:
+        '200':
+          description: List of images in session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventImageListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /event-images/{imageId}/confirm:
+    post:
+      operationId: confirmEventImageUpload
+      summary: Confirm an event image upload
+      description: Confirms a successful image upload. This computes the CID for the image and should be called after uploading to the pre-signed URL.
+      tags:
+        - EventImages
+      parameters:
+        - $ref: '#/components/parameters/EventImageIdParam'
+      responses:
+        '200':
+          description: Image upload confirmed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventImage'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /event-images/{imageId}:
+    delete:
+      operationId: deleteEventImage
+      summary: Delete an event image
+      description: Delete an event image from an upload session. Cannot delete images already attached to events.
+      tags:
+        - EventImages
+      parameters:
+        - $ref: '#/components/parameters/EventImageIdParam'
+      responses:
+        '204':
+          description: Image deleted successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
 components:
   securitySchemes:
     BearerAuth:
@@ -1263,6 +1393,24 @@ components:
       description: OAuth2 Client ID
       schema:
         type: string
+
+    EventImageSessionIdParam:
+      name: sessionId
+      in: path
+      required: true
+      description: Event Image Upload Session ID
+      schema:
+        type: string
+        format: uuid
+
+    EventImageIdParam:
+      name: imageId
+      in: path
+      required: true
+      description: Event Image ID
+      schema:
+        type: string
+        format: uuid
 
   responses:
     BadRequest:
@@ -1949,6 +2097,11 @@ components:
           type: string
           format: date-time
           description: When event was created
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/EventImage'
+          description: Images attached to this event
       required:
         - id
         - vehicleId
@@ -2008,6 +2161,10 @@ components:
           type: object
           additionalProperties: true
           description: Optional metadata object for event type-specific data
+        imageSessionId:
+          type: string
+          format: uuid
+          description: Optional upload session ID containing pre-uploaded images to attach to this event
       required:
         - vehicleId
         - type
@@ -2031,6 +2188,10 @@ components:
         location:
           type: string
           description: Optional location where the event occurred
+        imageSessionId:
+          type: string
+          format: uuid
+          description: Optional upload session ID containing pre-uploaded images to attach to this event
       required:
         - type
         - title
@@ -2679,6 +2840,82 @@ components:
       required:
         - data
 
+    # Event Image schemas
+    EventImage:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Event image ID
+        eventId:
+          type: string
+          format: uuid
+          description: Event ID (null if not yet attached)
+        uploadSessionId:
+          type: string
+          format: uuid
+          description: Upload session ID
+        objectKey:
+          type: string
+          description: S3-compatible object key
+        cid:
+          type: string
+          description: Content Identifier (CID) for the image
+        createdAt:
+          type: string
+          format: date-time
+          description: When the image was uploaded
+      required:
+        - id
+        - uploadSessionId
+        - objectKey
+        - createdAt
+
+    EventImageListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/EventImage'
+      required:
+        - data
+
+    EventImageUploadSessionResponse:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          format: uuid
+          description: Upload session ID to use for image uploads
+      required:
+        - sessionId
+
+    GenerateEventImageUploadUrlRequest:
+      type: object
+      properties:
+        filename:
+          type: string
+          description: Name of the file to upload (used to determine file extension)
+      required:
+        - filename
+
+    GenerateEventImageUploadUrlResponse:
+      type: object
+      properties:
+        imageId:
+          type: string
+          format: uuid
+          description: Image ID for later confirmation
+        uploadUrl:
+          type: string
+          format: uri
+          description: Pre-signed URL for uploading the image
+      required:
+        - imageId
+        - uploadUrl
+
 tags:
   - name: Health
     description: Health check operations
@@ -2704,3 +2941,5 @@ tags:
     description: Public access to shared vehicles via temporary links
   - name: Events
     description: Vehicle history event operations
+  - name: EventImages
+    description: Event image management operations

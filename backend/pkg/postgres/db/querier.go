@@ -8,26 +8,31 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Querier interface {
 	AddUserToEntity(ctx context.Context, arg AddUserToEntityParams) (UserEntity, error)
+	AttachEventImagesToEvent(ctx context.Context, arg AttachEventImagesToEventParams) error
 	CheckUserEntityMembership(ctx context.Context, arg CheckUserEntityMembershipParams) (bool, error)
 	ClaimInvitation(ctx context.Context, id uuid.UUID) (ClaimInvitationRow, error)
 	ClaimInvitationsByEmail(ctx context.Context, email string) error
 	ClaimUserInvitation(ctx context.Context, token string) error
 	ClaimVehicle(ctx context.Context, arg ClaimVehicleParams) (Vehicle, error)
 	ConfirmDocumentUpload(ctx context.Context, id uuid.UUID) (VehicleDocument, error)
+	ConfirmEventImageUpload(ctx context.Context, arg ConfirmEventImageUploadParams) (EventImage, error)
 	ConfirmPhotoUpload(ctx context.Context, id uuid.UUID) (VehiclePhoto, error)
 	CountDocumentsByVehicle(ctx context.Context, vehicleID uuid.UUID) (int64, error)
 	CountEntities(ctx context.Context) (int64, error)
 	CountEntitiesByType(ctx context.Context, entityType string) (int64, error)
+	CountEventImagesBySession(ctx context.Context, uploadSessionID uuid.UUID) (int64, error)
 	CountPhotosByVehicle(ctx context.Context, vehicleID uuid.UUID) (int64, error)
 	CountVehicles(ctx context.Context) (int64, error)
 	CountVehiclesByOwner(ctx context.Context, ownerID *uuid.UUID) (int64, error)
 	CreateDocument(ctx context.Context, arg CreateDocumentParams) (VehicleDocument, error)
 	CreateEntity(ctx context.Context, arg CreateEntityParams) (Entity, error)
 	CreateEvent(ctx context.Context, arg CreateEventParams) (Event, error)
+	CreateEventImage(ctx context.Context, arg CreateEventImageParams) (EventImage, error)
 	CreateInvitation(ctx context.Context, arg CreateInvitationParams) (CreateInvitationRow, error)
 	CreatePhoto(ctx context.Context, arg CreatePhotoParams) (VehiclePhoto, error)
 	CreateShareLink(ctx context.Context, arg CreateShareLinkParams) (VehicleShareLink, error)
@@ -37,8 +42,10 @@ type Querier interface {
 	DeleteDocument(ctx context.Context, id uuid.UUID) error
 	DeleteEntity(ctx context.Context, id uuid.UUID) error
 	DeleteEvent(ctx context.Context, id uuid.UUID) error
+	DeleteEventImage(ctx context.Context, id uuid.UUID) error
 	DeleteExpiredShareLinks(ctx context.Context) error
 	DeleteInvitation(ctx context.Context, id uuid.UUID) error
+	DeleteOrphanedEventImages(ctx context.Context, createdAt pgtype.Timestamptz) error
 	DeletePhoto(ctx context.Context, id uuid.UUID) error
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 	DeleteUserInvitation(ctx context.Context, id uuid.UUID) error
@@ -49,6 +56,7 @@ type Querier interface {
 	GetEntity(ctx context.Context, id uuid.UUID) (Entity, error)
 	GetEntityMembers(ctx context.Context, entityID uuid.UUID) ([]GetEntityMembersRow, error)
 	GetEvent(ctx context.Context, id uuid.UUID) (Event, error)
+	GetEventImage(ctx context.Context, id uuid.UUID) (EventImage, error)
 	GetInvitationByID(ctx context.Context, id uuid.UUID) (GetInvitationByIDRow, error)
 	GetInvitationByToken(ctx context.Context, token *string) (GetInvitationByTokenRow, error)
 	GetInvitationsByEmailAndVehicle(ctx context.Context, arg GetInvitationsByEmailAndVehicleParams) ([]GetInvitationsByEmailAndVehicleRow, error)
@@ -70,9 +78,12 @@ type Querier interface {
 	ListDocumentsByVehicle(ctx context.Context, vehicleID uuid.UUID) ([]VehicleDocument, error)
 	ListEntities(ctx context.Context, arg ListEntitiesParams) ([]Entity, error)
 	ListEntitiesByType(ctx context.Context, arg ListEntitiesByTypeParams) ([]Entity, error)
+	ListEventImagesByEvent(ctx context.Context, eventID *uuid.UUID) ([]EventImage, error)
+	ListEventImagesBySession(ctx context.Context, uploadSessionID uuid.UUID) ([]EventImage, error)
 	ListEventsByEntity(ctx context.Context, entityID *uuid.UUID) ([]Event, error)
 	ListEventsByVehicle(ctx context.Context, vehicleID uuid.UUID) ([]Event, error)
 	ListEventsByVehicleWithEntity(ctx context.Context, vehicleID uuid.UUID) ([]ListEventsByVehicleWithEntityRow, error)
+	ListOrphanedEventImages(ctx context.Context, createdAt pgtype.Timestamptz) ([]EventImage, error)
 	ListPhotosByVehicle(ctx context.Context, vehicleID uuid.UUID) ([]VehiclePhoto, error)
 	ListShareLinksByVehicle(ctx context.Context, vehicleID uuid.UUID) ([]VehicleShareLink, error)
 	ListUsers(ctx context.Context, arg ListUsersParams) ([]User, error)

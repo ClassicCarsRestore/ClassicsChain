@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"fmt"
+	"io"
 	"strings"
 	"time"
 
@@ -18,8 +19,9 @@ const (
 	presignedURLExpiry = 5 * time.Minute
 )
 
-type DocumentOps interface {
+type S3Client interface {
 	DeleteObject(ctx context.Context, params *s3.DeleteObjectInput, optFns ...func(*s3.Options)) (*s3.DeleteObjectOutput, error)
+	GetObject(ctx context.Context, params *s3.GetObjectInput, optFns ...func(*s3.Options)) (*s3.GetObjectOutput, error)
 }
 
 type Presigner interface {
@@ -28,7 +30,7 @@ type Presigner interface {
 
 // GarageStorage implements the Storage interface using Garage (S3-compatible)
 type GarageStorage struct {
-	client    DocumentOps
+	client    S3Client
 	presigner Presigner
 }
 
@@ -120,4 +122,23 @@ func (s *GarageStorage) DeleteObject(ctx context.Context, bucket, objectKey stri
 		Key:    aws.String(objectKey),
 	})
 	return err
+}
+
+// GetObject retrieves an object's contents from storage
+func (s *GarageStorage) GetObject(ctx context.Context, bucket, key string) ([]byte, error) {
+	output, err := s.client.GetObject(ctx, &s3.GetObjectInput{
+		Bucket: aws.String(bucket),
+		Key:    aws.String(key),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get object: %w", err)
+	}
+	defer output.Body.Close()
+
+	data, err := io.ReadAll(output.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read object body: %w", err)
+	}
+
+	return data, nil
 }

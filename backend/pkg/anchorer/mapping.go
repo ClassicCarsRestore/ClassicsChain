@@ -37,6 +37,7 @@ type EventRecord struct {
 	Date        *time.Time             `json:"date,omitempty"`
 	Location    *string                `json:"location,omitempty"`
 	Metadata    map[string]interface{} `json:"metadata,omitempty"`
+	ImageCIDs   []string               `json:"imageCids,omitempty"`
 	CreatedAt   time.Time              `json:"createdAt,omitempty"`
 }
 
@@ -60,7 +61,7 @@ func vehicleToVehicleRecord(v vehicles.Vehicle) VehicleRecord {
 	}
 }
 
-func eventToEventRecord(e event.Event) EventRecord {
+func eventToEventRecord(e event.Event, imageCIDs []string) EventRecord {
 	return EventRecord{
 		ID:          e.ID,
 		EntityID:    e.EntityID,
@@ -70,6 +71,7 @@ func eventToEventRecord(e event.Event) EventRecord {
 		Date:        &e.Date,
 		Location:    e.Location,
 		Metadata:    e.Metadata,
+		ImageCIDs:   imageCIDs,
 		CreatedAt:   e.CreatedAt,
 	}
 }

@@ -84,9 +84,9 @@ func (a *Anchorer) VehicleGenesis(ctx context.Context, vehicle vehicles.Vehicle)
 	return vehicle.BlockchainAssetID, nil
 }
 
-// AnchorEvent generates a new CID for the .............
+// AnchorEvent generates a new CID for the event (including optional image CIDs)
 // and anchors the updated CID on the blockchain via a self-transfer transaction.
-func (a *Anchorer) AnchorEvent(ctx context.Context, vehicle vehicles.Vehicle, event event.Event) error {
+func (a *Anchorer) AnchorEvent(ctx context.Context, vehicle vehicles.Vehicle, event event.Event, imageCIDs []string) error {
 	var vehicleAssetID uint64
 	var err error
 
@@ -107,7 +107,7 @@ func (a *Anchorer) AnchorEvent(ctx context.Context, vehicle vehicles.Vehicle, ev
 		}
 	}
 
-	cidData, err := GenerateCID(eventToEventRecord(event))
+	cidData, err := GenerateCID(eventToEventRecord(event, imageCIDs))
 	if err != nil {
 		return fmt.Errorf("anchorer event update failed to generate cid: %w", err)
 	}

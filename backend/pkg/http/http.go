@@ -15,6 +15,7 @@ import (
 	"github.com/s1moe2/classics-chain/documents"
 	"github.com/s1moe2/classics-chain/entity"
 	"github.com/s1moe2/classics-chain/event"
+	"github.com/s1moe2/classics-chain/eventimages"
 	"github.com/s1moe2/classics-chain/invitation"
 	"github.com/s1moe2/classics-chain/photos"
 	"github.com/s1moe2/classics-chain/pkg/kratos"
@@ -64,7 +65,7 @@ func createResponseErrorHandler() func(w http.ResponseWriter, r *http.Request, e
 }
 
 // New creates a new HTTP server with the API server as its handler.
-func New(cfg Config, entityService *entity.Service, eventService *event.Service, vehicleService *vehicles.Service, photoService *photos.Service, documentService *documents.Service, shareLinksService *vehicleshare.Service, userService *user.Service, invitationService *invitation.Service, userInvitationService *user_invitation.Service, kratosClient *kratos.Client, authMiddleware *auth.Middleware, authorizer *auth.Authorizer) *http.Server {
+func New(cfg Config, entityService *entity.Service, eventService *event.Service, vehicleService *vehicles.Service, photoService *photos.Service, documentService *documents.Service, shareLinksService *vehicleshare.Service, userService *user.Service, invitationService *invitation.Service, userInvitationService *user_invitation.Service, eventImageService *eventimages.Service, kratosClient *kratos.Client, authMiddleware *auth.Middleware, authorizer *auth.Authorizer) *http.Server {
 	server := &apiServer{
 		entityService:         entityService,
 		eventService:          eventService,
@@ -75,6 +76,7 @@ func New(cfg Config, entityService *entity.Service, eventService *event.Service,
 		userService:           userService,
 		invitationService:     invitationService,
 		userInvitationService: userInvitationService,
+		eventImageService:     eventImageService,
 		kratosClient:          kratosClient,
 		authorizer:            authorizer,
 	}
@@ -134,6 +136,7 @@ type apiServer struct {
 	userService           *user.Service
 	invitationService     *invitation.Service
 	userInvitationService *user_invitation.Service
+	eventImageService     *eventimages.Service
 	kratosClient          *kratos.Client
 	authorizer            *auth.Authorizer
 }

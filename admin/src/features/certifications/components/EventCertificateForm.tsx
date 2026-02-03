@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useCreateEvent } from '../hooks/useVehicles';
 import { FieldHelp } from '@/components/common/FieldHelp';
+import { EventImageUploader } from './EventImageUploader';
+import type { EventImage } from '../api/eventImagesApi';
 import type {
   EventMetadata,
   CarShowMetadata,
@@ -40,6 +42,8 @@ export function EventCertificateForm({ vehicleId, entities, onSuccess }: EventCe
   const [description, setDescription] = useState('');
   const [eventDate, setEventDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [location, setLocation] = useState('');
+  const [imageSessionId, setImageSessionId] = useState<string | null>(null);
+  const [images, setImages] = useState<EventImage[]>([]);
 
   const { mutate: createEvent, isPending } = useCreateEvent();
 
@@ -158,6 +162,7 @@ export function EventCertificateForm({ vehicleId, entities, onSuccess }: EventCe
         date: new Date(eventDate),
         location: location || undefined,
         metadata: metadata as any,
+        imageSessionId: imageSessionId || undefined,
       },
       {
         onSuccess: () => {
@@ -168,6 +173,8 @@ export function EventCertificateForm({ vehicleId, entities, onSuccess }: EventCe
           setLocation('');
           setSelectedEventType('');
           setMetadata(null);
+          setImageSessionId(null);
+          setImages([]);
           // Close modal
           onSuccess?.();
         },
@@ -292,6 +299,17 @@ export function EventCertificateForm({ vehicleId, entities, onSuccess }: EventCe
                 className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
               />
             </div>
+          </div>
+
+          {/* Event Images */}
+          <div className="p-4 bg-muted rounded-lg">
+            <EventImageUploader
+              sessionId={imageSessionId}
+              onSessionCreated={setImageSessionId}
+              images={images}
+              onImagesChange={setImages}
+              disabled={isPending}
+            />
           </div>
 
           {/* Type-Specific Fields */}

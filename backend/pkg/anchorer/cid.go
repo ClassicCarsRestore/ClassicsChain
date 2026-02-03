@@ -72,6 +72,29 @@ func goDataToIPLDNode(data interface{}) (datamodel.Node, error) {
 	return convertToIPLDNode(intermediate)
 }
 
+// GenerateFileCID generates a CIDv1 for raw file content using SHA-256.
+// This is used for binary files (images, documents) where the content is hashed directly.
+func GenerateFileCID(content []byte) (string, error) {
+	hash, err := mh.Sum(content, mh.SHA2_256, -1)
+	if err != nil {
+		return "", fmt.Errorf("failed to hash file content: %w", err)
+	}
+	return cid.NewCidV1(cid.Raw, hash).String(), nil
+}
+
+// CIDGenerator provides a method to generate CIDs for file content
+type CIDGenerator struct{}
+
+// GenerateFileCID implements the CIDGenerator interface for eventimages.Service
+func (g *CIDGenerator) GenerateFileCID(content []byte) (string, error) {
+	return GenerateFileCID(content)
+}
+
+// NewCIDGenerator creates a new CIDGenerator instance
+func NewCIDGenerator() *CIDGenerator {
+	return &CIDGenerator{}
+}
+
 // convertToIPLDNode recursively converts Go types to IPLD nodes
 func convertToIPLDNode(v interface{}) (datamodel.Node, error) {
 	switch val := v.(type) {

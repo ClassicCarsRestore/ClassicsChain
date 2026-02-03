@@ -11,6 +11,7 @@ import (
 	"github.com/s1moe2/classics-chain/documents"
 	"github.com/s1moe2/classics-chain/entity"
 	"github.com/s1moe2/classics-chain/event"
+	"github.com/s1moe2/classics-chain/eventimages"
 	"github.com/s1moe2/classics-chain/invitation"
 	"github.com/s1moe2/classics-chain/photos"
 	"github.com/s1moe2/classics-chain/pkg/algorand"
@@ -151,6 +152,7 @@ func main() {
 	documentRepo := repository.NewDocumentRepository(querier)
 	shareLinkRepo := repository.NewShareLinkRepository(querier)
 	invitationRepo := repository.NewInvitationRepository(querier)
+	eventImageRepo := repository.NewEventImageRepository(querier)
 
 	// Initialize storage backend
 	photoStorage, err := storage.New(storage.Config{
@@ -196,12 +198,15 @@ func main() {
 
 	// Initialize services
 	anchorerService := anchorer.New(algorandClient, vehicleRepo, eventRepo)
+	cidGenerator := anchorer.NewCIDGenerator()
 	vehicleService := vehicles.NewService(vehicleRepo, anchorerService)
 	photoService := photos.NewService(photoRepo, photoStorage)
 	documentService := documents.NewService(documentRepo, photoStorage)
 	shareLinksService := vehicleshare.NewService(shareLinkRepo)
 	invitationService := invitation.NewService(invitationRepo, vehicleService, mailerClient)
+	eventImageService := eventimages.NewService(eventImageRepo, photoStorage, cidGenerator)
 	eventService := event.NewService(eventRepo, anchorerService, vehicleService, invitationService)
+	eventService.SetEventImageService(eventImageService)
 
 	// User invitation service
 	userInvitationService := user_invitation.NewService(userInvitationRepo, mailerClient)
@@ -243,7 +248,7 @@ func main() {
 		},
 	}
 
-	server := http.New(httpCfg, entityService, eventService, vehicleService, photoService, documentService, shareLinksService, userService, invitationService, userInvitationService, kratosClient, authMiddleware, authorizer)
+	server := http.New(httpCfg, entityService, eventService, vehicleService, photoService, documentService, shareLinksService, userService, invitationService, userInvitationService, eventImageService, kratosClient, authMiddleware, authorizer)
 
 	log.Printf("Starting HTTP server on port %d", httpCfg.Port)
 	if err := server.ListenAndServe(); err != nil {

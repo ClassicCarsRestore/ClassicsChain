@@ -78,6 +78,7 @@ export interface Event {
   cidSourceJSON?: string;
   cidSourceCBOR?: string;
   ipfsHash?: string;
+  images?: EventImage[];
   createdAt: string;
   updatedAt: string;
 }
@@ -99,6 +100,20 @@ export interface CreateOwnerEventRequest {
   description?: string;
   date?: string;
   location?: string;
+  imageSessionId?: string;
+}
+
+export interface EventImage {
+  id: string;
+  eventId?: string;
+  uploadSessionId: string;
+  objectKey: string;
+  cid?: string;
+  createdAt: string;
+}
+
+export interface EventImageListResponse {
+  data: EventImage[];
 }
 
 export interface EventListResponse {
