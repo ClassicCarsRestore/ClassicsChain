@@ -7,6 +7,15 @@ SELECT * FROM events
 WHERE vehicle_id = $1
 ORDER BY event_date DESC;
 
+-- name: ListEventsByVehicleWithEntity :many
+SELECT
+    e.*,
+    ent.name AS entity_name
+FROM events e
+LEFT JOIN entities ent ON e.entity_id = ent.id
+WHERE e.vehicle_id = $1
+ORDER BY e.event_date DESC;
+
 -- name: ListEventsByEntity :many
 SELECT * FROM events
 WHERE entity_id = $1

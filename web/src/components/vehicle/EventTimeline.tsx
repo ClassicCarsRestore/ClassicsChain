@@ -143,7 +143,7 @@ function TimelineEvent({ event, isCertified, isLast }: TimelineEventProps) {
         <div className="absolute left-[7px] top-6 bottom-0 w-0.5 bg-card" />
       )}
 
-      <EventCard event={event} isCertified={isCertified} />
+      <EventCard event={event} isCertified={isCertified} entityName={event.entityName} />
     </div>
   );
 }

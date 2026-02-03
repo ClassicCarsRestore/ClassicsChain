@@ -1916,6 +1916,9 @@ components:
         entityId:
           type: string
           format: uuid
+        entityName:
+          type: string
+          description: Name of the issuing entity (for certified events)
         type:
           $ref: '#/components/schemas/EventType'
         title:

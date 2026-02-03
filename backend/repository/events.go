@@ -22,7 +22,7 @@ func NewEventRepository(queries db.Querier) *EventRepository {
 }
 
 func (r *EventRepository) GetByVehicle(ctx context.Context, vehicleID uuid.UUID, limit, offset int) ([]event.Event, int, error) {
-	events, err := r.queries.ListEventsByVehicle(ctx, vehicleID)
+	events, err := r.queries.ListEventsByVehicleWithEntity(ctx, vehicleID)
 	if err != nil {
 		return nil, 0, postgres.WrapError(err, "list events by vehicle")
 	}
@@ -38,7 +38,7 @@ func (r *EventRepository) GetByVehicle(ctx context.Context, vehicleID uuid.UUID,
 
 	result := make([]event.Event, end-start)
 	for i, e := range events[start:end] {
-		result[i] = toEventDomain(e)
+		result[i] = toEventDomainWithEntity(e)
 	}
 
 	return result, len(events), nil
@@ -126,6 +126,31 @@ func toEventDomain(e db.Event) event.Event {
 		ID:             e.ID,
 		VehicleID:      e.VehicleID,
 		EntityID:       e.EntityID,
+		Type:           event.EventType(e.EventType),
+		Title:          e.Title,
+		Description:    nullableToStringPtr(e.Description),
+		Date:           e.EventDate,
+		Location:       nullableToStringPtr(e.Location),
+		Metadata:       metadata,
+		BlockchainTxID: nullableToStringPtr(e.BlockchainTxID),
+		CID:            e.Cid,
+		CIDSourceJSON:  e.CidSourceJson,
+		CIDSourceCBOR:  e.CidSourceCborB64,
+		CreatedAt:      e.CreatedAt,
+	}
+}
+
+func toEventDomainWithEntity(e db.ListEventsByVehicleWithEntityRow) event.Event {
+	var metadata map[string]interface{}
+	if len(e.Metadata) > 0 {
+		json.Unmarshal(e.Metadata, &metadata)
+	}
+
+	return event.Event{
+		ID:             e.ID,
+		VehicleID:      e.VehicleID,
+		EntityID:       e.EntityID,
+		EntityName:     e.EntityName,
 		Type:           event.EventType(e.EventType),
 		Title:          e.Title,
 		Description:    nullableToStringPtr(e.Description),

@@ -196,6 +196,70 @@ func (q *Queries) ListEventsByVehicle(ctx context.Context, vehicleID uuid.UUID) 
 	return items, nil
 }
 
+const listEventsByVehicleWithEntity = `-- name: ListEventsByVehicleWithEntity :many
+SELECT
+    e.id, e.vehicle_id, e.entity_id, e.event_type, e.title, e.description, e.event_date, e.location, e.metadata, e.cid, e.cid_source_json, e.cid_source_cbor_b64, e.blockchain_tx_id, e.created_at,
+    ent.name AS entity_name
+FROM events e
+LEFT JOIN entities ent ON e.entity_id = ent.id
+WHERE e.vehicle_id = $1
+ORDER BY e.event_date DESC
+`
+
+type ListEventsByVehicleWithEntityRow struct {
+	ID               uuid.UUID
+	VehicleID        uuid.UUID
+	EntityID         *uuid.UUID
+	EventType        string
+	Title            string
+	Description      string
+	EventDate        time.Time
+	Location         string
+	Metadata         []byte
+	Cid              *string
+	CidSourceJson    *string
+	CidSourceCborB64 *string
+	BlockchainTxID   string
+	CreatedAt        time.Time
+	EntityName       *string
+}
+
+func (q *Queries) ListEventsByVehicleWithEntity(ctx context.Context, vehicleID uuid.UUID) ([]ListEventsByVehicleWithEntityRow, error) {
+	rows, err := q.db.Query(ctx, listEventsByVehicleWithEntity, vehicleID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListEventsByVehicleWithEntityRow{}
+	for rows.Next() {
+		var i ListEventsByVehicleWithEntityRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.VehicleID,
+			&i.EntityID,
+			&i.EventType,
+			&i.Title,
+			&i.Description,
+			&i.EventDate,
+			&i.Location,
+			&i.Metadata,
+			&i.Cid,
+			&i.CidSourceJson,
+			&i.CidSourceCborB64,
+			&i.BlockchainTxID,
+			&i.CreatedAt,
+			&i.EntityName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateEvent = `-- name: UpdateEvent :one
 UPDATE events
 SET title = $2,

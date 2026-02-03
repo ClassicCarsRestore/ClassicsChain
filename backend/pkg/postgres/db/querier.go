@@ -72,6 +72,7 @@ type Querier interface {
 	ListEntitiesByType(ctx context.Context, arg ListEntitiesByTypeParams) ([]Entity, error)
 	ListEventsByEntity(ctx context.Context, entityID *uuid.UUID) ([]Event, error)
 	ListEventsByVehicle(ctx context.Context, vehicleID uuid.UUID) ([]Event, error)
+	ListEventsByVehicleWithEntity(ctx context.Context, vehicleID uuid.UUID) ([]ListEventsByVehicleWithEntityRow, error)
 	ListPhotosByVehicle(ctx context.Context, vehicleID uuid.UUID) ([]VehiclePhoto, error)
 	ListShareLinksByVehicle(ctx context.Context, vehicleID uuid.UUID) ([]VehicleShareLink, error)
 	ListUsers(ctx context.Context, arg ListUsersParams) ([]User, error)

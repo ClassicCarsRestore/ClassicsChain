@@ -16,6 +16,7 @@ type Event struct {
 	ID             uuid.UUID              `json:"id"`
 	VehicleID      uuid.UUID              `json:"vehicleId"`
 	EntityID       *uuid.UUID             `json:"entityId"`
+	EntityName     *string                `json:"entityName,omitempty"`
 	Type           EventType              `json:"type"`
 	Title          string                 `json:"title"`
 	Description    *string                `json:"description,omitempty"`

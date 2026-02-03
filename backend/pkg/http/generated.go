@@ -474,16 +474,19 @@ type Event struct {
 	CidSourceJSON *string `json:"cidSourceJSON,omitempty"`
 
 	// CreatedAt When event was created
-	CreatedAt   time.Time               `json:"createdAt"`
-	Date        openapi_types.Date      `json:"date"`
-	Description *string                 `json:"description,omitempty"`
-	EntityId    *openapi_types.UUID     `json:"entityId,omitempty"`
-	Id          openapi_types.UUID      `json:"id"`
-	Location    *string                 `json:"location,omitempty"`
-	Metadata    *map[string]interface{} `json:"metadata,omitempty"`
-	Title       string                  `json:"title"`
-	Type        EventType               `json:"type"`
-	VehicleId   openapi_types.UUID      `json:"vehicleId"`
+	CreatedAt   time.Time           `json:"createdAt"`
+	Date        openapi_types.Date  `json:"date"`
+	Description *string             `json:"description,omitempty"`
+	EntityId    *openapi_types.UUID `json:"entityId,omitempty"`
+
+	// EntityName Name of the issuing entity (for certified events)
+	EntityName *string                 `json:"entityName,omitempty"`
+	Id         openapi_types.UUID      `json:"id"`
+	Location   *string                 `json:"location,omitempty"`
+	Metadata   *map[string]interface{} `json:"metadata,omitempty"`
+	Title      string                  `json:"title"`
+	Type       EventType               `json:"type"`
+	VehicleId  openapi_types.UUID      `json:"vehicleId"`
 }
 
 // EventListResponse defines model for EventListResponse.

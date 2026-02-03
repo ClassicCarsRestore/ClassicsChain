@@ -300,6 +300,7 @@ func domainToHTTPEvent(domainEvent event.Event) Event {
 		Date:           openapi_types.Date{Time: domainEvent.Date},
 		Description:    domainEvent.Description,
 		EntityId:       domainEvent.EntityID,
+		EntityName:     domainEvent.EntityName,
 		Id:             domainEvent.ID,
 		Location:       domainEvent.Location,
 		Metadata:       &domainEvent.Metadata,

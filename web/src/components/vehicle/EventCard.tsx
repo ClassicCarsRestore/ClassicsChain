@@ -186,19 +186,24 @@ export function EventCard({ event, isCertified, entityName }: EventCardProps) {
                 <h3 className="font-semibold text-foreground">{event.title}</h3>
               </div>
               <span
-                className={`flex-shrink-0 rounded-full px-2 py-1 text-xs font-medium ${
+                className={`flex-shrink-0 inline-flex flex-col items-center rounded-lg px-2.5 py-1 text-xs ${
                   isCertified
                     ? 'bg-blue-500/10 text-blue-500'
                     : 'bg-amber-500/10 text-amber-500'
                 }`}
               >
                 {isCertified ? (
-                  <span className="flex items-center gap-1">
-                    <Shield className="h-3 w-3" />
-                    {t('vehicle:eventBadges.certified')}
-                  </span>
+                  <>
+                    <span className="flex items-center gap-1 font-medium">
+                      <Shield className="h-3 w-3" />
+                      {t('vehicle:eventBadges.certified')}
+                    </span>
+                    {entityName && (
+                      <span className="text-[10px] text-blue-400/80">{entityName}</span>
+                    )}
+                  </>
                 ) : (
-                  <span className="flex items-center gap-1">
+                  <span className="flex items-center gap-1 font-medium">
                     <User className="h-3 w-3" />
                     {t('vehicle:eventBadges.ownerProvided')}
                   </span>
@@ -227,13 +232,6 @@ export function EventCard({ event, isCertified, entityName }: EventCardProps) {
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4" />
                   <span>{event.location}</span>
-                </div>
-              )}
-
-              {entityName && (
-                <div className="flex items-center gap-2">
-                  <span className="text-xs uppercase">Entity:</span>
-                  <span>{entityName}</span>
                 </div>
               )}
 
