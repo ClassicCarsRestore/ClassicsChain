@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X } from 'lucide-react';
+import { X, Calendar } from 'lucide-react';
 import type { EventType, CreateOwnerEventRequest } from '@/types/vehicle';
 
 interface VehicleEventCreateModalProps {
@@ -18,6 +18,7 @@ export function VehicleEventCreateModal({
   isSubmitting,
 }: VehicleEventCreateModalProps) {
   const { t } = useTranslation();
+  const dateInputRef = useRef<HTMLInputElement>(null);
   const [eventType, setEventType] = useState<EventType>('maintenance');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -142,7 +143,7 @@ export function VehicleEventCreateModal({
                 id="eventType"
                 value={eventType}
                 onChange={(e) => setEventType(e.target.value as EventType)}
-                className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                className="mt-1 w-full cursor-pointer appearance-none rounded-md border border-border bg-background bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-[length:16px_16px] bg-[right_12px_center] bg-no-repeat px-3 py-2 pr-10 text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               >
                 {eventTypes.map((type) => (
                   <option key={type} value={type}>
@@ -192,15 +193,22 @@ export function VehicleEventCreateModal({
               <label htmlFor="eventDate" className="block text-sm font-medium text-foreground">
                 {t('vehicle:eventForm.fields.eventDate')}
               </label>
-              <input
-                type="date"
-                id="eventDate"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-              />
+              <div
+                className="relative mt-1 cursor-pointer"
+                onClick={() => dateInputRef.current?.showPicker()}
+              >
+                <input
+                  ref={dateInputRef}
+                  type="date"
+                  id="eventDate"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="w-full rounded-md border border-border bg-background px-3 py-2 pr-10 text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-10 [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                />
+                <Calendar className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              </div>
               <p className="mt-1 text-xs text-muted-foreground">
-                {t('vehicle:eventForm.fields.dateOptional') || 'Optional - if not set, defaults to today'}
+                {t('vehicle:eventForm.fields.dateOptional')}
               </p>
             </div>
 
@@ -226,14 +234,14 @@ export function VehicleEventCreateModal({
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="flex-1 rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent disabled:opacity-50"
+              className="flex-1 cursor-pointer rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
             >
               {t('vehicle:eventForm.buttons.cancel')}
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+              className="flex-1 cursor-pointer rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isSubmitting ? t('vehicle:eventForm.buttons.creating') : t('vehicle:eventForm.buttons.create')}
             </button>

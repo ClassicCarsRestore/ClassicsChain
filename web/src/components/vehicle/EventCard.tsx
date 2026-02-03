@@ -90,7 +90,7 @@ export function EventCard({ event, isCertified, entityName }: EventCardProps) {
         <button
           type="button"
           onClick={() => copyToClipboard(value, fieldId)}
-          className="flex-shrink-0 p-1 hover:bg-muted rounded transition-colors text-muted-foreground hover:text-foreground"
+          className="flex-shrink-0 cursor-pointer p-1 hover:bg-muted rounded transition-colors text-muted-foreground hover:text-foreground"
           title="Copy to clipboard"
         >
           {copiedField === fieldId ? (
@@ -240,7 +240,7 @@ export function EventCard({ event, isCertified, entityName }: EventCardProps) {
                   <button
                     type="button"
                     onClick={() => setShowBlockchainDetails(!showBlockchainDetails)}
-                    className="flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80 transition-colors"
+                    className="flex cursor-pointer items-center gap-1 text-xs font-medium text-primary hover:text-primary/80 transition-colors"
                   >
                     <span>Blockchain & Anchoring Data</span>
                     <ChevronDown
@@ -288,7 +288,7 @@ export function EventCard({ event, isCertified, entityName }: EventCardProps) {
                         <button
                           type="button"
                           onClick={() => setShowVerificationModal(true)}
-                          className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-xs font-medium text-primary hover:bg-primary/10 transition-colors"
+                          className="mt-3 flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-xs font-medium text-primary hover:bg-primary/10 transition-colors"
                         >
                           <Search className="h-3.5 w-3.5" />
                           {t('verification:button')}

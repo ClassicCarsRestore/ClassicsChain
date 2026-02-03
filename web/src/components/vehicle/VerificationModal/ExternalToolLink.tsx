@@ -12,7 +12,7 @@ export function ExternalToolLink({ href, label, description }: ExternalToolLinkP
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-start gap-3 p-4 rounded-lg border border-border bg-card hover:bg-accent/50 transition-colors group"
+      className="flex cursor-pointer items-start gap-3 p-4 rounded-lg border border-border bg-card hover:bg-accent/50 transition-colors group"
     >
       <div className="flex-shrink-0 mt-0.5">
         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary group-hover:bg-primary/20 transition-colors">

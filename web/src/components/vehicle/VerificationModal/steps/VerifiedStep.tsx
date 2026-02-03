@@ -60,7 +60,7 @@ export function VerifiedStep({ data, onDone }: VerifiedStepProps) {
       <Link
         to="/concepts"
         onClick={onDone}
-        className="flex items-center gap-3 p-4 rounded-lg border border-border bg-card hover:bg-accent/50 transition-colors group"
+        className="flex cursor-pointer items-center gap-3 p-4 rounded-lg border border-border bg-card hover:bg-accent/50 transition-colors group"
       >
         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
           <BookOpen className="h-4 w-4" />

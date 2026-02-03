@@ -62,6 +62,7 @@
       "description": "Descrição",
       "descriptionPlaceholder": "Adicione detalhes sobre este evento",
       "eventDate": "Data",
+      "dateOptional": "Opcional - assume a data de hoje se não definida",
       "eventTime": "Hora",
       "location": "Localização",
       "locationPlaceholder": "Onde ocorreu este evento?"

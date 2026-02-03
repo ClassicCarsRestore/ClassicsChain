@@ -29,7 +29,7 @@ export function DataDisplay({ data, label, maxHeight = '12rem' }: DataDisplayPro
         <button
           type="button"
           onClick={handleCopy}
-          className="absolute right-2 top-2 p-1.5 rounded-md bg-muted/80 hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+          className="absolute right-2 top-2 cursor-pointer p-1.5 rounded-md bg-muted/80 hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
           title="Copy to clipboard"
         >
           {copied ? (

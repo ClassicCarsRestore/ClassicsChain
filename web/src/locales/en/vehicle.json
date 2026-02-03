@@ -62,6 +62,7 @@
       "description": "Description",
       "descriptionPlaceholder": "Add details about this event",
       "eventDate": "Date",
+      "dateOptional": "Optional - defaults to today if not set",
       "eventTime": "Time",
       "location": "Location",
       "locationPlaceholder": "Where did this event occur?"
