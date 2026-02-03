@@ -72,6 +72,9 @@ services:
     image: oryd/kratos:v25.4.0
     container_name: cc-kratos
     restart: unless-stopped
+    ports:
+      - "4433:4433" # public
+      - "4434:4434" # admin
     environment:
       DSN: postgres://${POSTGRES_KRATOS_USER}:${POSTGRES_KRATOS_PASSWORD}@postgres-kratos:5432/${POSTGRES_KRATOS_DB}?sslmode=disable
       LOG_LEVEL: ${KRATOS_LOG_LEVEL:-info}
@@ -102,6 +105,9 @@ services:
     image: oryd/hydra:v25.4.0
     container_name: cc-hydra
     restart: unless-stopped
+    ports:
+      - "4444:4444" # public
+      - "4445:4445" # admin
     environment:
       DSN: postgres://${POSTGRES_HYDRA_USER}:${POSTGRES_HYDRA_PASSWORD}@postgres-hydra:5432/${POSTGRES_HYDRA_DB}?sslmode=disable
       HYDRA_SERVE_PUBLIC_BASE_URL: ${HYDRA_PUBLIC_URL}
