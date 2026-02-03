@@ -193,8 +193,8 @@ services:
       KRATOS_PUBLIC_URL: http://cc-kratos:4433
       KRATOS_ADMIN_URL: http://cc-kratos:4434
       # Hydra Configuration
-      HYDRA_PUBLIC_URL: http://cc-kratos:4445
-      HYDRA_ADMIN_URL: http://cc-kratos:4444
+      HYDRA_PUBLIC_URL: http://cc-hydra:4445
+      HYDRA_ADMIN_URL: http://cc-hydra:4444
       # Storage Configuration
       STORAGE_ENDPOINT: http://cc-garage:3900
       STORAGE_PUBLIC_ENDPOINT: https://uploads.classicschain.com
