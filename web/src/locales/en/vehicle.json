@@ -17,9 +17,10 @@
     "suspensionType": "Suspension Type"
   },
   "sections": {
-    "photos": "Vehicle Photos",
+    "photos": "Photos",
     "documents": "Documents",
-    "history": "Vehicle History"
+    "history": "History",
+    "shareLinks": "Share Links"
   },
   "blockchain": {
     "title": "Blockchain Information",

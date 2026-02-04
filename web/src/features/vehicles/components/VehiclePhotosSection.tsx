@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { Upload, Trash2, AlertCircle, Eye } from 'lucide-react';
+import { Upload, Trash2, AlertCircle, Eye, Camera } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { PhotoLightbox } from '@/components/vehicle/PhotoLightbox';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
@@ -117,7 +117,10 @@ export function VehiclePhotosSection({ vehicleId, isOwner }: VehiclePhotosSectio
   if (isLoading) {
     return (
       <div className="rounded-lg border border-border bg-card p-6">
-        <h2 className="mb-4 text-xl font-semibold text-foreground">{t('vehicle:sections.photos')}</h2>
+        <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold text-foreground">
+          <Camera className="h-5 w-5 text-primary" />
+          {t('vehicle:sections.photos')}
+        </h2>
         <div className="flex items-center justify-center py-8">
           <p className="text-muted-foreground">{t('vehicle:loading')}</p>
         </div>
@@ -129,7 +132,10 @@ export function VehiclePhotosSection({ vehicleId, isOwner }: VehiclePhotosSectio
     <div className="rounded-lg border border-border bg-card p-6">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-foreground">{t('vehicle:sections.photos')}</h2>
+          <h2 className="flex items-center gap-2 text-xl font-semibold text-foreground">
+            <Camera className="h-5 w-5 text-primary" />
+            {t('vehicle:sections.photos')}
+          </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             {photos.length}/{MAX_PHOTOS} {t('vehicle:photos.photosCount')}
           </p>

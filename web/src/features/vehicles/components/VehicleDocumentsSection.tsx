@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { Upload, Trash2, AlertCircle, File, Download } from 'lucide-react';
+import { Upload, Trash2, AlertCircle, File, Download, FileText } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { generateStorageUrl } from '@/lib/storage';
@@ -102,7 +102,10 @@ export function VehicleDocumentsSection({ vehicleId, isOwner }: VehicleDocuments
   if (isLoading) {
     return (
       <div className="rounded-lg border border-border bg-card p-6">
-        <h2 className="mb-4 text-xl font-semibold text-foreground">{t('vehicle:sections.documents')}</h2>
+        <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold text-foreground">
+          <FileText className="h-5 w-5 text-primary" />
+          {t('vehicle:sections.documents')}
+        </h2>
         <div className="flex items-center justify-center py-8">
           <p className="text-muted-foreground">{t('vehicle:loading')}</p>
         </div>
@@ -114,7 +117,10 @@ export function VehicleDocumentsSection({ vehicleId, isOwner }: VehicleDocuments
     <div className="rounded-lg border border-border bg-card p-6">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-foreground">{t('vehicle:sections.documents')}</h2>
+          <h2 className="flex items-center gap-2 text-xl font-semibold text-foreground">
+            <FileText className="h-5 w-5 text-primary" />
+            {t('vehicle:sections.documents')}
+          </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             {documents.length}/{MAX_DOCUMENTS} {t('vehicle:documents.documentsCount')}
           </p>

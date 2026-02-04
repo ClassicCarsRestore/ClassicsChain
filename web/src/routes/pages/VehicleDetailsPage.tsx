@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Plus, FileText, Share2 } from 'lucide-react';
+import { ArrowLeft, Plus, FileText, Share2, Clock } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Vehicle, Event, EventListResponse, CreateOwnerEventRequest } from '@/types/vehicle';
@@ -211,7 +211,10 @@ export function VehicleDetailsPage() {
       {vehicle.ownerId === userProfile?.id && (
         <div className="mb-8 rounded-lg border border-border bg-card p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-foreground">{t('vehicle:shareLinks.title')}</h2>
+            <h2 className="flex items-center gap-2 text-xl font-semibold text-foreground">
+              <Share2 className="h-5 w-5 text-primary" />
+              {t('vehicle:sections.shareLinks')}
+            </h2>
             <button
               onClick={() => setIsShareModalOpen(true)}
               className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 cursor-pointer"
@@ -227,7 +230,10 @@ export function VehicleDetailsPage() {
       {/* Events/History Section */}
       <div className="rounded-lg border border-border bg-card p-6">
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-foreground">{t('vehicle:sections.history')}</h2>
+          <h2 className="flex items-center gap-2 text-xl font-semibold text-foreground">
+            <Clock className="h-5 w-5 text-primary" />
+            {t('vehicle:sections.history')}
+          </h2>
           <button
             onClick={() => setIsModalOpen(true)}
             className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 cursor-pointer"
