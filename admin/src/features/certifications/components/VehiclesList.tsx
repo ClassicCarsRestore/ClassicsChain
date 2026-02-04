@@ -95,7 +95,7 @@ export function VehiclesList({ entities, refreshTrigger, onNavigateToCreate }: V
           <div className="relative h-10" ref={filterRef}>
             <button
               onClick={() => setFilterOpen(!filterOpen)}
-              className="flex items-center gap-2 px-3 py-2 h-full border border-border rounded-md bg-white text-foreground hover:bg-muted"
+              className="flex items-center gap-2 px-3 py-2 h-full border border-border rounded-md bg-white text-foreground hover:bg-muted cursor-pointer"
             >
               <Filter className="w-4 h-4" />
               <span className="text-sm">{t('browse.filters.label')}</span>
@@ -105,7 +105,7 @@ export function VehiclesList({ entities, refreshTrigger, onNavigateToCreate }: V
               <div className="absolute right-0 mt-1 w-48 bg-white border border-border rounded-md shadow-lg z-10">
                 <button
                   onClick={() => { setFilterType('all'); setFilterOpen(false); }}
-                  className={`block w-full text-left px-4 py-2 text-sm hover:bg-muted ${
+                  className={`block w-full text-left px-4 py-2 text-sm hover:bg-muted cursor-pointer ${
                     filterType === 'all' ? 'bg-muted text-primary' : 'text-foreground'
                   }`}
                 >
@@ -113,7 +113,7 @@ export function VehiclesList({ entities, refreshTrigger, onNavigateToCreate }: V
                 </button>
                 <button
                   onClick={() => { setFilterType('orphaned'); setFilterOpen(false); }}
-                  className={`block w-full text-left px-4 py-2 text-sm hover:bg-muted ${
+                  className={`block w-full text-left px-4 py-2 text-sm hover:bg-muted cursor-pointer ${
                     filterType === 'orphaned'
                       ? 'bg-muted text-primary'
                       : 'text-foreground'
@@ -123,7 +123,7 @@ export function VehiclesList({ entities, refreshTrigger, onNavigateToCreate }: V
                 </button>
                 <button
                   onClick={() => { setFilterType('owned'); setFilterOpen(false); }}
-                  className={`block w-full text-left px-4 py-2 text-sm hover:bg-muted ${
+                  className={`block w-full text-left px-4 py-2 text-sm hover:bg-muted cursor-pointer ${
                     filterType === 'owned' ? 'bg-muted text-primary' : 'text-foreground'
                   }`}
                 >
@@ -178,7 +178,7 @@ export function VehiclesList({ entities, refreshTrigger, onNavigateToCreate }: V
                     {onNavigateToCreate && (
                       <button
                         onClick={onNavigateToCreate}
-                        className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary hover:text-primary/80 hover:bg-primary/5 rounded-md transition-colors"
+                        className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary hover:text-primary/80 hover:bg-primary/5 rounded-md transition-colors cursor-pointer"
                       >
                         {t('browse.addFirstVehicle')}
                         <span aria-hidden="true">→</span>

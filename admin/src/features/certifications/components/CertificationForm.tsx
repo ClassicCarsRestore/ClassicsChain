@@ -333,7 +333,7 @@ export function CertificationForm({ vehicleId, entities, onSuccess }: Certificat
               <button
                   type="button"
                   onClick={handleAddReference}
-                  className="flex items-center gap-2 px-3 py-2 border border-border rounded-md bg-background text-foreground hover:bg-muted"
+                  className="flex items-center gap-2 px-3 py-2 border border-border rounded-md bg-background text-foreground hover:bg-muted cursor-pointer"
               >
                   <Plus className="w-4 h-4" />
                   {t('certification.actions.addReference')}
@@ -351,7 +351,7 @@ export function CertificationForm({ vehicleId, entities, onSuccess }: Certificat
                           <button
                               type="button"
                               onClick={() => handleRemoveReference(index)}
-                              className="p-1 text-destructive hover:bg-destructive/10 rounded"
+                              className="p-1 text-destructive hover:bg-destructive/10 rounded cursor-pointer"
                           >
                               <Trash2 className="w-4 h-4" />
                           </button>
@@ -367,7 +367,7 @@ export function CertificationForm({ vehicleId, entities, onSuccess }: Certificat
         <button
           type="submit"
           disabled={isPending || !title || !metadata.certificateNumber}
-          className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+          className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer font-medium"
         >
           {isPending
             ? t('certification.actions.creating')

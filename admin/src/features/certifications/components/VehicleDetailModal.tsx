@@ -132,7 +132,7 @@ function EventHistoryTab({ events, isLoading, onAddEvent }: EventHistoryTabProps
         </p>
         <button
           onClick={onAddEvent}
-          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary hover:text-primary/80 hover:bg-primary/5 rounded-md transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary hover:text-primary/80 hover:bg-primary/5 rounded-md transition-colors cursor-pointer"
         >
           {t('modal.history.addEvent', 'Add first event')}
           <span aria-hidden="true">→</span>
@@ -360,7 +360,7 @@ export function VehicleDetailModal({
           </div>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-muted rounded-md transition-colors"
+            className="p-1 hover:bg-muted rounded-md transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -371,7 +371,7 @@ export function VehicleDetailModal({
           <div className="flex gap-6 px-6">
             <button
               onClick={() => setActiveTab('details')}
-              className={`py-3 font-medium text-sm border-b-2 transition-colors ${
+              className={`py-3 font-medium text-sm border-b-2 transition-colors cursor-pointer ${
                 activeTab === 'details'
                   ? 'border-primary text-primary'
                   : 'border-transparent text-muted-foreground hover:text-foreground'
@@ -381,7 +381,7 @@ export function VehicleDetailModal({
             </button>
             <button
               onClick={() => setActiveTab('history')}
-              className={`py-3 font-medium text-sm border-b-2 transition-colors ${
+              className={`py-3 font-medium text-sm border-b-2 transition-colors cursor-pointer ${
                 activeTab === 'history'
                   ? 'border-primary text-primary'
                   : 'border-transparent text-muted-foreground hover:text-foreground'
@@ -391,7 +391,7 @@ export function VehicleDetailModal({
             </button>
             <button
               onClick={() => setActiveTab('certifications')}
-              className={`py-3 font-medium text-sm border-b-2 transition-colors ${
+              className={`py-3 font-medium text-sm border-b-2 transition-colors cursor-pointer ${
                 activeTab === 'certifications'
                   ? 'border-primary text-primary'
                   : 'border-transparent text-muted-foreground hover:text-foreground'
@@ -401,7 +401,7 @@ export function VehicleDetailModal({
             </button>
             <button
               onClick={() => setActiveTab('event-certificates')}
-              className={`py-3 font-medium text-sm border-b-2 transition-colors ${
+              className={`py-3 font-medium text-sm border-b-2 transition-colors cursor-pointer ${
                 activeTab === 'event-certificates'
                   ? 'border-primary text-primary'
                   : 'border-transparent text-muted-foreground hover:text-foreground'

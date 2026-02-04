@@ -105,7 +105,7 @@ export function InvitationClaimPage() {
           </p>
           <button
             onClick={() => navigate('/login')}
-            className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
+            className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md cursor-pointer"
           >
             Go to Login
           </button>
@@ -132,7 +132,7 @@ export function InvitationClaimPage() {
           </div>
           <button
             onClick={() => navigate('/login')}
-            className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
+            className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md cursor-pointer"
           >
             Go to Login
           </button>

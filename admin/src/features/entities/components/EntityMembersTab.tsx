@@ -69,7 +69,7 @@ export function EntityMembersTab({ entityId }: EntityMembersTabProps) {
             <p className="text-gray-500 mb-4">{t('members.noMembers')}</p>
             <button
               onClick={() => setShowAddForm(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary hover:text-primary/80 hover:bg-primary/5 rounded-md transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary hover:text-primary/80 hover:bg-primary/5 rounded-md transition-colors cursor-pointer"
             >
               {t('members.addFirstMember', 'Add your first member')}
               <span aria-hidden="true">→</span>

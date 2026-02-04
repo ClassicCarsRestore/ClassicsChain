@@ -105,14 +105,14 @@ export function EntityPartnersTab({ entityId }: EntityPartnersTabProps) {
                 <div className="flex gap-2 pt-3 border-t border-gray-200">
                   <button
                     onClick={() => setEditingPartnerId(partner.id)}
-                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded transition-colors cursor-pointer"
                   >
                     <Edit className="h-4 w-4" />
                     {t('actions.edit', 'Edit')}
                   </button>
                   <button
                     onClick={() => setManagingMembersPartnerId(partner.id)}
-                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded transition-colors"
+                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded transition-colors cursor-pointer"
                   >
                     <Users className="h-4 w-4" />
                     {t('partners.members', 'Members')}
@@ -210,7 +210,7 @@ function PartnerMembersModal({ partnerId, onCancel }: PartnerMembersModalProps) 
         <h3 className="text-lg font-semibold">{t('partners.manageMembers', 'Manage Members')}</h3>
         <button
           onClick={onCancel}
-          className="text-gray-500 hover:text-gray-700 text-2xl leading-none"
+          className="text-gray-500 hover:text-gray-700 text-2xl leading-none cursor-pointer"
         >
           ×
         </button>

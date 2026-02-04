@@ -193,7 +193,7 @@ export function BulkVehicleForm({ entities, onSuccess }: BulkVehicleFormProps) {
         <button
           onClick={handlePrevious}
           disabled={step === 1 || isPending}
-          className="flex items-center gap-2 px-4 py-2 border border-border rounded-md text-foreground hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 px-4 py-2 border border-border rounded-md text-foreground hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           <ChevronLeft className="w-4 h-4" />
           {t('form.actions.previous')}
@@ -203,7 +203,7 @@ export function BulkVehicleForm({ entities, onSuccess }: BulkVehicleFormProps) {
           <button
             onClick={handleNext}
             disabled={!canProceedToStep2 || isPending}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {t('form.actions.next')}
             <ChevronRight className="w-4 h-4" />
@@ -212,7 +212,7 @@ export function BulkVehicleForm({ entities, onSuccess }: BulkVehicleFormProps) {
           <button
             onClick={handleSubmit}
             disabled={!canProceedToStep3 || isPending}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {isPending ? t('form.actions.creating') : t('form.actions.create')}
           </button>
