@@ -195,7 +195,14 @@ interface EventCardProps {
 }
 
 function EventCard({ event, isLast }: EventCardProps) {
+  const { t } = useTranslation('vehicles');
   const hasBlockchainProof = !!event.blockchainTxId;
+
+  const formatMetadataKey = (key: string): string => {
+    const translated = t(`eventCertificate.fields.${key}`, { defaultValue: '' });
+    if (translated) return translated;
+    return key.replace(/([A-Z])/g, ' $1').trim().replace(/^./, c => c.toUpperCase());
+  };
 
   return (
     <div className="relative pl-8">
@@ -308,7 +315,7 @@ function EventCard({ event, isLast }: EventCardProps) {
                 .map(([key, value]) => (
                   <div key={key}>
                     <span className="text-muted-foreground">
-                      {key.replace(/([A-Z])/g, ' $1').trim()}:
+                      {formatMetadataKey(key)}:
                     </span>
                     <span className="ml-1 font-medium">
                       {typeof value === 'object' ? JSON.stringify(value) : String(value)}
@@ -541,6 +548,29 @@ export function VehicleDetailModal({
                   </span>
                 )}
               </div>
+
+              {/* Blockchain Information */}
+              {vehicle.blockchainAssetId && (
+                <div className="p-4 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-lg">
+                  <p className="text-xs text-emerald-700 dark:text-emerald-400 mb-2">
+                    {t('modal.sections.blockchain', 'Blockchain')}
+                  </p>
+                  <div className="flex items-center justify-between gap-2">
+                    <code className="text-sm font-mono text-emerald-800 dark:text-emerald-300 break-all">
+                      {vehicle.blockchainAssetId}
+                    </code>
+                    <a
+                      href={`https://lora.algokit.io/testnet/asset/${vehicle.blockchainAssetId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/50 hover:bg-emerald-200 dark:hover:bg-emerald-900 rounded-md transition-colors"
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" />
+                      {t('modal.sections.viewOnBlockchain', 'View on Explorer')}
+                    </a>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

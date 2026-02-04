@@ -21,6 +21,12 @@
     "documents": "Documentos",
     "history": "Histórico do Veículo"
   },
+  "blockchain": {
+    "title": "Informação Blockchain",
+    "assetId": "ID do Ativo Blockchain",
+    "cid": "ID de Conteúdo (CID)",
+    "viewOnExplorer": "Ver no Explorador"
+  },
   "documentation": {
     "comingSoon": "Upload de Documentos em Breve",
     "description": "Em breve poderá fazer upload de fotos, certificados e outra documentação do seu veículo."
@@ -178,7 +184,22 @@
   "verification": {
     "badge": "Verificado",
     "badgeTooltip": "Este veículo tem registos verificados na blockchain",
-    "anchoredTooltip": "Ancorado na blockchain"
+    "anchoredTooltip": "Ancorado na blockchain",
+    "dialogTitle": "Verificação Blockchain",
+    "dialogDescription": "A identidade deste veículo está ancorada na blockchain Algorand, fornecendo prova criptográfica de autenticidade.",
+    "assetIdLabel": "ID do Ativo Blockchain",
+    "assetIdDescription": "O veículo é representado como um Algorand Standard Asset (ASA). Este identificador único liga ao registo na blockchain.",
+    "cidLabel": "Identificador de Conteúdo (CID)",
+    "cidDescription": "Uma impressão digital criptográfica dos dados do veículo. O CID é calculado a partir de uma representação CBOR dos atributos do veículo, com hash SHA-256.",
+    "cidComponents": "Componentes do CID: CIDv1, codec dag-cbor, hash sha2-256",
+    "sourceDataLabel": "Dados de Origem",
+    "sourceDataDescription": "Os dados originais usados para calcular o CID. Pode verificar isto de forma independente.",
+    "jsonLabel": "JSON",
+    "cborLabel": "CBOR (Base64)",
+    "verifyExternally": "Verificar externamente",
+    "viewOnExplorer": "Ver no Explorador",
+    "verifyCid": "Inspecionar CID",
+    "close": "Fechar"
   },
   "stats": {
     "events": "Eventos",

@@ -13,8 +13,10 @@ export interface Vehicle {
   gearType?: string;
   suspensionType?: string;
   ownerId: string;
-  blockchainAddress?: string;
-  ipfsHash?: string;
+  blockchainAssetId?: string;
+  cid?: string;
+  cidSourceJson?: string;
+  cidSourceCbor?: string;
   createdAt: string;
   updatedAt: string;
 }

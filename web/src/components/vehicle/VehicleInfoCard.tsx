@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Copy, Check, ChevronDown } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { VerificationBadge } from './VerificationBadge';
+import { VehicleVerificationDialog } from './VehicleVerificationDialog';
 import type { Vehicle } from '@/types/vehicle';
 import type { SharedVehicle } from '@/types/shareLink';
 
@@ -13,19 +14,15 @@ interface VehicleInfoCardProps {
 
 export function VehicleInfoCard({ vehicle, hasVerifiedEvents = false }: VehicleInfoCardProps) {
   const { t } = useTranslation(['vehicle', 'dashboard']);
-  const [copiedField, setCopiedField] = useState<string | null>(null);
-
-  const copyToClipboard = (text: string, field: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedField(field);
-    setTimeout(() => setCopiedField(null), 2000);
-  };
+  const [showVerificationDialog, setShowVerificationDialog] = useState(false);
 
   const isBlockchainVehicle = (v: Vehicle | SharedVehicle): v is Vehicle => {
-    return 'blockchainAddress' in v && 'ipfsHash' in v;
+    return 'blockchainAssetId' in v;
   };
 
   const vehicle_ = vehicle as Vehicle;
+  const network = import.meta.env.VITE_ALGORAND_NETWORK || 'testnet';
+  const hasBlockchainData = isBlockchainVehicle(vehicle) && vehicle_.blockchainAssetId;
 
   const hasAnyTechnicalInfo = vehicle.engineNumber || vehicle.licensePlate || vehicle.chassisNumber ||
     vehicle.transmissionNumber || vehicle.bodyType || vehicle.driveType || vehicle.gearType ||
@@ -38,7 +35,10 @@ export function VehicleInfoCard({ vehicle, hasVerifiedEvents = false }: VehicleI
           <h1 className="text-3xl font-bold text-foreground">
             {vehicle.make} {vehicle.model}
           </h1>
-          <VerificationBadge isVerified={hasVerifiedEvents} />
+          <VerificationBadge
+            isVerified={hasVerifiedEvents || !!hasBlockchainData}
+            onClick={hasBlockchainData ? () => setShowVerificationDialog(true) : undefined}
+          />
         </div>
 
         {/* Basic Information - Always Visible */}
@@ -170,103 +170,19 @@ export function VehicleInfoCard({ vehicle, hasVerifiedEvents = false }: VehicleI
         </div>
       </div>
 
-      {/* Blockchain/IPFS Info - Desktop: Always visible, Mobile: Collapsible */}
-      {isBlockchainVehicle(vehicle) && (vehicle_.blockchainAddress || vehicle_.ipfsHash) && (
-        <>
-          {/* Desktop: Always visible */}
-          <div className="hidden sm:block mb-8 space-y-3">
-            {vehicle_.blockchainAddress && (
-              <div className="flex items-start justify-between gap-2 rounded-lg border border-border bg-card p-4">
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs uppercase text-muted-foreground mb-2">Blockchain Asset ID</p>
-                  <code className="block break-all font-mono text-sm text-foreground">{vehicle_.blockchainAddress}</code>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => copyToClipboard(vehicle_.blockchainAddress!, 'blockchain-address')}
-                  className="flex-shrink-0 p-2 hover:bg-muted rounded transition-colors text-muted-foreground hover:text-foreground"
-                  title="Copy to clipboard"
-                >
-                  {copiedField === 'blockchain-address' ? (
-                    <Check className="h-4 w-4 text-green-500" />
-                  ) : (
-                    <Copy className="h-4 w-4" />
-                  )}
-                </button>
-              </div>
-            )}
-            {vehicle_.ipfsHash && (
-              <div className="flex items-start justify-between gap-2 rounded-lg border border-border bg-card p-4">
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs uppercase text-muted-foreground mb-2">IPFS Hash</p>
-                  <code className="block break-all font-mono text-sm text-foreground">{vehicle_.ipfsHash}</code>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => copyToClipboard(vehicle_.ipfsHash!, 'ipfs-hash')}
-                  className="flex-shrink-0 p-2 hover:bg-muted rounded transition-colors text-muted-foreground hover:text-foreground"
-                  title="Copy to clipboard"
-                >
-                  {copiedField === 'ipfs-hash' ? (
-                    <Check className="h-4 w-4 text-green-500" />
-                  ) : (
-                    <Copy className="h-4 w-4" />
-                  )}
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Mobile: Collapsible */}
-          <Collapsible defaultOpen={false} className="sm:hidden">
-            <CollapsibleTrigger className="flex w-full items-center justify-between rounded-lg border border-border bg-muted/50 p-3 hover:bg-muted transition-colors mb-4">
-              <span className="text-sm font-semibold text-foreground">Blockchain Information</span>
-              <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform data-[state=open]:rotate-180" />
-            </CollapsibleTrigger>
-            <CollapsibleContent className="mb-8 space-y-3">
-              {vehicle_.blockchainAddress && (
-                <div className="flex items-start justify-between gap-2 rounded-lg border border-border bg-card p-4">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs uppercase text-muted-foreground mb-2">Blockchain Asset ID</p>
-                    <code className="block break-all font-mono text-sm text-foreground">{vehicle_.blockchainAddress}</code>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => copyToClipboard(vehicle_.blockchainAddress!, 'blockchain-address')}
-                    className="flex-shrink-0 p-2 hover:bg-muted rounded transition-colors text-muted-foreground hover:text-foreground"
-                    title="Copy to clipboard"
-                  >
-                    {copiedField === 'blockchain-address' ? (
-                      <Check className="h-4 w-4 text-green-500" />
-                    ) : (
-                      <Copy className="h-4 w-4" />
-                    )}
-                  </button>
-                </div>
-              )}
-              {vehicle_.ipfsHash && (
-                <div className="flex items-start justify-between gap-2 rounded-lg border border-border bg-card p-4">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs uppercase text-muted-foreground mb-2">IPFS Hash</p>
-                    <code className="block break-all font-mono text-sm text-foreground">{vehicle_.ipfsHash}</code>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => copyToClipboard(vehicle_.ipfsHash!, 'ipfs-hash')}
-                    className="flex-shrink-0 p-2 hover:bg-muted rounded transition-colors text-muted-foreground hover:text-foreground"
-                    title="Copy to clipboard"
-                  >
-                    {copiedField === 'ipfs-hash' ? (
-                      <Check className="h-4 w-4 text-green-500" />
-                    ) : (
-                      <Copy className="h-4 w-4" />
-                    )}
-                  </button>
-                </div>
-              )}
-            </CollapsibleContent>
-          </Collapsible>
-        </>
+      {hasBlockchainData && (
+        <VehicleVerificationDialog
+          open={showVerificationDialog}
+          onOpenChange={setShowVerificationDialog}
+          data={{
+            vehicleName: `${vehicle.make} ${vehicle.model}`,
+            blockchainAssetId: vehicle_.blockchainAssetId!,
+            cid: vehicle_.cid,
+            cidSourceJson: vehicle_.cidSourceJson,
+            cidSourceCbor: vehicle_.cidSourceCbor,
+            network,
+          }}
+        />
       )}
     </>
   );

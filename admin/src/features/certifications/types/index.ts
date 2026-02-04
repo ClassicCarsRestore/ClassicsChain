@@ -28,8 +28,8 @@ export interface Vehicle {
   gearType: string;
   suspensionType: string;
   ownerId: string | null;
-  blockchainAddress: string | null;
-  ipfsHash: string | null;
+  blockchainAssetId: string | null;
+  cid: string | null;
   createdAt: string;
 }
 

@@ -121,7 +121,9 @@
       "identification": "Identification",
       "basic": "Basic Information",
       "technical": "Technical Specifications",
-      "status": "Ownership Status"
+      "status": "Ownership Status",
+      "blockchain": "Blockchain Asset",
+      "viewOnBlockchain": "View on Explorer"
     },
     "history": {
       "empty": "No events recorded yet",

@@ -121,7 +121,9 @@
       "identification": "Identificação",
       "basic": "Informações Básicas",
       "technical": "Especificações Técnicas",
-      "status": "Status de Propriedade"
+      "status": "Status de Propriedade",
+      "blockchain": "Ativo Blockchain",
+      "viewOnBlockchain": "Ver no Explorador"
     },
     "history": {
       "empty": "Nenhum evento registado ainda",
