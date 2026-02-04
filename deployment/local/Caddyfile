@@ -1,33 +1,68 @@
-:8081 {
-  log
+# Storage Uploads (Garage S3 API) - S3 presigned PUT operations
+:8082 {
+    log
 
-  # GET requests - public anonymous read access with caching
-  @get_photos {
-    method GET
-    path /vehicle-photos/*
-  }
+    @options {
+        method OPTIONS
+    }
 
-  handle @get_photos {
-    header Access-Control-Allow-Origin "*"
-    header Access-Control-Allow-Methods "GET, OPTIONS"
-    header Cache-Control "public, max-age=3600"
-    reverse_proxy minio:9000
-  }
+    handle @options {
+        header Access-Control-Allow-Origin "*"
+        header Access-Control-Allow-Methods "PUT, OPTIONS"
+        header Access-Control-Allow-Headers "*"
+        header Access-Control-Allow-Credentials "true"
+        respond 204
+    }
 
-  # Handle OPTIONS preflight requests for reads
-  @options {
-    method OPTIONS
-    path /vehicle-photos/*
-  }
+    @put {
+        method PUT
+    }
 
-  handle @options {
-    header Access-Control-Allow-Origin "*"
-    header Access-Control-Allow-Methods "GET, OPTIONS"
-    respond 204
-  }
+    handle @put {
+        header Access-Control-Allow-Origin "*"
+        header Access-Control-Allow-Methods "PUT, OPTIONS"
+        header Access-Control-Allow-Headers "*"
+        header Access-Control-Expose-Headers "ETag, Content-Type, Content-Length"
+        header Access-Control-Allow-Credentials "true"
+        reverse_proxy garage:3900
+    }
 
-  # Catch-all for undefined paths
-  handle {
-    respond "Not Found" 404
-  }
+    handle {
+        respond "Method Not Allowed" 405
+    }
+}
+
+# Storage Media (Garage S3 Web) - read-only access
+# Uses subdomain-style like production (vehicles.localhost)
+http://vehicles.localhost:8083 {
+    log
+
+    @options {
+        method OPTIONS
+    }
+
+    handle @options {
+        header Access-Control-Allow-Origin "*"
+        header Access-Control-Allow-Methods "GET, OPTIONS"
+        header Access-Control-Allow-Credentials "true"
+        respond 204
+    }
+
+    @get {
+        method GET
+    }
+
+    handle @get {
+        header Access-Control-Allow-Origin "*"
+        header Access-Control-Allow-Methods "GET, OPTIONS"
+        header Cache-Control "public, max-age=3600"
+        header Access-Control-Allow-Credentials "true"
+        reverse_proxy garage:3902 {
+            header_up Host vehicles.localhost
+        }
+    }
+
+    handle {
+        respond "Not Found" 404
+    }
 }

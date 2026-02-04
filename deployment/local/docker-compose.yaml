@@ -136,13 +136,14 @@ services:
     image: caddy:latest
     container_name: cc-caddy
     ports:
-      - "8081:8081"
+      - "8082:8082"  # Storage uploads (S3 API)
+      - "8083:8083"  # Storage media (S3 Web)
     volumes:
       - type: bind
         source: ./Caddyfile
         target: /etc/caddy/Caddyfile
     depends_on:
-      - kratos
+      - garage
     networks:
       - intranet
 

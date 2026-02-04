@@ -126,7 +126,9 @@
     "history": {
       "empty": "Nenhum evento registado ainda",
       "emptyHint": "O histórico de eventos aparecerá aqui após adicionar certificações ou eventos",
-      "addEvent": "Adicionar primeiro evento"
+      "addEvent": "Adicionar primeiro evento",
+      "event": "evento",
+      "events": "eventos"
     }
   },
   "certification": {

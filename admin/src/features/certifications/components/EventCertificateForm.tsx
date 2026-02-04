@@ -48,10 +48,10 @@ export function EventCertificateForm({ vehicleId, entities, onSuccess }: EventCe
   const { mutate: createEvent, isPending } = useCreateEvent();
 
   useEffect(() => {
-    if (entities.length === 1) {
+    if (entities.length > 0 && !selectedEntity) {
       setSelectedEntity(entities[0].id);
     }
-  }, [entities]);
+  }, [entities, selectedEntity]);
 
   useEffect(() => {
     if (selectedEventType) {

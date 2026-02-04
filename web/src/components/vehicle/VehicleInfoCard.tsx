@@ -12,7 +12,7 @@ interface VehicleInfoCardProps {
 }
 
 export function VehicleInfoCard({ vehicle, hasVerifiedEvents = false }: VehicleInfoCardProps) {
-  const { t } = useTranslation('vehicle');
+  const { t } = useTranslation(['vehicle', 'dashboard']);
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const copyToClipboard = (text: string, field: string) => {
@@ -87,25 +87,25 @@ export function VehicleInfoCard({ vehicle, hasVerifiedEvents = false }: VehicleI
                 {vehicle.bodyType && (
                   <div>
                     <p className="text-xs uppercase text-muted-foreground">{t('vehicle:fields.bodyType')}</p>
-                    <p className="mt-1 text-foreground">{vehicle.bodyType}</p>
+                    <p className="mt-1 text-foreground">{t(`dashboard:vehicleForm.bodyTypes.${vehicle.bodyType}`, { defaultValue: vehicle.bodyType })}</p>
                   </div>
                 )}
                 {vehicle.driveType && (
                   <div>
                     <p className="text-xs uppercase text-muted-foreground">{t('vehicle:fields.driveType')}</p>
-                    <p className="mt-1 text-foreground">{vehicle.driveType}</p>
+                    <p className="mt-1 text-foreground">{t(`dashboard:vehicleForm.driveTypes.${vehicle.driveType}`, { defaultValue: vehicle.driveType })}</p>
                   </div>
                 )}
                 {vehicle.gearType && (
                   <div>
                     <p className="text-xs uppercase text-muted-foreground">{t('vehicle:fields.gearType')}</p>
-                    <p className="mt-1 text-foreground">{vehicle.gearType}</p>
+                    <p className="mt-1 text-foreground">{t(`dashboard:vehicleForm.gearTypes.${vehicle.gearType}`, { defaultValue: vehicle.gearType })}</p>
                   </div>
                 )}
                 {vehicle.suspensionType && (
                   <div>
                     <p className="text-xs uppercase text-muted-foreground">{t('vehicle:fields.suspensionType')}</p>
-                    <p className="mt-1 text-foreground">{vehicle.suspensionType}</p>
+                    <p className="mt-1 text-foreground">{t(`dashboard:vehicleForm.suspensionTypes.${vehicle.suspensionType}`, { defaultValue: vehicle.suspensionType })}</p>
                   </div>
                 )}
               </div>
@@ -142,25 +142,25 @@ export function VehicleInfoCard({ vehicle, hasVerifiedEvents = false }: VehicleI
                   {vehicle.bodyType && (
                     <div>
                       <p className="text-xs uppercase text-muted-foreground">{t('vehicle:fields.bodyType')}</p>
-                      <p className="mt-1 text-foreground">{vehicle.bodyType}</p>
+                      <p className="mt-1 text-foreground">{t(`dashboard:vehicleForm.bodyTypes.${vehicle.bodyType}`, { defaultValue: vehicle.bodyType })}</p>
                     </div>
                   )}
                   {vehicle.driveType && (
                     <div>
                       <p className="text-xs uppercase text-muted-foreground">{t('vehicle:fields.driveType')}</p>
-                      <p className="mt-1 text-foreground">{vehicle.driveType}</p>
+                      <p className="mt-1 text-foreground">{t(`dashboard:vehicleForm.driveTypes.${vehicle.driveType}`, { defaultValue: vehicle.driveType })}</p>
                     </div>
                   )}
                   {vehicle.gearType && (
                     <div>
                       <p className="text-xs uppercase text-muted-foreground">{t('vehicle:fields.gearType')}</p>
-                      <p className="mt-1 text-foreground">{vehicle.gearType}</p>
+                      <p className="mt-1 text-foreground">{t(`dashboard:vehicleForm.gearTypes.${vehicle.gearType}`, { defaultValue: vehicle.gearType })}</p>
                     </div>
                   )}
                   {vehicle.suspensionType && (
                     <div>
                       <p className="text-xs uppercase text-muted-foreground">{t('vehicle:fields.suspensionType')}</p>
-                      <p className="mt-1 text-foreground">{vehicle.suspensionType}</p>
+                      <p className="mt-1 text-foreground">{t(`dashboard:vehicleForm.suspensionTypes.${vehicle.suspensionType}`, { defaultValue: vehicle.suspensionType })}</p>
                     </div>
                   )}
                 </div>

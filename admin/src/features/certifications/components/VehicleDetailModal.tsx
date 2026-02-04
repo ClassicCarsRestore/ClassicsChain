@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Calendar, MapPin, Award, ExternalLink, ImageIcon } from 'lucide-react';
+import { X, Calendar, MapPin, Award, ExternalLink, ImageIcon, Link } from 'lucide-react';
 import { CertificationForm } from './CertificationForm';
 import { EventCertificateForm } from './EventCertificateForm';
 import { useVehicleEvents } from '../hooks/useVehicles';
@@ -72,6 +72,256 @@ const getEventTypeBadgeColor = (type: EventType): string => {
 const formatEventType = (type: EventType): string => {
   return type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 };
+
+interface EventGroup {
+  year: number;
+  events: VehicleEvent[];
+}
+
+interface EventHistoryTabProps {
+  events: VehicleEvent[];
+  isLoading: boolean;
+  onAddEvent: () => void;
+}
+
+function EventHistoryTab({ events, isLoading, onAddEvent }: EventHistoryTabProps) {
+  const { t } = useTranslation('vehicles');
+
+  const groupedEvents = useMemo(() => {
+    const sortedEvents = [...events].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const groups: EventGroup[] = [];
+    let currentYear: number | null = null;
+    let currentGroup: EventGroup | null = null;
+
+    for (const event of sortedEvents) {
+      const eventYear = new Date(event.date).getFullYear();
+
+      if (eventYear !== currentYear) {
+        if (currentGroup) {
+          groups.push(currentGroup);
+        }
+        currentYear = eventYear;
+        currentGroup = { year: eventYear, events: [event] };
+      } else {
+        currentGroup?.events.push(event);
+      }
+    }
+
+    if (currentGroup) {
+      groups.push(currentGroup);
+    }
+
+    return groups;
+  }, [events]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-muted-foreground">Loading event history...</div>
+      </div>
+    );
+  }
+
+  if (events.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-center">
+        <Award className="w-12 h-12 text-gray-300 mb-3" />
+        <p className="text-muted-foreground">{t('modal.history.empty', 'No events recorded yet')}</p>
+        <p className="text-sm text-muted-foreground mt-1 mb-4">
+          {t('modal.history.emptyHint', 'Event history will appear here once certifications or events are added')}
+        </p>
+        <button
+          onClick={onAddEvent}
+          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary hover:text-primary/80 hover:bg-primary/5 rounded-md transition-colors"
+        >
+          {t('modal.history.addEvent', 'Add first event')}
+          <span aria-hidden="true">→</span>
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative">
+      {/* Timeline connector */}
+      <div className="absolute left-[7px] top-0 bottom-0 w-0.5 bg-border" />
+
+      <div className="space-y-6">
+        {groupedEvents.map((group, groupIndex) => {
+          const anchoredCount = group.events.filter(e => !!e.blockchainTxId).length;
+          const isFirstGroup = groupIndex === 0;
+
+          return (
+            <div key={group.year} className="relative">
+              {/* Year marker */}
+              <div className={`relative flex items-center gap-3 ${isFirstGroup ? '' : 'pt-2'}`}>
+                <div className="relative z-10 flex items-center justify-center">
+                  <div className="flex items-center gap-2 rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground shadow-sm">
+                    <span>{group.year}</span>
+                    {anchoredCount > 0 && (
+                      <span className="flex items-center gap-1 text-emerald-300">
+                        <Link className="h-3 w-3" />
+                        {anchoredCount}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  {group.events.length} {group.events.length === 1 ? t('modal.history.event', 'event') : t('modal.history.events', 'events')}
+                </span>
+              </div>
+
+              {/* Events for this year */}
+              <div className="mt-4 space-y-4">
+                {group.events.map((event, eventIndex) => (
+                  <EventCard
+                    key={event.id}
+                    event={event}
+                    isLast={groupIndex === groupedEvents.length - 1 && eventIndex === group.events.length - 1}
+                  />
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+interface EventCardProps {
+  event: VehicleEvent;
+  isLast: boolean;
+}
+
+function EventCard({ event, isLast }: EventCardProps) {
+  const hasBlockchainProof = !!event.blockchainTxId;
+
+  return (
+    <div className="relative pl-8">
+      {/* Timeline connector dot */}
+      <div className="absolute left-0 top-4 z-10">
+        <div className={`flex h-4 w-4 items-center justify-center rounded-full border-2 ${
+          hasBlockchainProof
+            ? 'border-emerald-500 bg-emerald-500/10'
+            : 'border-primary bg-primary/10'
+        }`}>
+          <div className={`h-2 w-2 rounded-full ${
+            hasBlockchainProof
+              ? 'bg-emerald-500'
+              : 'bg-primary'
+          }`} />
+        </div>
+      </div>
+
+      {/* Hide the main line at the last event */}
+      {isLast && (
+        <div className="absolute left-[7px] top-6 bottom-0 w-0.5 bg-card" />
+      )}
+
+      {/* Event card */}
+      <div className="bg-muted rounded-lg p-4 space-y-3">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <span className={`inline-block px-2 py-1 text-xs font-medium rounded ${getEventTypeBadgeColor(event.type)}`}>
+                {formatEventType(event.type)}
+              </span>
+              {event.metadata?.certificateNumber && (
+                <code className="text-xs bg-background px-2 py-1 rounded border border-border">
+                  #{event.metadata.certificateNumber}
+                </code>
+              )}
+            </div>
+            <h4 className="font-semibold">{event.title}</h4>
+          </div>
+        </div>
+
+        {/* Description */}
+        {event.description && (
+          <p className="text-sm text-muted-foreground">{event.description}</p>
+        )}
+
+        {/* Event Images */}
+        {event.images && event.images.length > 0 && (
+          <div>
+            <div className="flex items-center gap-1.5 mb-2 text-xs text-muted-foreground">
+              <ImageIcon className="h-3 w-3" />
+              <span>{event.images.length} {event.images.length === 1 ? 'image' : 'images'}</span>
+            </div>
+            <div className="grid grid-cols-4 gap-1.5">
+              {event.images.slice(0, 4).map((image, index) => (
+                <div
+                  key={image.id}
+                  className="relative aspect-square overflow-hidden rounded-md border border-border bg-muted"
+                >
+                  <img
+                    src={generateStorageUrl(image.objectKey)}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                  {index === 3 && event.images!.length > 4 && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-white text-sm font-medium">
+                      +{event.images!.length - 4}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Metadata */}
+        <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+          <div className="flex items-center gap-1">
+            <Calendar className="w-4 h-4" />
+            <span>{new Date(event.date).toLocaleDateString()}</span>
+          </div>
+          {event.location && (
+            <div className="flex items-center gap-1">
+              <MapPin className="w-4 h-4" />
+              <span>{event.location}</span>
+            </div>
+          )}
+          {event.blockchainTxId && (
+            <div className="flex items-center gap-1">
+              <ExternalLink className="w-4 h-4" />
+              <a
+                href={`https://explorer.perawallet.app/tx/${event.blockchainTxId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                Blockchain
+              </a>
+            </div>
+          )}
+        </div>
+
+        {/* Additional metadata fields */}
+        {event.metadata && Object.keys(event.metadata).length > 1 && (
+          <div className="pt-2 border-t border-border">
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              {Object.entries(event.metadata)
+                .filter(([key]) => key !== 'certificateNumber')
+                .map(([key, value]) => (
+                  <div key={key}>
+                    <span className="text-muted-foreground">
+                      {key.replace(/([A-Z])/g, ' $1').trim()}:
+                    </span>
+                    <span className="ml-1 font-medium">
+                      {typeof value === 'object' ? JSON.stringify(value) : String(value)}
+                    </span>
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export function VehicleDetailModal({
   vehicle,
@@ -295,146 +545,11 @@ export function VehicleDetailModal({
           )}
 
           {activeTab === 'history' && (
-            <div className="space-y-4">
-              {isLoadingEvents ? (
-                <div className="flex items-center justify-center py-12">
-                  <div className="text-muted-foreground">Loading event history...</div>
-                </div>
-              ) : events.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <Award className="w-12 h-12 text-gray-300 mb-3" />
-                  <p className="text-muted-foreground">{t('modal.history.empty', 'No events recorded yet')}</p>
-                  <p className="text-sm text-muted-foreground mt-1 mb-4">
-                    {t('modal.history.emptyHint', 'Event history will appear here once certifications or events are added')}
-                  </p>
-                  <button
-                    onClick={() => setActiveTab('event-certificates')}
-                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary hover:text-primary/80 hover:bg-primary/5 rounded-md transition-colors"
-                  >
-                    {t('modal.history.addEvent', 'Add first event')}
-                    <span aria-hidden="true">→</span>
-                  </button>
-                </div>
-              ) : (
-                <div className="relative">
-                  {/* Timeline connector */}
-                  <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-border" />
-
-                  {/* Event cards */}
-                  <div className="space-y-6">
-                    {(events as VehicleEvent[])
-                      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                      .map((event) => (
-                        <div key={event.id} className="relative pl-12">
-                          {/* Timeline dot */}
-                          <div className="absolute left-2.5 top-2 w-3 h-3 rounded-full bg-primary border-2 border-card" />
-
-                          {/* Event card */}
-                          <div className="bg-muted rounded-lg p-4 space-y-3">
-                            {/* Header */}
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <span className={`inline-block px-2 py-1 text-xs font-medium rounded ${getEventTypeBadgeColor(event.type)}`}>
-                                    {formatEventType(event.type)}
-                                  </span>
-                                  {event.metadata?.certificateNumber && (
-                                    <code className="text-xs bg-background px-2 py-1 rounded border border-border">
-                                      #{event.metadata.certificateNumber}
-                                    </code>
-                                  )}
-                                </div>
-                                <h4 className="font-semibold">{event.title}</h4>
-                              </div>
-                            </div>
-
-                            {/* Description */}
-                            {event.description && (
-                              <p className="text-sm text-muted-foreground">{event.description}</p>
-                            )}
-
-                            {/* Event Images */}
-                            {event.images && event.images.length > 0 && (
-                              <div>
-                                <div className="flex items-center gap-1.5 mb-2 text-xs text-muted-foreground">
-                                  <ImageIcon className="h-3 w-3" />
-                                  <span>{event.images.length} {event.images.length === 1 ? 'image' : 'images'}</span>
-                                </div>
-                                <div className="grid grid-cols-4 gap-1.5">
-                                  {event.images.slice(0, 4).map((image, index) => (
-                                    <div
-                                      key={image.id}
-                                      className="relative aspect-square overflow-hidden rounded-md border border-border bg-muted"
-                                    >
-                                      <img
-                                        src={generateStorageUrl(image.objectKey)}
-                                        alt=""
-                                        className="h-full w-full object-cover"
-                                      />
-                                      {index === 3 && event.images!.length > 4 && (
-                                        <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-white text-sm font-medium">
-                                          +{event.images!.length - 4}
-                                        </div>
-                                      )}
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Metadata */}
-                            <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
-                              <div className="flex items-center gap-1">
-                                <Calendar className="w-4 h-4" />
-                                <span>{new Date(event.date).toLocaleDateString()}</span>
-                              </div>
-                              {event.location && (
-                                <div className="flex items-center gap-1">
-                                  <MapPin className="w-4 h-4" />
-                                  <span>{event.location}</span>
-                                </div>
-                              )}
-                              {event.blockchainTxId && (
-                                <div className="flex items-center gap-1">
-                                  <ExternalLink className="w-4 h-4" />
-                                  <a
-                                    href={`https://explorer.perawallet.app/tx/${event.blockchainTxId}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-primary hover:underline"
-                                  >
-                                    Blockchain
-                                  </a>
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Additional metadata fields */}
-                            {event.metadata && Object.keys(event.metadata).length > 1 && (
-                              <div className="pt-2 border-t border-border">
-                                <div className="grid grid-cols-2 gap-2 text-xs">
-                                  {Object.entries(event.metadata)
-                                    .filter(([key]) => key !== 'certificateNumber')
-                                    .map(([key, value]) => (
-                                      <div key={key}>
-                                        <span className="text-muted-foreground">
-                                          {key.replace(/([A-Z])/g, ' $1').trim()}:
-                                        </span>
-                                        <span className="ml-1 font-medium">
-                                          {typeof value === 'object' ? JSON.stringify(value) : String(value)}
-                                        </span>
-                                      </div>
-                                    ))}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                  </div>
-                </div>
-              )}
-            </div>
+            <EventHistoryTab
+              events={events as VehicleEvent[]}
+              isLoading={isLoadingEvents}
+              onAddEvent={() => setActiveTab('event-certificates')}
+            />
           )}
 
           {activeTab === 'certifications' && (

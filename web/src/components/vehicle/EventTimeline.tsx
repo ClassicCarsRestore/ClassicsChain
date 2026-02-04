@@ -43,7 +43,7 @@ export function EventTimeline({ events, isCertified }: EventTimelineProps) {
     return groups;
   }, [events]);
 
-  const shouldShowYearSeparators = groupedEvents.length > 1;
+  const shouldShowYearSeparators = groupedEvents.length >= 1;
 
   return (
     <div className="relative">
