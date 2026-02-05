@@ -12,7 +12,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/oapi-codegen/runtime"
 	strictnethttp "github.com/oapi-codegen/runtime/strictmiddleware/nethttp"
 	openapi_types "github.com/oapi-codegen/runtime/types"
@@ -160,30 +159,6 @@ type AdminUserListResponse struct {
 	Meta PaginationMeta `json:"meta"`
 }
 
-// BulkEventError defines model for BulkEventError.
-type BulkEventError struct {
-	ChassisNumber *string `json:"chassisNumber,omitempty"`
-
-	// Error Error message
-	Error        string  `json:"error"`
-	LicensePlate *string `json:"licensePlate,omitempty"`
-}
-
-// BulkEventSuccess defines model for BulkEventSuccess.
-type BulkEventSuccess struct {
-	// Created Whether the vehicle was newly created
-	Created bool `json:"created"`
-
-	// EventId ID of the created event
-	EventId openapi_types.UUID `json:"eventId"`
-
-	// InvitationSent Whether an invitation email was sent (only if email was provided and vehicle was unowned)
-	InvitationSent *bool `json:"invitationSent,omitempty"`
-
-	// VehicleId ID of the vehicle
-	VehicleId openapi_types.UUID `json:"vehicleId"`
-}
-
 // ClaimAdminInvitationRequest defines model for ClaimAdminInvitationRequest.
 type ClaimAdminInvitationRequest struct {
 	// Email User's email (can be modified from invitation)
@@ -236,40 +211,6 @@ type CreateAdminUserRequest struct {
 
 	// Name Name of the new admin user
 	Name *string `json:"name,omitempty"`
-}
-
-// CreateBulkEventsRequest defines model for CreateBulkEventsRequest.
-type CreateBulkEventsRequest struct {
-	// Date Optional date when the event occurred. If omitted, defaults to current date.
-	Date *openapi_types.Date `json:"date,omitempty"`
-
-	// Description Optional detailed description of the event
-	Description *string `json:"description,omitempty"`
-
-	// EntityId ID of the entity issuing the certificates
-	EntityId *uuid.UUID `json:"entityId,omitempty"`
-
-	// Location Optional location where the event occurred
-	Location *string `json:"location,omitempty"`
-
-	// Metadata Optional metadata object for event type-specific data
-	Metadata *map[string]interface{} `json:"metadata,omitempty"`
-
-	// Title Title of the event
-	Title string    `json:"title"`
-	Type  EventType `json:"type"`
-
-	// Vehicles List of vehicles to issue certificates for
-	Vehicles []VehicleIdentifier `json:"vehicles"`
-}
-
-// CreateBulkEventsResponse defines model for CreateBulkEventsResponse.
-type CreateBulkEventsResponse struct {
-	// Errors Events that failed to create
-	Errors []BulkEventError `json:"errors"`
-
-	// Success Successfully created events
-	Success []BulkEventSuccess `json:"success"`
 }
 
 // CreateCertifierVehicleRequest Request to create an orphaned vehicle for certification with optional owner assignment
@@ -894,18 +835,6 @@ type Vehicle struct {
 	Year               int     `json:"year"`
 }
 
-// VehicleIdentifier defines model for VehicleIdentifier.
-type VehicleIdentifier struct {
-	// ChassisNumber Vehicle chassis number (prioritized for matching)
-	ChassisNumber *string `json:"chassisNumber,omitempty"`
-
-	// Email Optional email address to send invitation if vehicle is not yet owned
-	Email *openapi_types.Email `json:"email,omitempty"`
-
-	// LicensePlate Vehicle license plate
-	LicensePlate *string `json:"licensePlate,omitempty"`
-}
-
 // VehicleInvitationResponse defines model for VehicleInvitationResponse.
 type VehicleInvitationResponse struct {
 	// Email The email address the invitation was sent to
@@ -1083,9 +1012,6 @@ type GenerateEventImageUploadUrlJSONRequestBody = GenerateEventImageUploadUrlReq
 // CreateEventJSONRequestBody defines body for CreateEvent for application/json ContentType.
 type CreateEventJSONRequestBody = CreateEventRequest
 
-// CreateBulkEventsJSONRequestBody defines body for CreateBulkEvents for application/json ContentType.
-type CreateBulkEventsJSONRequestBody = CreateBulkEventsRequest
-
 // CreateVehicleJSONRequestBody defines body for CreateVehicle for application/json ContentType.
 type CreateVehicleJSONRequestBody = CreateVehicleRequest
 
@@ -1187,9 +1113,6 @@ type ServerInterface interface {
 	// Create a new history event
 	// (POST /events)
 	CreateEvent(w http.ResponseWriter, r *http.Request)
-	// Create event certificates for multiple vehicles
-	// (POST /events/bulk)
-	CreateBulkEvents(w http.ResponseWriter, r *http.Request)
 	// Get event by ID
 	// (GET /events/{eventId})
 	GetEvent(w http.ResponseWriter, r *http.Request, eventId EventIdParam)
@@ -2092,26 +2015,6 @@ func (siw *ServerInterfaceWrapper) CreateEvent(w http.ResponseWriter, r *http.Re
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.CreateEvent(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// CreateBulkEvents operation middleware
-func (siw *ServerInterfaceWrapper) CreateBulkEvents(w http.ResponseWriter, r *http.Request) {
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.CreateBulkEvents(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -3114,7 +3017,6 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("GET "+options.BaseURL+"/event-images/{sessionId}", wrapper.GetEventImagesBySession)
 	m.HandleFunc("POST "+options.BaseURL+"/event-images/{sessionId}/upload-url", wrapper.GenerateEventImageUploadUrl)
 	m.HandleFunc("POST "+options.BaseURL+"/events", wrapper.CreateEvent)
-	m.HandleFunc("POST "+options.BaseURL+"/events/bulk", wrapper.CreateBulkEvents)
 	m.HandleFunc("GET "+options.BaseURL+"/events/{eventId}", wrapper.GetEvent)
 	m.HandleFunc("GET "+options.BaseURL+"/events/{eventId}/images", wrapper.GetEventImages)
 	m.HandleFunc("GET "+options.BaseURL+"/health", wrapper.GetHealth)
@@ -4275,50 +4177,6 @@ type CreateEvent404JSONResponse struct{ NotFoundJSONResponse }
 func (response CreateEvent404JSONResponse) VisitCreateEventResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(404)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type CreateBulkEventsRequestObject struct {
-	Body *CreateBulkEventsJSONRequestBody
-}
-
-type CreateBulkEventsResponseObject interface {
-	VisitCreateBulkEventsResponse(w http.ResponseWriter) error
-}
-
-type CreateBulkEvents201JSONResponse CreateBulkEventsResponse
-
-func (response CreateBulkEvents201JSONResponse) VisitCreateBulkEventsResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(201)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type CreateBulkEvents400JSONResponse struct{ BadRequestJSONResponse }
-
-func (response CreateBulkEvents400JSONResponse) VisitCreateBulkEventsResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(400)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type CreateBulkEvents401JSONResponse struct{ UnauthorizedJSONResponse }
-
-func (response CreateBulkEvents401JSONResponse) VisitCreateBulkEventsResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(401)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type CreateBulkEvents403JSONResponse struct{ ForbiddenJSONResponse }
-
-func (response CreateBulkEvents403JSONResponse) VisitCreateBulkEventsResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(403)
 
 	return json.NewEncoder(w).Encode(response)
 }
@@ -5499,9 +5357,6 @@ type StrictServerInterface interface {
 	// Create a new history event
 	// (POST /events)
 	CreateEvent(ctx context.Context, request CreateEventRequestObject) (CreateEventResponseObject, error)
-	// Create event certificates for multiple vehicles
-	// (POST /events/bulk)
-	CreateBulkEvents(ctx context.Context, request CreateBulkEventsRequestObject) (CreateBulkEventsResponseObject, error)
 	// Get event by ID
 	// (GET /events/{eventId})
 	GetEvent(ctx context.Context, request GetEventRequestObject) (GetEventResponseObject, error)
@@ -6352,37 +6207,6 @@ func (sh *strictHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(CreateEventResponseObject); ok {
 		if err := validResponse.VisitCreateEventResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// CreateBulkEvents operation middleware
-func (sh *strictHandler) CreateBulkEvents(w http.ResponseWriter, r *http.Request) {
-	var request CreateBulkEventsRequestObject
-
-	var body CreateBulkEventsJSONRequestBody
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
-		return
-	}
-	request.Body = &body
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.CreateBulkEvents(ctx, request.(CreateBulkEventsRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "CreateBulkEvents")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(CreateBulkEventsResponseObject); ok {
-		if err := validResponse.VisitCreateBulkEventsResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

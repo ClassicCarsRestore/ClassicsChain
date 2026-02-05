@@ -56,16 +56,6 @@ export function Navigation() {
                   {t('vehicles')}
                 </Link>
               )}
-
-              {/* Bulk Certificates - for global admins and entity members */}
-              {(isGlobalAdmin() || userEntities.length > 0) && (
-                <Link
-                  to="/bulk-certificates"
-                  className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  {t('eventCertificates')}
-                </Link>
-              )}
             </div>
           </div>
           <div className="flex items-center gap-4">

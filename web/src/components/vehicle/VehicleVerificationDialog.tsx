@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useTranslation, TFunction } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { Copy, Check, ExternalLink, ShieldCheck, Database, Fingerprint, Code } from 'lucide-react';
 import {
   Dialog,
@@ -19,7 +19,7 @@ function SourceDataSection({
   cidSourceCbor?: string;
   copiedField: string | null;
   onCopy: (text: string, field: string) => void;
-  t: TFunction;
+  t: ReturnType<typeof useTranslation>['t'];
 }) {
   const [showCbor, setShowCbor] = useState(false);
 

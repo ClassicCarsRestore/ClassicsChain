@@ -207,7 +207,7 @@ func main() {
 	shareLinksService := vehicleshare.NewService(shareLinkRepo)
 	invitationService := invitation.NewService(invitationRepo, vehicleService, mailerClient)
 	eventImageService := eventimages.NewService(eventImageRepo, photoStorage, cidGenerator)
-	eventService := event.NewService(eventRepo, anchorerService, vehicleService, invitationService)
+	eventService := event.NewService(eventRepo, anchorerService)
 	eventService.SetEventImageService(eventImageService)
 
 	// User invitation service

@@ -161,37 +161,6 @@
       "creating": "Criando..."
     }
   },
-  "bulkCertificates": {
-    "title": "Certificados de Eventos em Lote",
-    "description": "Emita o mesmo certificado de evento para múltiplos veículos de uma vez",
-    "section": {
-      "eventType": "Passo 1: Selecione o Tipo de Evento",
-      "eventDetails": "Passo 2: Detalhes do Evento",
-      "vehicles": "Passo 3: Lista de Veículos"
-    },
-    "fields": {
-      "chassis": "Número do Chassis",
-      "licensePlate": "Placa de Licença",
-      "email": "Email"
-    },
-    "hint": {
-      "vehicleFormat": "Você pode colar dados no formato 'CHASSIS | LICENÇA | EMAIL' de uma planilha"
-    },
-    "actions": {
-      "addVehicle": "Adicionar Veículo",
-      "issue": "Emitir Certificados",
-      "issuing": "Emitindo...",
-      "issuMore": "Emitir Mais Certificados"
-    },
-    "results": {
-      "allSuccess": "Todos os certificados foram emitidos com sucesso!",
-      "partialSuccess": "Emissão em lote concluída com alguns erros",
-      "certificatesIssued": "certificados emitidos com sucesso",
-      "certificatesFailed": "certificados falharam ao emitir",
-      "successList": "Emitidos com Sucesso",
-      "errorList": "Falhas na Emissão"
-    }
-  },
   "eventCertificate": {
     "section": {
       "common": "Informações do Evento"
@@ -252,11 +221,7 @@
     "vehicleError": "Falha ao criar veículo",
     "eventCreated": "Certificado de evento emitido com sucesso",
     "eventError": "Falha ao emitir certificado",
-    "fillRequiredFields": "Por favor preencha todos os campos obrigatórios",
-    "addVehicle": "Por favor adicione pelo menos um veículo",
-    "bulkSuccess": "{{count}} certificados emitidos com sucesso",
-    "bulkPartial": "{{success}} emitidos, {{failed}} falharam",
-    "bulkError": "Falha ao emitir certificados"
+    "fillRequiredFields": "Por favor preencha todos os campos obrigatórios"
   },
   "eventImages": {
     "title": "Imagens do Evento",

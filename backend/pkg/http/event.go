@@ -3,8 +3,6 @@ package http
 import (
 	"context"
 	"errors"
-	"fmt"
-	"time"
 
 	openapi_types "github.com/oapi-codegen/runtime/types"
 	"github.com/s1moe2/classics-chain/auth"
@@ -210,91 +208,6 @@ func (a apiServer) GetEvent(ctx context.Context, request GetEventRequestObject) 
 	images, _ := a.eventImageService.ListByEvent(ctx, evt.ID)
 	httpEvent := domainToHTTPEvent(*evt, images)
 	return GetEvent200JSONResponse(httpEvent), nil
-}
-
-func (a apiServer) CreateBulkEvents(ctx context.Context, request CreateBulkEventsRequestObject) (CreateBulkEventsResponseObject, error) {
-	if request.Body == nil {
-		return nil, fmt.Errorf("request body is required")
-	}
-
-	if err := a.authorizer.Authorize(ctx, ResourceEvents, ActionCreate); err != nil {
-		return nil, err
-	}
-
-	if len(request.Body.Vehicles) == 0 {
-		return CreateBulkEvents400JSONResponse{
-			BadRequestJSONResponse: BadRequestJSONResponse{
-				Error: "vehicles array cannot be empty",
-			},
-		}, nil
-	}
-
-	// Convert HTTP request to service parameters
-	vehicles := make([]event.BulkEventVehicle, len(request.Body.Vehicles))
-	for i, v := range request.Body.Vehicles {
-		// Convert Email from openapi_types.Email to *string
-		var email *string
-		if v.Email != nil {
-			emailStr := string(*v.Email)
-			email = &emailStr
-		}
-
-		vehicles[i] = event.BulkEventVehicle{
-			ChassisNumber: v.ChassisNumber,
-			LicensePlate:  v.LicensePlate,
-			Email:         email,
-		}
-	}
-
-	var date *time.Time
-	if request.Body.Date != nil {
-		date = &request.Body.Date.Time
-	}
-
-	var metadata map[string]interface{}
-	if request.Body.Metadata != nil {
-		metadata = *request.Body.Metadata
-	}
-
-	params := event.CreateBulkEventsParams{
-		Vehicles:    vehicles,
-		EntityID:    request.Body.EntityId,
-		Title:       request.Body.Title,
-		Description: request.Body.Description,
-		Type:        event.EventType(request.Body.Type),
-		Location:    request.Body.Location,
-		Date:        date,
-		Metadata:    metadata,
-	}
-
-	result, err := a.eventService.CreateBulkEvents(ctx, params)
-	if err != nil {
-		return nil, err
-	}
-
-	successList := make([]BulkEventSuccess, len(result.Success))
-	for i, s := range result.Success {
-		successList[i] = BulkEventSuccess{
-			VehicleId:      s.VehicleID,
-			EventId:        s.EventID,
-			Created:        s.Created,
-			InvitationSent: s.InvitationSent,
-		}
-	}
-
-	errorList := make([]BulkEventError, len(result.Errors))
-	for i, e := range result.Errors {
-		errorList[i] = BulkEventError{
-			ChassisNumber: &e.ChassisNumber,
-			LicensePlate:  &e.LicensePlate,
-			Error:         e.Error,
-		}
-	}
-
-	return CreateBulkEvents201JSONResponse{
-		Success: successList,
-		Errors:  errorList,
-	}, nil
 }
 
 func domainToHTTPEvent(domainEvent event.Event, images []eventimages.EventImage) Event {

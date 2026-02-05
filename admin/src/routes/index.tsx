@@ -7,7 +7,6 @@ import { UsersPage } from './pages/UsersPage';
 import { EntitiesPage } from './pages/EntitiesPage';
 import { EntityDetailPage } from './pages/EntityDetailPage';
 import { VehiclesPage } from './pages/VehiclesPage';
-import { BulkCertificatesPage } from './pages/BulkCertificatesPage';
 import { InvitationClaimPage } from './pages/InvitationClaimPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { ErrorPage } from './pages/ErrorPage';
@@ -60,14 +59,6 @@ export const router = createBrowserRouter([
         element: (
           <RoleProtectedRoute requireEntityAccess>
             <VehiclesPage />
-          </RoleProtectedRoute>
-        ),
-      },
-      {
-        path: 'bulk-certificates',
-        element: (
-          <RoleProtectedRoute requireEntityAccess>
-            <BulkCertificatesPage />
           </RoleProtectedRoute>
         ),
       },

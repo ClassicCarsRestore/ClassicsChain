@@ -163,37 +163,6 @@
       "creating": "Creating..."
     }
   },
-  "bulkCertificates": {
-    "title": "Bulk Event Certificates",
-    "description": "Issue the same event certificate to multiple vehicles at once",
-    "section": {
-      "eventType": "Step 1: Event Type",
-      "eventDetails": "Step 2: Event Details",
-      "vehicles": "Step 3: Vehicle List"
-    },
-    "fields": {
-      "chassis": "Chassis Number",
-      "licensePlate": "License Plate",
-      "email": "Email"
-    },
-    "hint": {
-      "vehicleFormat": "You can paste data in 'CHASSIS | LICENSE | EMAIL' format from a spreadsheet"
-    },
-    "actions": {
-      "addVehicle": "Add Vehicle",
-      "issue": "Issue Certificates",
-      "issuing": "Issuing...",
-      "issuMore": "Issue More Certificates"
-    },
-    "results": {
-      "allSuccess": "All certificates issued successfully!",
-      "partialSuccess": "Bulk issuance completed with some errors",
-      "certificatesIssued": "certificates issued successfully",
-      "certificatesFailed": "certificates failed to issue",
-      "successList": "Successfully Issued",
-      "errorList": "Failed Issues"
-    }
-  },
   "eventCertificate": {
     "section": {
       "common": "Event Information"
@@ -254,11 +223,7 @@
     "vehicleError": "Failed to create vehicle",
     "eventCreated": "Event certificate issued successfully",
     "eventError": "Failed to issue certificate",
-    "fillRequiredFields": "Please fill in all required fields",
-    "addVehicle": "Please add at least one vehicle",
-    "bulkSuccess": "{{count}} certificates issued successfully",
-    "bulkPartial": "{{success}} issued, {{failed}} failed",
-    "bulkError": "Failed to issue certificates"
+    "fillRequiredFields": "Please fill in all required fields"
   },
   "ownerAssignment": {
     "title": "Owner Assignment",
