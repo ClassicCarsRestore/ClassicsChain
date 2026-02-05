@@ -52,19 +52,26 @@
       "truck": "Truck",
       "van": "Van",
       "hatchback": "Hatchback",
-      "roadster": "Roadster"
+      "roadster": "Roadster",
+      "minivan": "Minivan",
+      "sports": "Sports"
     },
     "driveTypes": {
-      "fwd": "Front-Wheel Drive (FWD)",
-      "rwd": "Rear-Wheel Drive (RWD)",
-      "awd": "All-Wheel Drive (AWD)",
-      "4wd": "Four-Wheel Drive (4WD)"
+      "front_wheel_drive": "Front-Wheel Drive",
+      "rear_wheel_drive": "Rear-Wheel Drive",
+      "all_wheel_drive": "All-Wheel Drive",
+      "four_wheel_drive": "Four-Wheel Drive",
+      "fwd": "Front-Wheel Drive",
+      "rwd": "Rear-Wheel Drive",
+      "awd": "All-Wheel Drive",
+      "4wd": "Four-Wheel Drive"
     },
     "gearTypes": {
       "manual": "Manual",
       "automatic": "Automatic",
-      "cvt": "CVT (Continuously Variable Transmission)",
-      "dct": "DCT (Dual-Clutch Transmission)",
+      "cvt": "CVT",
+      "semi-automatic": "Semi-Automatic",
+      "dct": "DCT (Dual-Clutch)",
       "sequential": "Sequential"
     },
     "suspensionTypes": {

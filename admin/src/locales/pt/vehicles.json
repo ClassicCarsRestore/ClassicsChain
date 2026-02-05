@@ -43,19 +43,26 @@
         "wagon": "Perua",
         "hatchback": "Hatchback",
         "minivan": "Minivan",
-        "sports": "Esportivo"
+        "sports": "Esportivo",
+        "roadster": "Roadster"
       },
       "driveTypes": {
         "front_wheel_drive": "Tração Dianteira",
         "rear_wheel_drive": "Tração Traseira",
         "all_wheel_drive": "Tração em Todas as Rodas",
-        "four_wheel_drive": "Tração em Quatro Rodas"
+        "four_wheel_drive": "Tração em Quatro Rodas",
+        "fwd": "Tração Dianteira",
+        "rwd": "Tração Traseira",
+        "awd": "Tração Integral",
+        "4wd": "Tração 4x4"
       },
       "gearTypes": {
         "manual": "Manual",
         "automatic": "Automática",
         "cvt": "CVT",
-        "semi-automatic": "Semi-Automática"
+        "semi-automatic": "Semi-Automática",
+        "dct": "DCT (Dupla Embraiagem)",
+        "sequential": "Sequencial"
       },
       "suspensionTypes": {
         "independent": "Independente",

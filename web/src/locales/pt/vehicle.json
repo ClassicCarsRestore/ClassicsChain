@@ -213,6 +213,14 @@
     "event": "evento",
     "events": "eventos"
   },
+  "passport": {
+    "label": "Passaporte do Veículo",
+    "verified": "Verificado",
+    "timeline": "Histórico",
+    "anchored": "Ancorado na blockchain",
+    "previewButton": "Pré-visualizar Passaporte",
+    "closePreview": "Fechar Pré-visualização"
+  },
   "eventImages": {
     "title": "Imagens do Evento",
     "uploading": "A carregar...",

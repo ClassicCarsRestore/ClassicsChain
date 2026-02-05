@@ -52,19 +52,26 @@
       "truck": "Camião/Pickup",
       "van": "Carrinha",
       "hatchback": "Hatchback",
-      "roadster": "Roadster"
+      "roadster": "Roadster",
+      "minivan": "Monovolume",
+      "sports": "Desportivo"
     },
     "driveTypes": {
-      "fwd": "Tração Dianteira (FWD)",
-      "rwd": "Tração Traseira (RWD)",
-      "awd": "Tração Integral (AWD)",
-      "4wd": "Tração 4x4 (4WD)"
+      "front_wheel_drive": "Tração Dianteira",
+      "rear_wheel_drive": "Tração Traseira",
+      "all_wheel_drive": "Tração Integral",
+      "four_wheel_drive": "Tração 4x4",
+      "fwd": "Tração Dianteira",
+      "rwd": "Tração Traseira",
+      "awd": "Tração Integral",
+      "4wd": "Tração 4x4"
     },
     "gearTypes": {
       "manual": "Manual",
       "automatic": "Automático",
-      "cvt": "CVT (Transmissão Continuamente Variável)",
-      "dct": "DCT (Transmissão de Dupla Embraiagem)",
+      "cvt": "CVT",
+      "semi-automatic": "Semi-Automático",
+      "dct": "DCT (Dupla Embraiagem)",
       "sequential": "Sequencial"
     },
     "suspensionTypes": {

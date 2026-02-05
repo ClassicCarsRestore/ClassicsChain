@@ -53,10 +53,12 @@ export function VehicleCreatePage() {
     'van',
     'hatchback',
     'roadster',
+    'minivan',
+    'sports',
   ] as const;
 
-  const driveTypes = ['fwd', 'rwd', 'awd', '4wd'] as const;
-  const gearTypes = ['manual', 'automatic', 'cvt', 'dct', 'sequential'] as const;
+  const driveTypes = ['front_wheel_drive', 'rear_wheel_drive', 'all_wheel_drive', 'four_wheel_drive'] as const;
+  const gearTypes = ['manual', 'automatic', 'cvt', 'semi-automatic'] as const;
   const suspensionTypes = [
     'independent',
     'dependent',

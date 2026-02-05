@@ -44,19 +44,26 @@
         "wagon": "Wagon",
         "hatchback": "Hatchback",
         "minivan": "Minivan",
-        "sports": "Sports"
+        "sports": "Sports",
+        "roadster": "Roadster"
       },
       "driveTypes": {
-        "front_wheel_drive": "Front Wheel Drive",
-        "rear_wheel_drive": "Rear Wheel Drive",
-        "all_wheel_drive": "All Wheel Drive",
-        "four_wheel_drive": "Four Wheel Drive"
+        "front_wheel_drive": "Front-Wheel Drive",
+        "rear_wheel_drive": "Rear-Wheel Drive",
+        "all_wheel_drive": "All-Wheel Drive",
+        "four_wheel_drive": "Four-Wheel Drive",
+        "fwd": "Front-Wheel Drive",
+        "rwd": "Rear-Wheel Drive",
+        "awd": "All-Wheel Drive",
+        "4wd": "Four-Wheel Drive"
       },
       "gearTypes": {
         "manual": "Manual",
         "automatic": "Automatic",
         "cvt": "CVT",
-        "semi-automatic": "Semi-Automatic"
+        "semi-automatic": "Semi-Automatic",
+        "dct": "DCT (Dual-Clutch)",
+        "sequential": "Sequential"
       },
       "suspensionTypes": {
         "independent": "Independent",

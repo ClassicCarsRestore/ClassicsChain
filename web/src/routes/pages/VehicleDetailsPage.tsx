@@ -2,13 +2,14 @@ import { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Plus, FileText, Share2, Clock } from 'lucide-react';
+import { ArrowLeft, Plus, FileText, Share2, Clock, Eye, X } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Vehicle, Event, EventListResponse, CreateOwnerEventRequest } from '@/types/vehicle';
 import { EventTimeline } from '@/components/vehicle/EventTimeline';
 import { VehicleInfoCard } from '@/components/vehicle/VehicleInfoCard';
 import { VehicleStats } from '@/components/vehicle/VehicleStats';
+import { VehiclePassport } from '@/components/vehicle/VehiclePassport';
 import { VehicleEventCreateModal } from '@/features/vehicles/components/VehicleEventCreateModal';
 import { VehiclePhotosSection } from '@/features/vehicles';
 import { VehicleDocumentsSection } from '@/features/vehicles/components/VehicleDocumentsSection';
@@ -33,6 +34,7 @@ export function VehicleDetailsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmittingEvent, setIsSubmittingEvent] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isPassportOpen, setIsPassportOpen] = useState(false);
   const createShareLink = useCreateShareLink(vehicleId || '');
 
   const { data: photosData } = useQuery({
@@ -176,13 +178,22 @@ export function VehicleDetailsPage() {
     <div className="mx-auto max-w-4xl">
       {/* Header */}
       <div className="mb-8">
-        <button
-          onClick={() => navigate('/dashboard')}
-          className="mb-4 flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          {t('vehicle:buttons.backToDashboard')}
-        </button>
+        <div className="mb-4 flex items-center justify-between">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            {t('vehicle:buttons.backToDashboard')}
+          </button>
+          <button
+            onClick={() => setIsPassportOpen(true)}
+            className="flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground hover:border-primary/50 cursor-pointer"
+          >
+            <Eye className="h-4 w-4" />
+            {t('vehicle:passport.previewButton')}
+          </button>
+        </div>
         <VehicleInfoCard vehicle={vehicle} hasVerifiedEvents={vehicleStats.hasVerifiedEvents} />
       </div>
 
@@ -279,6 +290,33 @@ export function VehicleDetailsPage() {
         vehicleId={vehicle.id}
         isSubmitting={isSubmittingEvent}
       />
+
+      {/* Passport Preview Overlay */}
+      {isPassportOpen && (
+        <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm overflow-y-auto">
+          <div className="container mx-auto max-w-3xl px-4 py-8">
+            <div className="mb-6 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-foreground">{t('vehicle:passport.previewButton')}</h2>
+              <button
+                onClick={() => setIsPassportOpen(false)}
+                className="flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground hover:border-primary/50 cursor-pointer"
+              >
+                <X className="h-4 w-4" />
+                {t('vehicle:passport.closePreview')}
+              </button>
+            </div>
+            <VehiclePassport
+              vehicle={vehicle}
+              photos={photosData}
+              documents={documentsData}
+              events={events}
+              showPhotos={(photosData?.length ?? 0) > 0}
+              showDocuments={(documentsData?.length ?? 0) > 0}
+              showHistory={events.length > 0}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

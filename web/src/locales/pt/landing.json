@@ -1,50 +1,55 @@
 {
   "hero": {
-    "title": "Classics Chain",
-    "subheading": "Registos baseados em blockchain para proveniência verificada e valor duradouro.",
+    "title": "Cada Clássico Conta Uma História",
+    "subtitle": "Construa um registo verificado e ancorado em blockchain da jornada do seu veículo. De restauro a rally, cada marco preservado para sempre.",
     "cta": {
-      "primary": "Criar o Seu Registo Digital",
-      "secondary": "Como Funciona"
-    },
-    "signIn": "Entrar"
-  },
-  "features": {
-    "title": "Porquê Classics Chain",
-    "subtitle": "Construído para colecionadores, restauradores e entusiastas que querem que as histórias dos seus veículos sejam permanentes e verificáveis.",
-    "authentic": {
-      "title": "Autêntico por Design",
-      "description": "Verificação blockchain imutável para cada certificado e evento."
-    },
-    "history": {
-      "title": "Histórico Completo do Veículo",
-      "description": "Um passaporte digital vivo — cada restauração, evento e marco preservado."
-    },
-    "network": {
-      "title": "Rede Global de Confiança",
-      "description": "Conectado com especialistas e organizações certificadas em todo o mundo."
+      "primary": "Iniciar o Seu Registo",
+      "secondary": "Ver Como Funciona"
     }
   },
-  "howItWorks": {
-    "title": "Como Funciona",
-    "steps": [
-      {
-        "title": "Registe ou Reivindique o Seu Veículo",
-        "description": "Comece o seu registo digital com detalhes ou documentos-chave."
-      },
-      {
-        "title": "Adicione Histórico Verificado",
-        "description": "Parceiros certificados e especialistas reconhecidos podem contribuir com relatórios de restauração, participação em eventos e marcos de inspeção."
-      },
-      {
-        "title": "Registo Imutável",
-        "description": "Cada evento verificado é ancorado de forma segura na blockchain — permanente, transparente e à prova de adulteração."
-      }
-    ],
-    "learnMore": "Saiba Mais"
+  "preview": {
+    "title": "O Passaporte Digital do Seu Veículo",
+    "subtitle": "Um registo vivo que cresce com o seu veículo. Cada restauro, evento e certificação capturados e verificados.",
+    "label": "Passaporte do Veículo",
+    "verified": "Verificado",
+    "timeline": "Linha Temporal",
+    "anchored": "Ancorado em blockchain",
+    "events": {
+      "restoration": "Restauro",
+      "concours": "Concurso",
+      "certified": "Certificado"
+    }
+  },
+  "audience": {
+    "title": "Construído para a Comunidade Clássica",
+    "subtitle": "Seja a preservar uma herança familiar ou a documentar um restauro completo, o ClassicsChain serve todos os intervenientes.",
+    "collectors": {
+      "title": "Colecionadores & Entusiastas",
+      "description": "Construa proveniência verificada que viaja com o seu veículo. Cada proprietário, evento e restauro, documentado e imutável."
+    },
+    "workshops": {
+      "title": "Oficinas & Restauradores",
+      "description": "Emita relatórios de restauro certificados que comprovam o seu trabalho. O seu trabalho torna-se parte do registo permanente do veículo."
+    },
+    "events": {
+      "title": "Organizadores de Eventos",
+      "description": "Crie certificados de participação para rallies, concursos e encontros. Dê aos participantes prova da presença do seu veículo."
+    },
+    "heritage": {
+      "title": "Museus & Património",
+      "description": "Preserve a história automóvel com documentação verificável. Conecte exposições físicas à sua proveniência digital."
+    }
+  },
+  "flow": {
+    "title": "Simples. Permanente. Verificável.",
+    "document": "Documentar o evento",
+    "anchor": "Ancorar em blockchain",
+    "verified": "Verificado para sempre",
+    "learnMore": "Saiba como funciona a verificação"
   },
   "cta": {
-    "title": "Pronto para começar o legado digital do seu veículo?",
-    "subtitle": "Junte-se à Classics Chain e comece a construir o seu registo verificável hoje.",
-    "button": "Criar Conta"
+    "title": "Pronto para preservar o legado do seu veículo?",
+    "subtitle": "Junte-se ao ClassicsChain e comece a construir um registo verificável que dura gerações.",
+    "button": "Criar a Sua Conta"
   }
 }

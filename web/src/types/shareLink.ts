@@ -40,39 +40,46 @@ export interface ShareLinkListResponse {
   data: ShareLink[];
 }
 
+export interface SharedPhoto {
+  id: string;
+  vehicleId: string;
+  objectKey: string;
+  createdAt: string;
+}
+
+export interface SharedDocument {
+  id: string;
+  vehicleId: string;
+  objectKey: string;
+  filename: string;
+  createdAt: string;
+}
+
+export interface SharedEvent {
+  id: string;
+  vehicleId: string;
+  entityId?: string;
+  entityName?: string;
+  type: string;
+  title: string;
+  description?: string;
+  date: string;
+  location?: string;
+  metadata?: Record<string, any>;
+  blockchainTxId?: string;
+  cid?: string;
+  cidSourceJSON?: string;
+  cidSourceCBOR?: string;
+  ipfsHash?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface SharedVehicleData {
   vehicle: SharedVehicle;
-  photos?: Array<{
-    id: string;
-    vehicleId: string;
-    objectKey: string;
-    createdAt: string;
-  }>;
-  documents?: Array<{
-    id: string;
-    vehicleId: string;
-    objectKey: string;
-    filename: string;
-    createdAt: string;
-  }>;
-  history?: Array<{
-    id: string;
-    vehicleId: string;
-    entityId?: string;
-    type: string;
-    title: string;
-    description?: string;
-    date: string;
-    location?: string;
-    metadata?: Record<string, any>;
-    blockchainTxId?: string;
-    cid?: string;
-    cidSourceJSON?: string;
-    cidSourceCBOR?: string;
-    ipfsHash?: string;
-    createdAt: string;
-    updatedAt: string;
-  }>;
+  photos?: SharedPhoto[];
+  documents?: SharedDocument[];
+  history?: SharedEvent[];
 }
 
 export interface SharedVehicle {
