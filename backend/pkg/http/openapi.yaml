@@ -662,7 +662,7 @@ paths:
     post:
       operationId: createCertifierVehicle
       summary: Create vehicle for certification (orphaned)
-      description: Create a new vehicle without an owner for certification by entity members. The vehicle is created in an orphaned state until an owner claims it.
+      description: Create a new vehicle for certification by entity members. If ownerEmail is provided and matches an existing user, ownership is assigned directly. If the email doesn't exist, an invitation is sent.
       tags:
         - Vehicles
       requestBody:
@@ -670,7 +670,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateVehicleRequest'
+              $ref: '#/components/schemas/CreateCertifierVehicleRequest'
       responses:
         '201':
           description: Vehicle created successfully
@@ -686,6 +686,62 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '409':
           $ref: '#/components/responses/Conflict'
+
+  /certifiers/vehicles/{vehicleId}:
+    put:
+      operationId: updateCertifierVehicle
+      summary: Update vehicle for certification
+      description: Update an orphaned vehicle. If ownerEmail is provided and the vehicle is orphaned, attempts to assign ownership. If the email matches an existing user, assigns directly. If not, sends invitation.
+      tags:
+        - Vehicles
+      parameters:
+        - $ref: '#/components/parameters/VehicleIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCertifierVehicleRequest'
+      responses:
+        '200':
+          description: Vehicle updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /certifiers/vehicles/{vehicleId}/invitation:
+    get:
+      operationId: getCertifierVehicleInvitation
+      summary: Get pending invitation for a vehicle
+      description: Returns the pending invitation for a vehicle if one exists. Certifiers can use this to check invitation status.
+      tags:
+        - Vehicles
+      parameters:
+        - $ref: '#/components/parameters/VehicleIdParam'
+      responses:
+        '200':
+          description: Pending invitation details (or null if none exists)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleInvitationResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
   /vehicles/{vehicleId}/claim:
     post:
@@ -1494,6 +1550,26 @@ components:
       required:
         - vehicleId
 
+    VehicleInvitationResponse:
+      type: object
+      properties:
+        hasPendingInvitation:
+          type: boolean
+          description: Whether a pending invitation exists for this vehicle
+        email:
+          type: string
+          description: The email address the invitation was sent to
+        invitedAt:
+          type: string
+          format: date-time
+          description: When the invitation was sent
+        expiresAt:
+          type: string
+          format: date-time
+          description: When the invitation token expires
+      required:
+        - hasPendingInvitation
+
     ClaimInvitationsResponse:
       type: object
       properties:
@@ -1999,6 +2075,45 @@ components:
         - model
         - year
 
+    CreateCertifierVehicleRequest:
+      type: object
+      description: Request to create an orphaned vehicle for certification with optional owner assignment
+      properties:
+        licensePlate:
+          type: string
+        chassisNumber:
+          type: string
+        make:
+          type: string
+        model:
+          type: string
+        year:
+          type: integer
+          minimum: 1800
+          maximum: 9999
+        color:
+          type: string
+        engineNumber:
+          type: string
+        transmissionNumber:
+          type: string
+        bodyType:
+          type: string
+        driveType:
+          type: string
+        gearType:
+          type: string
+        suspensionType:
+          type: string
+        ownerEmail:
+          type: string
+          format: email
+          description: Optional email to assign ownership. If user exists, assigns directly. If not, sends invitation.
+      required:
+        - make
+        - model
+        - year
+
     UpdateVehicleRequest:
       type: object
       properties:
@@ -2023,6 +2138,33 @@ components:
         ownerId:
           type: string
           format: uuid
+
+    UpdateCertifierVehicleRequest:
+      type: object
+      description: Request to update an orphaned vehicle for certification with optional owner assignment
+      properties:
+        licensePlate:
+          type: string
+        chassisNumber:
+          type: string
+        color:
+          type: string
+        engineNumber:
+          type: string
+        transmissionNumber:
+          type: string
+        bodyType:
+          type: string
+        driveType:
+          type: string
+        gearType:
+          type: string
+        suspensionType:
+          type: string
+        ownerEmail:
+          type: string
+          format: email
+          description: Optional email to assign ownership. Only allowed for orphaned vehicles. If user exists, assigns directly. If not, sends invitation.
 
     ClaimVehicleRequest:
       type: object

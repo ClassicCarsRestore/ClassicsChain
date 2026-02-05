@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { Mail, UserPlus } from 'lucide-react';
 import type { VehicleFormData } from '../../types';
 
 interface VehicleSummaryStepProps {
@@ -9,6 +10,8 @@ export function VehicleSummaryStep({
   data,
 }: VehicleSummaryStepProps) {
   const { t } = useTranslation('vehicles');
+
+  const hasOwnerEmail = data.ownerEmail && data.ownerEmail.trim() !== '';
 
   const sections = [
     {
@@ -66,10 +69,43 @@ export function VehicleSummaryStep({
         </div>
       ))}
 
+      {/* Owner Assignment */}
+      <div>
+        <h4 className="text-sm font-semibold text-muted-foreground mb-3">
+          {t('ownerAssignment.title', 'Owner Assignment')}
+        </h4>
+        {hasOwnerEmail ? (
+          <div className="p-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg">
+            <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 mb-2">
+              <Mail className="h-4 w-4" />
+              <span className="font-medium">{t('ownerAssignment.invitationWillBeSent', 'Invitation will be sent')}</span>
+            </div>
+            <p className="text-sm text-amber-600 dark:text-amber-500">
+              {t('ownerAssignment.invitationDescription', 'An ownership invitation will be sent to:')}
+            </p>
+            <code className="text-sm font-mono text-amber-700 dark:text-amber-400 mt-1 block">
+              {data.ownerEmail}
+            </code>
+          </div>
+        ) : (
+          <div className="p-4 bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+            <div className="flex items-center gap-2 text-yellow-700 dark:text-yellow-400 mb-2">
+              <UserPlus className="h-4 w-4" />
+              <span className="font-medium">{t('ownerAssignment.orphaned', 'Orphaned Vehicle')}</span>
+            </div>
+            <p className="text-sm text-yellow-600 dark:text-yellow-500">
+              {t('ownerAssignment.orphanedDescription', 'No owner email provided. This vehicle will be created in orphaned state and can be claimed by any user with matching identifiers.')}
+            </p>
+          </div>
+        )}
+      </div>
+
       {/* Confirmation Message */}
       <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
         <p className="text-sm text-blue-900 dark:text-blue-100">
-          {t('form.summary.confirmation')}
+          {hasOwnerEmail
+            ? t('form.summary.confirmationWithOwner', 'Please review the vehicle information. After creation, an invitation email will be sent to the specified owner.')
+            : t('form.summary.confirmation')}
         </p>
       </div>
     </div>

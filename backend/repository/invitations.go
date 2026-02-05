@@ -167,6 +167,26 @@ func (r *InvitationRepository) GetInvitationByToken(ctx context.Context, token s
 	}, nil
 }
 
+func (r *InvitationRepository) GetPendingInvitationByVehicleID(ctx context.Context, vehicleID uuid.UUID) (*invitation.Invitation, error) {
+	inv, err := r.queries.GetPendingInvitationByVehicleID(ctx, vehicleID)
+	if err != nil {
+		if postgres.IsNotFoundError(err) {
+			return nil, nil
+		}
+		return nil, postgres.WrapError(err, "get pending invitation by vehicle id")
+	}
+
+	return &invitation.Invitation{
+		ID:             inv.ID,
+		VehicleID:      inv.VehicleID,
+		Email:          inv.Email,
+		Token:          inv.Token,
+		TokenExpiresAt: timestampToTimePtr(inv.TokenExpiresAt),
+		InvitedAt:      inv.InvitedAt.Time,
+		ClaimedAt:      timestampToTimePtr(inv.ClaimedAt),
+	}, nil
+}
+
 // timestampToTimePtr converts a pgtype.Timestamp to *time.Time
 func timestampToTimePtr(ts pgtype.Timestamp) *time.Time {
 	if ts.Valid {

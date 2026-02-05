@@ -126,6 +126,9 @@ func (s *Service) Update(ctx context.Context, id uuid.UUID, params UpdateVehicle
 	if params.SuspensionType != nil {
 		vehicle.SuspensionType = params.SuspensionType
 	}
+	if params.OwnerID != nil {
+		vehicle.OwnerID = params.OwnerID
+	}
 
 	vehicle.UpdatedAt = time.Now()
 

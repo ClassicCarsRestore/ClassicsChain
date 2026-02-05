@@ -45,3 +45,10 @@ ORDER BY invited_at ASC;
 SELECT id, vehicle_id, email, token, token_expires_at, invited_at, claimed_at
 FROM vehicle_invitations
 WHERE token = $1 AND claimed_at IS NULL AND token_expires_at > NOW();
+
+-- name: GetPendingInvitationByVehicleID :one
+SELECT id, vehicle_id, email, token, token_expires_at, invited_at, claimed_at
+FROM vehicle_invitations
+WHERE vehicle_id = $1 AND claimed_at IS NULL
+ORDER BY invited_at DESC
+LIMIT 1;

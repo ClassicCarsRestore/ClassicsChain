@@ -23,6 +23,7 @@ type Repository interface {
 type KratosClient interface {
 	ListAdminUsers(ctx context.Context) ([]kratos.UserIdentity, error)
 	GetUser(ctx context.Context, userID string) (*kratos.UserIdentity, error)
+	GetUserByEmail(ctx context.Context, email string) (*kratos.UserIdentity, error)
 	CreateUser(ctx context.Context, params kratos.CreateUserParams) (*kratos.UserIdentity, error)
 	UpdateUser(ctx context.Context, userID string, params kratos.UpdateUserParams) (*kratos.UserIdentity, error)
 }
@@ -62,6 +63,29 @@ func New(repo Repository, kratos KratosClient) *Service {
 // SetUserInvitationService sets the user invitation service dependency
 func (s *Service) SetUserInvitationService(userInvitationService UserInvitationService) {
 	s.userInvitationService = userInvitationService
+}
+
+// GetUserByEmail retrieves a user ID by email address
+func (s *Service) GetUserByEmail(ctx context.Context, email string) (*uuid.UUID, error) {
+	if s.kratos == nil {
+		return nil, fmt.Errorf("kratos client not configured")
+	}
+
+	user, err := s.kratos.GetUserByEmail(ctx, email)
+	if err != nil {
+		return nil, fmt.Errorf("get user by email: %w", err)
+	}
+
+	if user == nil {
+		return nil, nil
+	}
+
+	userID, err := uuid.Parse(user.ID)
+	if err != nil {
+		return nil, fmt.Errorf("parse user ID: %w", err)
+	}
+
+	return &userID, nil
 }
 
 // GetUserEntityMemberships retrieves all entities a user belongs to

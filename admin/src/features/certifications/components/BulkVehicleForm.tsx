@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { VehicleBasicsStep } from './steps/VehicleBasicsStep';
 import { VehicleDetailsStep } from './steps/VehicleDetailsStep';
 import { VehicleSummaryStep } from './steps/VehicleSummaryStep';
+import { OwnerAssignmentStep } from './steps/OwnerAssignmentStep';
 import { useCreateVehicles } from '../hooks/useVehicles';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import type { VehicleFormData } from '../types';
@@ -22,7 +23,7 @@ interface BulkVehicleFormProps {
 
 export function BulkVehicleForm({ entities, onSuccess }: BulkVehicleFormProps) {
   const { t } = useTranslation('vehicles');
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [formData, setFormData] = useState<VehicleFormData>({
     licensePlate: '',
     chassisNumber: '',
@@ -36,6 +37,7 @@ export function BulkVehicleForm({ entities, onSuccess }: BulkVehicleFormProps) {
     driveType: '',
     gearType: '',
     suspensionType: '',
+    ownerEmail: '',
   });
   const [selectedEntity] = useState<string>(
     entities.length > 0 ? entities[0].id : ''
@@ -44,14 +46,14 @@ export function BulkVehicleForm({ entities, onSuccess }: BulkVehicleFormProps) {
   const { mutate: createVehicles, isPending } = useCreateVehicles();
 
   const handleNext = () => {
-    if (step < 3) {
-      setStep((step + 1) as 1 | 2 | 3);
+    if (step < 4) {
+      setStep((step + 1) as 1 | 2 | 3 | 4);
     }
   };
 
   const handlePrevious = () => {
     if (step > 1) {
-      setStep((step - 1) as 1 | 2 | 3);
+      setStep((step - 1) as 1 | 2 | 3 | 4);
     }
   };
 
@@ -77,6 +79,7 @@ export function BulkVehicleForm({ entities, onSuccess }: BulkVehicleFormProps) {
             driveType: '',
             gearType: '',
             suspensionType: '',
+            ownerEmail: '',
           });
         },
         onError: (error) => {
@@ -90,6 +93,7 @@ export function BulkVehicleForm({ entities, onSuccess }: BulkVehicleFormProps) {
   const isStep2Valid = formData.bodyType && formData.driveType;
   const canProceedToStep2 = isStep1Valid;
   const canProceedToStep3 = isStep1Valid && isStep2Valid;
+  const canProceedToStep4 = canProceedToStep3;
 
   if (isPending) {
     return (
@@ -104,10 +108,10 @@ export function BulkVehicleForm({ entities, onSuccess }: BulkVehicleFormProps) {
       {/* Step Indicator */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          {[1, 2, 3].map((s) => (
+          {[1, 2, 3, 4].map((s) => (
             <div
               key={s}
-              className={`flex items-center gap-2 ${s < 3 ? 'flex-1' : ''}`}
+              className={`flex items-center gap-2 ${s < 4 ? 'flex-1' : ''}`}
             >
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm transition-all ${
@@ -118,7 +122,7 @@ export function BulkVehicleForm({ entities, onSuccess }: BulkVehicleFormProps) {
               >
                 {step > s ? <CheckCircle2 className="w-5 h-5" /> : s}
               </div>
-              {s < 3 && (
+              {s < 4 && (
                 <div
                   className={`flex-1 h-1 mx-2 transition-all ${
                     step > s ? 'bg-primary' : 'bg-muted'
@@ -131,6 +135,7 @@ export function BulkVehicleForm({ entities, onSuccess }: BulkVehicleFormProps) {
         <div className="flex justify-between text-xs font-medium text-muted-foreground">
           <span>{t('form.steps.basics')}</span>
           <span>{t('form.steps.details')}</span>
+          <span>{t('form.steps.owner', 'Owner')}</span>
           <span>{t('form.steps.summary')}</span>
         </div>
       </div>
@@ -182,6 +187,14 @@ export function BulkVehicleForm({ entities, onSuccess }: BulkVehicleFormProps) {
           />
         )}
         {step === 3 && (
+          <OwnerAssignmentStep
+            ownerEmail={formData.ownerEmail || ''}
+            onChange={(email) =>
+              setFormData((prev) => ({ ...prev, ownerEmail: email }))
+            }
+          />
+        )}
+        {step === 4 && (
           <VehicleSummaryStep
             data={formData}
           />
@@ -199,10 +212,10 @@ export function BulkVehicleForm({ entities, onSuccess }: BulkVehicleFormProps) {
           {t('form.actions.previous')}
         </button>
 
-        {step < 3 ? (
+        {step < 4 ? (
           <button
             onClick={handleNext}
-            disabled={!canProceedToStep2 || isPending}
+            disabled={(step === 1 && !canProceedToStep2) || (step === 2 && !canProceedToStep3) || isPending}
             className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {t('form.actions.next')}
@@ -211,7 +224,7 @@ export function BulkVehicleForm({ entities, onSuccess }: BulkVehicleFormProps) {
         ) : (
           <button
             onClick={handleSubmit}
-            disabled={!canProceedToStep3 || isPending}
+            disabled={!canProceedToStep4 || isPending}
             className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {isPending ? t('form.actions.creating') : t('form.actions.create')}

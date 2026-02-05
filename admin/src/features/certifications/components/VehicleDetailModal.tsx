@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { X, Calendar, MapPin, Award, ExternalLink, ImageIcon, Link } from 'lucide-react';
 import { CertificationForm } from './CertificationForm';
 import { EventCertificateForm } from './EventCertificateForm';
+import { OwnerManagementSection } from './OwnerManagementSection';
 import { useVehicleEvents } from '../hooks/useVehicles';
 import { generateStorageUrl } from '@/lib/storage';
 import type { Vehicle, EventType } from '../types';
@@ -345,6 +346,12 @@ export function VehicleDetailModal({
     setActiveTab(initialTab);
   }, [initialTab]);
 
+  const formatFieldValue = (value: string | null | undefined, optionType: string): string => {
+    if (!value) return '-';
+    const translated = t(`form.options.${optionType}.${value}`, { defaultValue: '' });
+    return translated || value;
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -503,7 +510,7 @@ export function VehicleDetailModal({
                       {t('form.fields.bodyType')}
                     </p>
                     <p className="text-sm font-medium">
-                      {vehicle.bodyType || '-'}
+                      {formatFieldValue(vehicle.bodyType, 'bodyTypes')}
                     </p>
                   </div>
                   <div>
@@ -511,7 +518,7 @@ export function VehicleDetailModal({
                       {t('form.fields.driveType')}
                     </p>
                     <p className="text-sm font-medium">
-                      {vehicle.driveType || '-'}
+                      {formatFieldValue(vehicle.driveType, 'driveTypes')}
                     </p>
                   </div>
                   <div>
@@ -519,7 +526,7 @@ export function VehicleDetailModal({
                       {t('form.fields.gearType')}
                     </p>
                     <p className="text-sm font-medium">
-                      {vehicle.gearType || '-'}
+                      {formatFieldValue(vehicle.gearType, 'gearTypes')}
                     </p>
                   </div>
                   <div>
@@ -527,26 +534,18 @@ export function VehicleDetailModal({
                       {t('form.fields.suspensionType')}
                     </p>
                     <p className="text-sm font-medium">
-                      {vehicle.suspensionType || '-'}
+                      {formatFieldValue(vehicle.suspensionType, 'suspensionTypes')}
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Ownership Status */}
-              <div className="p-4 bg-muted rounded-lg">
-                <p className="text-xs text-muted-foreground mb-1">
-                  {t('modal.sections.status')}
-                </p>
-                {vehicle.ownerId ? (
-                  <span className="inline-block px-2 py-1 text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 rounded">
-                    {t('browse.status.owned')} - {vehicle.ownerId}
-                  </span>
-                ) : (
-                  <span className="inline-block px-2 py-1 text-xs font-medium bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-100 rounded">
-                    {t('browse.status.orphaned')}
-                  </span>
-                )}
+              {/* Owner Management */}
+              <div>
+                <h3 className="text-sm font-semibold text-muted-foreground mb-3">
+                  {t('ownerManagement.title')}
+                </h3>
+                <OwnerManagementSection vehicleId={vehicle.id} />
               </div>
 
               {/* Blockchain Information */}

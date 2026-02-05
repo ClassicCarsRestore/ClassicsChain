@@ -272,6 +272,25 @@ type CreateBulkEventsResponse struct {
 	Success []BulkEventSuccess `json:"success"`
 }
 
+// CreateCertifierVehicleRequest Request to create an orphaned vehicle for certification with optional owner assignment
+type CreateCertifierVehicleRequest struct {
+	BodyType      *string `json:"bodyType,omitempty"`
+	ChassisNumber *string `json:"chassisNumber,omitempty"`
+	Color         *string `json:"color,omitempty"`
+	DriveType     *string `json:"driveType,omitempty"`
+	EngineNumber  *string `json:"engineNumber,omitempty"`
+	GearType      *string `json:"gearType,omitempty"`
+	LicensePlate  *string `json:"licensePlate,omitempty"`
+	Make          string  `json:"make"`
+	Model         string  `json:"model"`
+
+	// OwnerEmail Optional email to assign ownership. If user exists, assigns directly. If not, sends invitation.
+	OwnerEmail         *openapi_types.Email `json:"ownerEmail,omitempty"`
+	SuspensionType     *string              `json:"suspensionType,omitempty"`
+	TransmissionNumber *string              `json:"transmissionNumber,omitempty"`
+	Year               int                  `json:"year"`
+}
+
 // CreateEntityOAuth2ClientRequest defines model for CreateEntityOAuth2ClientRequest.
 type CreateEntityOAuth2ClientRequest struct {
 	// Description Client description
@@ -745,6 +764,22 @@ type SharedVehicleResponse struct {
 	Vehicle   Vehicle     `json:"vehicle"`
 }
 
+// UpdateCertifierVehicleRequest Request to update an orphaned vehicle for certification with optional owner assignment
+type UpdateCertifierVehicleRequest struct {
+	BodyType      *string `json:"bodyType,omitempty"`
+	ChassisNumber *string `json:"chassisNumber,omitempty"`
+	Color         *string `json:"color,omitempty"`
+	DriveType     *string `json:"driveType,omitempty"`
+	EngineNumber  *string `json:"engineNumber,omitempty"`
+	GearType      *string `json:"gearType,omitempty"`
+	LicensePlate  *string `json:"licensePlate,omitempty"`
+
+	// OwnerEmail Optional email to assign ownership. Only allowed for orphaned vehicles. If user exists, assigns directly. If not, sends invitation.
+	OwnerEmail         *openapi_types.Email `json:"ownerEmail,omitempty"`
+	SuspensionType     *string              `json:"suspensionType,omitempty"`
+	TransmissionNumber *string              `json:"transmissionNumber,omitempty"`
+}
+
 // UpdateEntityMemberRoleRequest defines model for UpdateEntityMemberRoleRequest.
 type UpdateEntityMemberRoleRequest struct {
 	// Role New role for the user
@@ -869,6 +904,21 @@ type VehicleIdentifier struct {
 
 	// LicensePlate Vehicle license plate
 	LicensePlate *string `json:"licensePlate,omitempty"`
+}
+
+// VehicleInvitationResponse defines model for VehicleInvitationResponse.
+type VehicleInvitationResponse struct {
+	// Email The email address the invitation was sent to
+	Email *string `json:"email,omitempty"`
+
+	// ExpiresAt When the invitation token expires
+	ExpiresAt *time.Time `json:"expiresAt,omitempty"`
+
+	// HasPendingInvitation Whether a pending invitation exists for this vehicle
+	HasPendingInvitation bool `json:"hasPendingInvitation"`
+
+	// InvitedAt When the invitation was sent
+	InvitedAt *time.Time `json:"invitedAt,omitempty"`
 }
 
 // VehicleListResponse defines model for VehicleListResponse.
@@ -1007,7 +1057,10 @@ type ClaimAdminInvitationJSONRequestBody = ClaimAdminInvitationRequest
 type CreateAdminUserJSONRequestBody = CreateAdminUserRequest
 
 // CreateCertifierVehicleJSONRequestBody defines body for CreateCertifierVehicle for application/json ContentType.
-type CreateCertifierVehicleJSONRequestBody = CreateVehicleRequest
+type CreateCertifierVehicleJSONRequestBody = CreateCertifierVehicleRequest
+
+// UpdateCertifierVehicleJSONRequestBody defines body for UpdateCertifierVehicle for application/json ContentType.
+type UpdateCertifierVehicleJSONRequestBody = UpdateCertifierVehicleRequest
 
 // CreateEntityJSONRequestBody defines body for CreateEntity for application/json ContentType.
 type CreateEntityJSONRequestBody = CreateEntityRequest
@@ -1071,6 +1124,12 @@ type ServerInterface interface {
 	// Create vehicle for certification (orphaned)
 	// (POST /certifiers/vehicles)
 	CreateCertifierVehicle(w http.ResponseWriter, r *http.Request)
+	// Update vehicle for certification
+	// (PUT /certifiers/vehicles/{vehicleId})
+	UpdateCertifierVehicle(w http.ResponseWriter, r *http.Request, vehicleId VehicleIdParam)
+	// Get pending invitation for a vehicle
+	// (GET /certifiers/vehicles/{vehicleId}/invitation)
+	GetCertifierVehicleInvitation(w http.ResponseWriter, r *http.Request, vehicleId VehicleIdParam)
 	// List entities
 	// (GET /entities)
 	GetEntities(w http.ResponseWriter, r *http.Request, params GetEntitiesParams)
@@ -1342,6 +1401,68 @@ func (siw *ServerInterfaceWrapper) CreateCertifierVehicle(w http.ResponseWriter,
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.CreateCertifierVehicle(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// UpdateCertifierVehicle operation middleware
+func (siw *ServerInterfaceWrapper) UpdateCertifierVehicle(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "vehicleId" -------------
+	var vehicleId VehicleIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "vehicleId", r.PathValue("vehicleId"), &vehicleId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "vehicleId", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UpdateCertifierVehicle(w, r, vehicleId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetCertifierVehicleInvitation operation middleware
+func (siw *ServerInterfaceWrapper) GetCertifierVehicleInvitation(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "vehicleId" -------------
+	var vehicleId VehicleIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "vehicleId", r.PathValue("vehicleId"), &vehicleId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "vehicleId", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetCertifierVehicleInvitation(w, r, vehicleId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -2972,6 +3093,8 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("GET "+options.BaseURL+"/admin/users", wrapper.GetAdminUsers)
 	m.HandleFunc("POST "+options.BaseURL+"/admin/users", wrapper.CreateAdminUser)
 	m.HandleFunc("POST "+options.BaseURL+"/certifiers/vehicles", wrapper.CreateCertifierVehicle)
+	m.HandleFunc("PUT "+options.BaseURL+"/certifiers/vehicles/{vehicleId}", wrapper.UpdateCertifierVehicle)
+	m.HandleFunc("GET "+options.BaseURL+"/certifiers/vehicles/{vehicleId}/invitation", wrapper.GetCertifierVehicleInvitation)
 	m.HandleFunc("GET "+options.BaseURL+"/entities", wrapper.GetEntities)
 	m.HandleFunc("POST "+options.BaseURL+"/entities", wrapper.CreateEntity)
 	m.HandleFunc("DELETE "+options.BaseURL+"/entities/{entityId}", wrapper.DeleteEntity)
@@ -3231,6 +3354,113 @@ type CreateCertifierVehicle409JSONResponse struct{ ConflictJSONResponse }
 func (response CreateCertifierVehicle409JSONResponse) VisitCreateCertifierVehicleResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(409)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type UpdateCertifierVehicleRequestObject struct {
+	VehicleId VehicleIdParam `json:"vehicleId"`
+	Body      *UpdateCertifierVehicleJSONRequestBody
+}
+
+type UpdateCertifierVehicleResponseObject interface {
+	VisitUpdateCertifierVehicleResponse(w http.ResponseWriter) error
+}
+
+type UpdateCertifierVehicle200JSONResponse Vehicle
+
+func (response UpdateCertifierVehicle200JSONResponse) VisitUpdateCertifierVehicleResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type UpdateCertifierVehicle400JSONResponse struct{ BadRequestJSONResponse }
+
+func (response UpdateCertifierVehicle400JSONResponse) VisitUpdateCertifierVehicleResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type UpdateCertifierVehicle401JSONResponse struct{ UnauthorizedJSONResponse }
+
+func (response UpdateCertifierVehicle401JSONResponse) VisitUpdateCertifierVehicleResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type UpdateCertifierVehicle403JSONResponse struct{ ForbiddenJSONResponse }
+
+func (response UpdateCertifierVehicle403JSONResponse) VisitUpdateCertifierVehicleResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type UpdateCertifierVehicle404JSONResponse struct{ NotFoundJSONResponse }
+
+func (response UpdateCertifierVehicle404JSONResponse) VisitUpdateCertifierVehicleResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type UpdateCertifierVehicle409JSONResponse struct{ ConflictJSONResponse }
+
+func (response UpdateCertifierVehicle409JSONResponse) VisitUpdateCertifierVehicleResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(409)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetCertifierVehicleInvitationRequestObject struct {
+	VehicleId VehicleIdParam `json:"vehicleId"`
+}
+
+type GetCertifierVehicleInvitationResponseObject interface {
+	VisitGetCertifierVehicleInvitationResponse(w http.ResponseWriter) error
+}
+
+type GetCertifierVehicleInvitation200JSONResponse VehicleInvitationResponse
+
+func (response GetCertifierVehicleInvitation200JSONResponse) VisitGetCertifierVehicleInvitationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetCertifierVehicleInvitation401JSONResponse struct{ UnauthorizedJSONResponse }
+
+func (response GetCertifierVehicleInvitation401JSONResponse) VisitGetCertifierVehicleInvitationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetCertifierVehicleInvitation403JSONResponse struct{ ForbiddenJSONResponse }
+
+func (response GetCertifierVehicleInvitation403JSONResponse) VisitGetCertifierVehicleInvitationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetCertifierVehicleInvitation404JSONResponse struct{ NotFoundJSONResponse }
+
+func (response GetCertifierVehicleInvitation404JSONResponse) VisitGetCertifierVehicleInvitationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
 
 	return json.NewEncoder(w).Encode(response)
 }
@@ -5206,6 +5436,12 @@ type StrictServerInterface interface {
 	// Create vehicle for certification (orphaned)
 	// (POST /certifiers/vehicles)
 	CreateCertifierVehicle(ctx context.Context, request CreateCertifierVehicleRequestObject) (CreateCertifierVehicleResponseObject, error)
+	// Update vehicle for certification
+	// (PUT /certifiers/vehicles/{vehicleId})
+	UpdateCertifierVehicle(ctx context.Context, request UpdateCertifierVehicleRequestObject) (UpdateCertifierVehicleResponseObject, error)
+	// Get pending invitation for a vehicle
+	// (GET /certifiers/vehicles/{vehicleId}/invitation)
+	GetCertifierVehicleInvitation(ctx context.Context, request GetCertifierVehicleInvitationRequestObject) (GetCertifierVehicleInvitationResponseObject, error)
 	// List entities
 	// (GET /entities)
 	GetEntities(ctx context.Context, request GetEntitiesRequestObject) (GetEntitiesResponseObject, error)
@@ -5515,6 +5751,65 @@ func (sh *strictHandler) CreateCertifierVehicle(w http.ResponseWriter, r *http.R
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(CreateCertifierVehicleResponseObject); ok {
 		if err := validResponse.VisitCreateCertifierVehicleResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// UpdateCertifierVehicle operation middleware
+func (sh *strictHandler) UpdateCertifierVehicle(w http.ResponseWriter, r *http.Request, vehicleId VehicleIdParam) {
+	var request UpdateCertifierVehicleRequestObject
+
+	request.VehicleId = vehicleId
+
+	var body UpdateCertifierVehicleJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.UpdateCertifierVehicle(ctx, request.(UpdateCertifierVehicleRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "UpdateCertifierVehicle")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(UpdateCertifierVehicleResponseObject); ok {
+		if err := validResponse.VisitUpdateCertifierVehicleResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetCertifierVehicleInvitation operation middleware
+func (sh *strictHandler) GetCertifierVehicleInvitation(w http.ResponseWriter, r *http.Request, vehicleId VehicleIdParam) {
+	var request GetCertifierVehicleInvitationRequestObject
+
+	request.VehicleId = vehicleId
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetCertifierVehicleInvitation(ctx, request.(GetCertifierVehicleInvitationRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetCertifierVehicleInvitation")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetCertifierVehicleInvitationResponseObject); ok {
+		if err := validResponse.VisitGetCertifierVehicleInvitationResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

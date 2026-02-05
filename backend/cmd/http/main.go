@@ -87,6 +87,7 @@ type Config struct {
 		FromEmail    string `envconfig:"MAILER_FROM_EMAIL" default:"noreply@classicschain.com"`
 		FromName     string `envconfig:"MAILER_FROM_NAME" default:"Classics Chain"`
 		BaseURL      string `envconfig:"MAILER_BASE_URL" default:"http://localhost:5173"`
+		WebBaseURL   string `envconfig:"MAILER_WEB_BASE_URL" default:"http://localhost:5174"`
 	}
 }
 
@@ -187,10 +188,11 @@ func main() {
 
 	// Initialize mailer
 	mailerClient := mailer.New(mailer.Config{
-		APIKey:    cfg.Mailer.ResendAPIKey,
-		FromEmail: cfg.Mailer.FromEmail,
-		FromName:  cfg.Mailer.FromName,
-		BaseURL:   cfg.Mailer.BaseURL,
+		APIKey:     cfg.Mailer.ResendAPIKey,
+		FromEmail:  cfg.Mailer.FromEmail,
+		FromName:   cfg.Mailer.FromName,
+		BaseURL:    cfg.Mailer.BaseURL,
+		WebBaseURL: cfg.Mailer.WebBaseURL,
 	})
 
 	// Initialize repositories

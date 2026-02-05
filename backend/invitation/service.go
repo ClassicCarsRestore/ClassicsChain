@@ -17,6 +17,7 @@ type Repository interface {
 	GetPendingInvitationsByEmail(ctx context.Context, email string) ([]Invitation, error)
 	GetInvitationsByEmailAndVehicle(ctx context.Context, email string, vehicleIDs []uuid.UUID) ([]Invitation, error)
 	GetInvitationByToken(ctx context.Context, token string) (*Invitation, error)
+	GetPendingInvitationByVehicleID(ctx context.Context, vehicleID uuid.UUID) (*Invitation, error)
 	ClaimInvitation(ctx context.Context, invitationID uuid.UUID) (*Invitation, error)
 	ClaimInvitationsByEmail(ctx context.Context, email string) error
 	DeleteInvitation(ctx context.Context, id uuid.UUID) error
@@ -190,4 +191,9 @@ func (s *Service) GetInvitationsByToken(ctx context.Context, token string) ([]In
 	}
 
 	return invitations, firstInv.Email, nil
+}
+
+// GetPendingInvitationForVehicle retrieves the pending invitation for a specific vehicle
+func (s *Service) GetPendingInvitationForVehicle(ctx context.Context, vehicleID uuid.UUID) (*Invitation, error) {
+	return s.repo.GetPendingInvitationByVehicleID(ctx, vehicleID)
 }

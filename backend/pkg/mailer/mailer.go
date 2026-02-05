@@ -9,10 +9,11 @@ import (
 )
 
 type Config struct {
-	APIKey    string
-	FromEmail string
-	FromName  string
-	BaseURL   string
+	APIKey     string
+	FromEmail  string
+	FromName   string
+	BaseURL    string // Admin app URL (for admin/entity invitations)
+	WebBaseURL string // Web app URL (for owner invitations)
 }
 
 type Mailer struct {
@@ -71,7 +72,11 @@ func (m *Mailer) SendEntityMemberInvitation(ctx context.Context, to, name, token
 }
 
 func (m *Mailer) SendOwnerInvitation(ctx context.Context, to, token string, vehicles []invitation.VehicleInfo) error {
-	invitationURL := fmt.Sprintf("%s/invitation?invitation=%s", m.config.BaseURL, token)
+	baseURL := m.config.WebBaseURL
+	if baseURL == "" {
+		baseURL = m.config.BaseURL
+	}
+	invitationURL := fmt.Sprintf("%s/invitation?invitation=%s", baseURL, token)
 
 	vehicleCount := len(vehicles)
 	vehiclesWord := "vehicle"

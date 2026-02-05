@@ -16,6 +16,7 @@ p, entity_member, events, create
 p, entity_member, events, read
 p, entity_member, vehicles, read
 p, entity_member, vehicles, create
+p, entity_member, vehicles, update
 p, entity_member, owner_events, create
 p, entity_member, owner_events, read
 

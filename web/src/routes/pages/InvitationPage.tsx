@@ -153,7 +153,7 @@ export function InvitationPage() {
 
         <button
           onClick={handleProceedToRegistration}
-          className="w-full py-2 px-4 bg-primary hover:bg-primary/90 text-primary-foreground rounded-md font-medium transition-colors"
+          className="w-full py-2 px-4 bg-primary hover:bg-primary/90 text-primary-foreground rounded-md font-medium transition-colors cursor-pointer"
         >
           Create Account
         </button>

@@ -11,6 +11,7 @@ export interface VehicleFormData {
   driveType: string;
   gearType: string;
   suspensionType: string;
+  ownerEmail?: string;
 }
 
 export interface Vehicle {

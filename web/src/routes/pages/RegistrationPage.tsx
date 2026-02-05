@@ -120,6 +120,17 @@ export function RegistrationPage() {
       });
 
       await refreshSession();
+
+      // If this was an invitation-based registration, claim the pending invitations
+      if (invitationToken) {
+        try {
+          await api.post('/v1/invitations/claim');
+        } catch (claimErr) {
+          console.error('Failed to claim invitations:', claimErr);
+          // Don't block navigation - the user can claim later
+        }
+      }
+
       navigate('/dashboard', { replace: true });
     } catch (err: any) {
       setIsLoading(false);

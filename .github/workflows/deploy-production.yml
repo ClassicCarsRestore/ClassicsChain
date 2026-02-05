@@ -165,6 +165,7 @@ jobs:
           MAILER_FROM_EMAIL: ${{ secrets.MAILER_FROM_EMAIL }}
           MAILER_FROM_NAME: ${{ secrets.MAILER_FROM_NAME }}
           MAILER_BASE_URL: ${{ secrets.MAILER_BASE_URL }}
+          MAILER_WEB_BASE_URL: ${{ secrets.MAILER_WEB_BASE_URL }}
           DOMAIN: ${{ secrets.DOMAIN }}
           ADMIN_DOMAIN: ${{ secrets.ADMIN_DOMAIN }}
           API_DOMAIN: ${{ secrets.API_DOMAIN }}
@@ -221,6 +222,7 @@ jobs:
           MAILER_FROM_EMAIL=${MAILER_FROM_EMAIL}
           MAILER_FROM_NAME=${MAILER_FROM_NAME}
           MAILER_BASE_URL=${MAILER_BASE_URL}
+          MAILER_WEB_BASE_URL=${MAILER_WEB_BASE_URL}
           DOMAIN=${DOMAIN}
           ADMIN_DOMAIN=${ADMIN_DOMAIN}
           API_DOMAIN=${API_DOMAIN}

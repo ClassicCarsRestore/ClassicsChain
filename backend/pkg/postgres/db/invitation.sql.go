@@ -253,6 +253,39 @@ func (q *Queries) GetInvitationsByEmailAndVehicle(ctx context.Context, arg GetIn
 	return items, nil
 }
 
+const getPendingInvitationByVehicleID = `-- name: GetPendingInvitationByVehicleID :one
+SELECT id, vehicle_id, email, token, token_expires_at, invited_at, claimed_at
+FROM vehicle_invitations
+WHERE vehicle_id = $1 AND claimed_at IS NULL
+ORDER BY invited_at DESC
+LIMIT 1
+`
+
+type GetPendingInvitationByVehicleIDRow struct {
+	ID             uuid.UUID
+	VehicleID      uuid.UUID
+	Email          string
+	Token          *string
+	TokenExpiresAt pgtype.Timestamp
+	InvitedAt      pgtype.Timestamp
+	ClaimedAt      pgtype.Timestamp
+}
+
+func (q *Queries) GetPendingInvitationByVehicleID(ctx context.Context, vehicleID uuid.UUID) (GetPendingInvitationByVehicleIDRow, error) {
+	row := q.db.QueryRow(ctx, getPendingInvitationByVehicleID, vehicleID)
+	var i GetPendingInvitationByVehicleIDRow
+	err := row.Scan(
+		&i.ID,
+		&i.VehicleID,
+		&i.Email,
+		&i.Token,
+		&i.TokenExpiresAt,
+		&i.InvitedAt,
+		&i.ClaimedAt,
+	)
+	return i, err
+}
+
 const getPendingInvitationsByEmail = `-- name: GetPendingInvitationsByEmail :many
 SELECT id, vehicle_id, email, token, token_expires_at, invited_at, claimed_at
 FROM vehicle_invitations

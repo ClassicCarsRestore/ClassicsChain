@@ -6,6 +6,7 @@ import type { VehicleFormData, Vehicle, EventType, EventMetadata } from '../type
 const vehicleKeys = {
   all: ['vehicles'] as const,
   detail: (vehicleId: string) => [...vehicleKeys.all, 'detail', vehicleId] as const,
+  invitation: (vehicleId: string) => [...vehicleKeys.all, 'invitation', vehicleId] as const,
 };
 
 const eventKeys = {
@@ -28,7 +29,7 @@ export function useVehicles(refreshTrigger?: number) {
 }
 
 /**
- * Create a new vehicle (orphaned)
+ * Create a new vehicle (orphaned or with owner email)
  */
 export function useCreateVehicles() {
   const queryClient = useQueryClient();
@@ -53,6 +54,7 @@ export function useCreateVehicles() {
         driveType: vehicleData.driveType || null,
         gearType: vehicleData.gearType || null,
         suspensionType: vehicleData.suspensionType || null,
+        ownerEmail: vehicleData.ownerEmail?.trim() || null,
       });
 
       return response;
@@ -61,6 +63,46 @@ export function useCreateVehicles() {
       // Invalidate the vehicles list
       queryClient.invalidateQueries({
         queryKey: vehicleKeys.all,
+      });
+    },
+  });
+}
+
+/**
+ * Update a certifier vehicle (with optional owner assignment)
+ */
+export function useUpdateCertifierVehicle() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      vehicleId,
+      vehicleData,
+    }: {
+      vehicleId: string;
+      vehicleData: Partial<VehicleFormData> & { ownerEmail?: string };
+    }) => {
+      const response = await api.put<Vehicle>(`/v1/certifiers/vehicles/${vehicleId}`, {
+        licensePlate: vehicleData.licensePlate || null,
+        chassisNumber: vehicleData.chassisNumber || null,
+        color: vehicleData.color || null,
+        engineNumber: vehicleData.engineNumber || null,
+        transmissionNumber: vehicleData.transmissionNumber || null,
+        bodyType: vehicleData.bodyType || null,
+        driveType: vehicleData.driveType || null,
+        gearType: vehicleData.gearType || null,
+        suspensionType: vehicleData.suspensionType || null,
+        ownerEmail: vehicleData.ownerEmail?.trim() || null,
+      });
+
+      return response;
+    },
+    onSuccess: (_, { vehicleId }) => {
+      queryClient.invalidateQueries({
+        queryKey: vehicleKeys.all,
+      });
+      queryClient.invalidateQueries({
+        queryKey: vehicleKeys.detail(vehicleId),
       });
     },
   });
@@ -144,5 +186,56 @@ export function useVehicleEvents(vehicleId: string) {
     },
     enabled: !!vehicleId,
     staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+}
+
+export interface VehicleInvitation {
+  hasPendingInvitation: boolean;
+  email?: string;
+  invitedAt?: string;
+  expiresAt?: string;
+}
+
+/**
+ * Fetch pending invitation for a vehicle
+ */
+export function useVehicleInvitation(vehicleId: string | undefined) {
+  return useQuery({
+    queryKey: vehicleKeys.invitation(vehicleId ?? ''),
+    queryFn: async () => {
+      const response = await api.get<VehicleInvitation>(
+        `/v1/certifiers/vehicles/${vehicleId}/invitation`
+      );
+      return response;
+    },
+    enabled: !!vehicleId,
+    staleTime: 1000 * 60 * 2, // 2 minutes
+  });
+}
+
+/**
+ * Send invitation to an orphaned vehicle
+ */
+export function useSendVehicleInvitation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ vehicleId, email }: { vehicleId: string; email: string }) => {
+      const response = await api.put<Vehicle>(`/v1/certifiers/vehicles/${vehicleId}`, {
+        ownerEmail: email,
+      });
+      return response;
+    },
+    onSuccess: (_, { vehicleId }) => {
+      queryClient.invalidateQueries({
+        queryKey: vehicleKeys.all,
+      });
+      queryClient.invalidateQueries({
+        queryKey: vehicleKeys.detail(vehicleId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: vehicleKeys.invitation(vehicleId),
+      });
+    },
   });
 }

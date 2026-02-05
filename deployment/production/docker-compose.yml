@@ -210,6 +210,7 @@ services:
       MAILER_FROM_EMAIL: ${MAILER_FROM_EMAIL}
       MAILER_FROM_NAME: ${MAILER_FROM_NAME}
       MAILER_BASE_URL: ${MAILER_BASE_URL}
+      MAILER_WEB_BASE_URL: ${MAILER_WEB_BASE_URL}
     depends_on:
       backend-migrate:
         condition: service_completed_successfully

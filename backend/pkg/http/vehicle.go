@@ -260,6 +260,23 @@ func (a apiServer) CreateCertifierVehicle(ctx context.Context, request CreateCer
 		}, nil
 	}
 
+	var ownerID *uuid.UUID
+	var shouldSendInvitation bool
+	var ownerEmail string
+
+	if request.Body.OwnerEmail != nil {
+		ownerEmail = string(*request.Body.OwnerEmail)
+		userID, err := a.userService.GetUserByEmail(ctx, ownerEmail)
+		if err != nil {
+			return nil, fmt.Errorf("lookup user by email: %w", err)
+		}
+		if userID != nil {
+			ownerID = userID
+		} else {
+			shouldSendInvitation = true
+		}
+	}
+
 	params := vehicles.CreateVehicleParams{
 		ShouldAnchor:       true,
 		LicensePlate:       request.Body.LicensePlate,
@@ -274,7 +291,7 @@ func (a apiServer) CreateCertifierVehicle(ctx context.Context, request CreateCer
 		DriveType:          request.Body.DriveType,
 		GearType:           request.Body.GearType,
 		SuspensionType:     request.Body.SuspensionType,
-		OwnerID:            nil,
+		OwnerID:            ownerID,
 	}
 
 	createdVehicle, err := a.vehicleService.Create(ctx, params)
@@ -290,8 +307,132 @@ func (a apiServer) CreateCertifierVehicle(ctx context.Context, request CreateCer
 		return nil, err
 	}
 
+	if shouldSendInvitation {
+		vehicleData := []map[string]interface{}{
+			{
+				"make":         createdVehicle.Make,
+				"model":        createdVehicle.Model,
+				"year":         createdVehicle.Year,
+				"licensePlate": createdVehicle.LicensePlate,
+			},
+		}
+		if err := a.invitationService.SendInvitationBatch(ctx, ownerEmail, []uuid.UUID{createdVehicle.ID}, vehicleData); err != nil {
+			return nil, fmt.Errorf("send owner invitation: %w", err)
+		}
+	}
+
 	httpVehicle := domainToHTTPVehicle(*createdVehicle)
 	return CreateCertifierVehicle201JSONResponse(httpVehicle), nil
+}
+
+func (a apiServer) UpdateCertifierVehicle(ctx context.Context, request UpdateCertifierVehicleRequestObject) (UpdateCertifierVehicleResponseObject, error) {
+	if request.Body == nil {
+		return nil, fmt.Errorf("request body is required")
+	}
+
+	if auth.IsOAuth2Request(ctx) && !auth.HasScope(ctx, auth.ScopeVehiclesWrite) {
+		return UpdateCertifierVehicle403JSONResponse{
+			ForbiddenJSONResponse: ForbiddenJSONResponse{
+				Error: "insufficient_scope: vehicles:write required",
+			},
+		}, nil
+	}
+
+	if err := a.authorizer.Authorize(ctx, ResourceVehicles, ActionUpdate); err != nil {
+		return UpdateCertifierVehicle403JSONResponse{
+			ForbiddenJSONResponse: ForbiddenJSONResponse{
+				Error: "forbidden: only entity members can update vehicles for certification",
+			},
+		}, nil
+	}
+
+	existingVehicle, err := a.vehicleService.GetByID(ctx, request.VehicleId)
+	if err != nil {
+		if errors.Is(err, vehicles.ErrVehicleNotFound) {
+			return UpdateCertifierVehicle404JSONResponse{
+				NotFoundJSONResponse: NotFoundJSONResponse{
+					Error: "vehicle not found",
+				},
+			}, nil
+		}
+		return nil, err
+	}
+
+	if existingVehicle.OwnerID != nil && request.Body.OwnerEmail != nil {
+		return UpdateCertifierVehicle400JSONResponse{
+			BadRequestJSONResponse: BadRequestJSONResponse{
+				Error: "cannot assign owner email to a vehicle that already has an owner",
+			},
+		}, nil
+	}
+
+	var ownerID *uuid.UUID
+	var shouldSendInvitation bool
+	var ownerEmail string
+
+	if request.Body.OwnerEmail != nil && existingVehicle.OwnerID == nil {
+		pendingInvitation, err := a.invitationService.GetPendingInvitationForVehicle(ctx, request.VehicleId)
+		if err != nil {
+			return nil, fmt.Errorf("check pending invitation: %w", err)
+		}
+		if pendingInvitation != nil {
+			return UpdateCertifierVehicle400JSONResponse{
+				BadRequestJSONResponse: BadRequestJSONResponse{
+					Error: "cannot send new invitation: a pending invitation already exists for this vehicle",
+				},
+			}, nil
+		}
+
+		ownerEmail = string(*request.Body.OwnerEmail)
+		userID, err := a.userService.GetUserByEmail(ctx, ownerEmail)
+		if err != nil {
+			return nil, fmt.Errorf("lookup user by email: %w", err)
+		}
+		if userID != nil {
+			ownerID = userID
+		} else {
+			shouldSendInvitation = true
+		}
+	}
+
+	params := vehicles.UpdateVehicleParams{
+		LicensePlate:       request.Body.LicensePlate,
+		ChassisNumber:      request.Body.ChassisNumber,
+		Color:              request.Body.Color,
+		EngineNumber:       request.Body.EngineNumber,
+		TransmissionNumber: request.Body.TransmissionNumber,
+		BodyType:           request.Body.BodyType,
+		DriveType:          request.Body.DriveType,
+		GearType:           request.Body.GearType,
+		SuspensionType:     request.Body.SuspensionType,
+		OwnerID:            ownerID,
+	}
+
+	updatedVehicle, err := a.vehicleService.Update(ctx, request.VehicleId, params)
+	if err != nil {
+		return nil, err
+	}
+
+	if shouldSendInvitation {
+		licensePlate := ""
+		if updatedVehicle.LicensePlate != nil {
+			licensePlate = *updatedVehicle.LicensePlate
+		}
+		vehicleData := []map[string]interface{}{
+			{
+				"make":         updatedVehicle.Make,
+				"model":        updatedVehicle.Model,
+				"year":         updatedVehicle.Year,
+				"licensePlate": licensePlate,
+			},
+		}
+		if err := a.invitationService.SendInvitationBatch(ctx, ownerEmail, []uuid.UUID{updatedVehicle.ID}, vehicleData); err != nil {
+			return nil, fmt.Errorf("send owner invitation: %w", err)
+		}
+	}
+
+	httpVehicle := domainToHTTPVehicle(*updatedVehicle)
+	return UpdateCertifierVehicle200JSONResponse(httpVehicle), nil
 }
 
 func (a apiServer) ClaimVehicle(ctx context.Context, request ClaimVehicleRequestObject) (ClaimVehicleResponseObject, error) {
@@ -354,6 +495,51 @@ func (a apiServer) ClaimVehicle(ctx context.Context, request ClaimVehicleRequest
 
 	httpVehicle := domainToHTTPVehicle(*claimedVehicle)
 	return ClaimVehicle200JSONResponse(httpVehicle), nil
+}
+
+func (a apiServer) GetCertifierVehicleInvitation(ctx context.Context, request GetCertifierVehicleInvitationRequestObject) (GetCertifierVehicleInvitationResponseObject, error) {
+	if err := a.authorizer.Authorize(ctx, ResourceVehicles, ActionRead); err != nil {
+		return GetCertifierVehicleInvitation403JSONResponse{
+			ForbiddenJSONResponse: ForbiddenJSONResponse{
+				Error: "forbidden: only entity members can view vehicle invitations",
+			},
+		}, nil
+	}
+
+	_, err := a.vehicleService.GetByID(ctx, request.VehicleId)
+	if err != nil {
+		if errors.Is(err, vehicles.ErrVehicleNotFound) {
+			return GetCertifierVehicleInvitation404JSONResponse{
+				NotFoundJSONResponse: NotFoundJSONResponse{
+					Error: "vehicle not found",
+				},
+			}, nil
+		}
+		return nil, err
+	}
+
+	invitation, err := a.invitationService.GetPendingInvitationForVehicle(ctx, request.VehicleId)
+	if err != nil {
+		return nil, fmt.Errorf("get pending invitation: %w", err)
+	}
+
+	if invitation == nil {
+		return GetCertifierVehicleInvitation200JSONResponse{
+			HasPendingInvitation: false,
+		}, nil
+	}
+
+	var expiresAt *time.Time
+	if invitation.TokenExpiresAt != nil {
+		expiresAt = invitation.TokenExpiresAt
+	}
+
+	return GetCertifierVehicleInvitation200JSONResponse{
+		HasPendingInvitation: true,
+		Email:                &invitation.Email,
+		InvitedAt:            &invitation.InvitedAt,
+		ExpiresAt:            expiresAt,
+	}, nil
 }
 
 // domainToHTTPVehicle converts a domain vehicle to HTTP vehicle

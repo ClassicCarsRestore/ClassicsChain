@@ -109,6 +109,24 @@ func (k *Client) GetUser(ctx context.Context, userID string) (*UserIdentity, err
 	return k.toUserIdentity(identity), nil
 }
 
+// GetUserByEmail looks up a user by email address
+func (k *Client) GetUserByEmail(ctx context.Context, email string) (*UserIdentity, error) {
+	identities, resp, err := k.admin.IdentityAPI.ListIdentities(ctx).
+		CredentialsIdentifier(email).
+		PageSize(1).
+		Execute()
+	if err != nil {
+		return nil, fmt.Errorf("get user by email: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if len(identities) == 0 {
+		return nil, nil
+	}
+
+	return k.toUserIdentity(&identities[0]), nil
+}
+
 // ListAdminUsers lists all users with admin privileges
 func (k *Client) ListAdminUsers(ctx context.Context) ([]UserIdentity, error) {
 	identities, resp, err := k.admin.IdentityAPI.ListIdentities(ctx).

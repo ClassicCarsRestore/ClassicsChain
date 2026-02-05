@@ -60,6 +60,7 @@ type Querier interface {
 	GetInvitationByID(ctx context.Context, id uuid.UUID) (GetInvitationByIDRow, error)
 	GetInvitationByToken(ctx context.Context, token *string) (GetInvitationByTokenRow, error)
 	GetInvitationsByEmailAndVehicle(ctx context.Context, arg GetInvitationsByEmailAndVehicleParams) ([]GetInvitationsByEmailAndVehicleRow, error)
+	GetPendingInvitationByVehicleID(ctx context.Context, vehicleID uuid.UUID) (GetPendingInvitationByVehicleIDRow, error)
 	GetPendingInvitationsByEmail(ctx context.Context, email string) ([]GetPendingInvitationsByEmailRow, error)
 	GetPendingUserInvitationsByEmail(ctx context.Context, email string) ([]UserInvitation, error)
 	GetPhoto(ctx context.Context, id uuid.UUID) (VehiclePhoto, error)
