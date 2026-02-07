@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Car, Hash, Settings, Gauge, ChevronDown } from 'lucide-react';
 import { api } from '@/lib/api';
+import { Button } from '@/components/ui/button';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import type { CreateVehicleRequest } from '@/types/vehicle';
 
 export function VehicleCreatePage() {
@@ -114,6 +116,12 @@ export function VehicleCreatePage() {
     }
   };
 
+  const inputClasses = (hasError: boolean) =>
+    `mt-1 w-full rounded-md border ${hasError ? 'border-red-500' : 'border-border'} bg-background px-3 py-2 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary`;
+
+  const selectClasses =
+    "mt-1 w-full cursor-pointer appearance-none rounded-md border border-border bg-background bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-[length:16px_16px] bg-[right_12px_center] bg-no-repeat px-3 py-2 pr-10 text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary";
+
   return (
     <div className="mx-auto max-w-2xl">
       {/* Header */}
@@ -137,321 +145,352 @@ export function VehicleCreatePage() {
       )}
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="rounded-lg border border-border bg-card p-6">
-        <div className="space-y-6">
-          {/* Engine Number / License Plate - At least one required */}
-          <div className="rounded-lg border border-border bg-muted/50 p-4">
-                <p className="mb-4 text-xs font-medium text-muted-foreground">
-                    {t('vehicleForm.fields.engineNumberOrLicensePlateHint')}
-                </p>
-                <div className="grid grid-cols-2 gap-4">
-                    {/* Engine Number */}
-                    <div>
-                        <label htmlFor="engineNumber" className="block text-sm font-medium text-foreground">
-                            {t('vehicleForm.fields.engineNumber')} <span className="text-amber-500">*</span>
-                        </label>
-                        <input
-                            type="text"
-                            id="engineNumber"
-                            name="engineNumber"
-                            placeholder={t('vehicleForm.fields.engineNumberPlaceholder')}
-                            className={`mt-1 w-full rounded-md border ${
-                                validationErrors.engineNumberOrLicensePlate ? 'border-red-500' : 'border-border'
-                            } bg-background px-3 py-2 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary`}
-                        />
-                    </div>
-
-                    {/* License Plate */}
-                    <div>
-                        <label htmlFor="licensePlate" className="block text-sm font-medium text-foreground">
-                            {t('dashboard:vehicleForm.fields.licensePlate')} <span className="text-amber-500">*</span>
-                        </label>
-                        <input
-                            type="text"
-                            id="licensePlate"
-                            name="licensePlate"
-                            placeholder={t('dashboard:vehicleForm.fields.licensePlatePlaceholder')}
-                            className={`mt-1 w-full rounded-md border ${
-                                validationErrors.engineNumberOrLicensePlate ? 'border-red-500' : 'border-border'
-                            } bg-background px-3 py-2 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary`}
-                        />
-                    </div>
-                </div>
-                {validationErrors.engineNumberOrLicensePlate && (
-                    <p className="mt-2 text-sm text-red-500">{validationErrors.engineNumberOrLicensePlate}</p>
-                )}
-            </div>
-
-          {/* Make */}
-          <div>
-            <label htmlFor="make" className="block text-sm font-medium text-foreground">
-              {t('vehicleForm.fields.make')} <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              id="make"
-              name="make"
-              placeholder={t('vehicleForm.fields.makePlaceholder')}
-              className={`mt-1 w-full rounded-md border ${
-                validationErrors.make ? 'border-red-500' : 'border-border'
-              } bg-background px-3 py-2 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary`}
-            />
-            {validationErrors.make && (
-              <p className="mt-1 text-sm text-red-500">{validationErrors.make}</p>
-            )}
-          </div>
-
-          {/* Model */}
-          <div>
-            <label htmlFor="model" className="block text-sm font-medium text-foreground">
-              {t('vehicleForm.fields.model')} <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              id="model"
-              name="model"
-              placeholder={t('vehicleForm.fields.modelPlaceholder')}
-              className={`mt-1 w-full rounded-md border ${
-                validationErrors.model ? 'border-red-500' : 'border-border'
-              } bg-background px-3 py-2 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary`}
-            />
-            {validationErrors.model && (
-              <p className="mt-1 text-sm text-red-500">{validationErrors.model}</p>
-            )}
-          </div>
-
-          {/* Year */}
-          <div>
-            <label htmlFor="year" className="block text-sm font-medium text-foreground">
-              {t('vehicleForm.fields.year')} <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="number"
-              id="year"
-              name="year"
-              placeholder={t('vehicleForm.fields.yearPlaceholder')}
-              min="1800"
-              max="9999"
-              className={`mt-1 w-full rounded-md border ${
-                validationErrors.year ? 'border-red-500' : 'border-border'
-              } bg-background px-3 py-2 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary`}
-            />
-            {validationErrors.year && (
-              <p className="mt-1 text-sm text-red-500">{validationErrors.year}</p>
-            )}
-          </div>
-
-          {/* Color */}
-          <div>
-            <label htmlFor="color" className="block text-sm font-medium text-foreground">
-              {t('vehicleForm.fields.color')}
-            </label>
-            <input
-              type="text"
-              id="color"
-              name="color"
-              placeholder={t('vehicleForm.fields.colorPlaceholder')}
-              className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-            />
-          </div>
-
-          {/* Chassis Number */}
-          <div>
-            <label htmlFor="chassisNumber" className="block text-sm font-medium text-foreground">
-              {t('dashboard:vehicleForm.fields.chassisNumber')}
-            </label>
-            <input
-              type="text"
-              id="chassisNumber"
-              name="chassisNumber"
-              placeholder={t('dashboard:vehicleForm.fields.chassisNumberPlaceholder')}
-              className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-            />
-          </div>
-
-          {/* Transmission Number */}
-          <div>
-            <label htmlFor="transmissionNumber" className="block text-sm font-medium text-foreground">
-              {t('dashboard:vehicleForm.fields.transmissionNumber')}
-            </label>
-            <input
-              type="text"
-              id="transmissionNumber"
-              name="transmissionNumber"
-              placeholder={t('dashboard:vehicleForm.fields.transmissionNumberPlaceholder')}
-              className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-            />
-          </div>
-
-          {/* Body Type */}
-          <div>
-            <label htmlFor="bodyType" className="block text-sm font-medium text-foreground">
-              {t('dashboard:vehicleForm.fields.bodyType')}
-            </label>
-            <select
-              id="bodyType"
-              name="bodyType"
-              className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-            >
-              <option value="">{t('dashboard:vehicleForm.fields.selectBodyType')}</option>
-              {bodyTypes.map((type) => (
-                <option key={type} value={type}>
-                  {t(`dashboard:vehicleForm.bodyTypes.${type}`)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Drive Type */}
-          <div>
-            <label htmlFor="driveType" className="block text-sm font-medium text-foreground">
-              {t('dashboard:vehicleForm.fields.driveType')}
-            </label>
-            <select
-              id="driveType"
-              name="driveType"
-              className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-            >
-              <option value="">{t('dashboard:vehicleForm.fields.selectDriveType')}</option>
-              {driveTypes.map((type) => (
-                <option key={type} value={type}>
-                  {t(`dashboard:vehicleForm.driveTypes.${type}`)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Gear Type */}
-          <div>
-            <label htmlFor="gearType" className="block text-sm font-medium text-foreground">
-              {t('dashboard:vehicleForm.fields.gearType')}
-            </label>
-            <select
-              id="gearType"
-              name="gearType"
-              className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-            >
-              <option value="">{t('dashboard:vehicleForm.fields.selectGearType')}</option>
-              {gearTypes.map((type) => (
-                <option key={type} value={type}>
-                  {t(`dashboard:vehicleForm.gearTypes.${type}`)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Suspension Type */}
-          <div>
-            <label htmlFor="suspensionType" className="block text-sm font-medium text-foreground">
-              {t('dashboard:vehicleForm.fields.suspensionType')}
-            </label>
-            <select
-              id="suspensionType"
-              name="suspensionType"
-              className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-            >
-              <option value="">{t('dashboard:vehicleForm.fields.selectSuspensionType')}</option>
-              {suspensionTypes.map((type) => (
-                <option key={type} value={type}>
-                  {t(`dashboard:vehicleForm.suspensionTypes.${type}`)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Fuel Type */}
-          <div>
-            <label htmlFor="fuel" className="block text-sm font-medium text-foreground">
-              {t('dashboard:vehicleForm.fields.fuel')}
-            </label>
-            <select
-              id="fuel"
-              name="fuel"
-              className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-            >
-              <option value="">{t('dashboard:vehicleForm.fields.selectFuel')}</option>
-              {fuelTypes.map((type) => (
-                <option key={type} value={type}>
-                  {t(`dashboard:vehicleForm.fuelTypes.${type}`)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Engine Displacement */}
-          <div>
-            <label htmlFor="engineCc" className="block text-sm font-medium text-foreground">
-              {t('dashboard:vehicleForm.fields.engineCc')}
-            </label>
-            <div className="mt-1 flex">
-              <input
-                type="number"
-                id="engineCc"
-                name="engineCc"
-                placeholder={t('dashboard:vehicleForm.fields.engineCcPlaceholder')}
-                min="0"
-                className="w-full rounded-l-md border border-border bg-background px-3 py-2 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-              />
-              <span className="inline-flex items-center rounded-r-md border border-l-0 border-border bg-muted px-3 text-sm text-muted-foreground">
-                cc
-              </span>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Section 1: Vehicle Identification */}
+        <div className="rounded-lg border border-border bg-card">
+          <div className="flex items-center gap-2 border-b border-border px-4 py-3">
+            <Hash className="h-4 w-4 text-primary" />
+            <div>
+              <h2 className="text-sm font-semibold">{t('vehicleForm.sections.identification')}</h2>
+              <p className="text-xs text-muted-foreground">{t('vehicleForm.sections.identificationHint')}</p>
             </div>
           </div>
+          <div className="space-y-4 p-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {/* Engine Number */}
+              <div>
+                <label htmlFor="engineNumber" className="block text-sm font-medium text-foreground">
+                  {t('vehicleForm.fields.engineNumber')} <span className="text-amber-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="engineNumber"
+                  name="engineNumber"
+                  placeholder={t('vehicleForm.fields.engineNumberPlaceholder')}
+                  className={inputClasses(!!validationErrors.engineNumberOrLicensePlate)}
+                />
+              </div>
 
-          {/* Engine Cylinders */}
-          <div>
-            <label htmlFor="engineCylinders" className="block text-sm font-medium text-foreground">
-              {t('dashboard:vehicleForm.fields.engineCylinders')}
-            </label>
-            <input
-              type="number"
-              id="engineCylinders"
-              name="engineCylinders"
-              placeholder={t('dashboard:vehicleForm.fields.engineCylindersPlaceholder')}
-              min="1"
-              max="16"
-              className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-            />
-          </div>
+              {/* License Plate */}
+              <div>
+                <label htmlFor="licensePlate" className="block text-sm font-medium text-foreground">
+                  {t('vehicleForm.fields.licensePlate')} <span className="text-amber-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="licensePlate"
+                  name="licensePlate"
+                  placeholder={t('vehicleForm.fields.licensePlatePlaceholder')}
+                  className={inputClasses(!!validationErrors.engineNumberOrLicensePlate)}
+                />
+              </div>
+            </div>
 
-          {/* Engine Power */}
-          <div>
-            <label htmlFor="enginePowerHp" className="block text-sm font-medium text-foreground">
-              {t('dashboard:vehicleForm.fields.enginePowerHp')}
-            </label>
-            <div className="mt-1 flex">
-              <input
-                type="number"
-                id="enginePowerHp"
-                name="enginePowerHp"
-                placeholder={t('dashboard:vehicleForm.fields.enginePowerHpPlaceholder')}
-                min="0"
-                className="w-full rounded-l-md border border-border bg-background px-3 py-2 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-              />
-              <span className="inline-flex items-center rounded-r-md border border-l-0 border-border bg-muted px-3 text-sm text-muted-foreground">
-                HP
-              </span>
+            {validationErrors.engineNumberOrLicensePlate && (
+              <p className="text-sm text-red-500">{validationErrors.engineNumberOrLicensePlate}</p>
+            )}
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {/* Chassis Number */}
+              <div>
+                <label htmlFor="chassisNumber" className="block text-sm font-medium text-foreground">
+                  {t('vehicleForm.fields.chassisNumber')}
+                </label>
+                <input
+                  type="text"
+                  id="chassisNumber"
+                  name="chassisNumber"
+                  placeholder={t('vehicleForm.fields.chassisNumberPlaceholder')}
+                  className={inputClasses(false)}
+                />
+              </div>
+
+              {/* Transmission Number */}
+              <div>
+                <label htmlFor="transmissionNumber" className="block text-sm font-medium text-foreground">
+                  {t('vehicleForm.fields.transmissionNumber')}
+                </label>
+                <input
+                  type="text"
+                  id="transmissionNumber"
+                  name="transmissionNumber"
+                  placeholder={t('vehicleForm.fields.transmissionNumberPlaceholder')}
+                  className={inputClasses(false)}
+                />
+              </div>
             </div>
           </div>
         </div>
 
+        {/* Section 2: Basic Information */}
+        <div className="rounded-lg border border-border bg-card">
+          <div className="flex items-center gap-2 border-b border-border px-4 py-3">
+            <Car className="h-4 w-4 text-primary" />
+            <h2 className="text-sm font-semibold">{t('vehicleForm.sections.basicInfo')}</h2>
+          </div>
+          <div className="space-y-4 p-4">
+            {/* Make */}
+            <div>
+              <label htmlFor="make" className="block text-sm font-medium text-foreground">
+                {t('vehicleForm.fields.make')} <span className="text-amber-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="make"
+                name="make"
+                placeholder={t('vehicleForm.fields.makePlaceholder')}
+                className={inputClasses(!!validationErrors.make)}
+              />
+              {validationErrors.make && (
+                <p className="mt-1 text-sm text-red-500">{validationErrors.make}</p>
+              )}
+            </div>
+
+            {/* Model */}
+            <div>
+              <label htmlFor="model" className="block text-sm font-medium text-foreground">
+                {t('vehicleForm.fields.model')} <span className="text-amber-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="model"
+                name="model"
+                placeholder={t('vehicleForm.fields.modelPlaceholder')}
+                className={inputClasses(!!validationErrors.model)}
+              />
+              {validationErrors.model && (
+                <p className="mt-1 text-sm text-red-500">{validationErrors.model}</p>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {/* Year */}
+              <div>
+                <label htmlFor="year" className="block text-sm font-medium text-foreground">
+                  {t('vehicleForm.fields.year')} <span className="text-amber-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  id="year"
+                  name="year"
+                  placeholder={t('vehicleForm.fields.yearPlaceholder')}
+                  min="1800"
+                  max="9999"
+                  className={inputClasses(!!validationErrors.year)}
+                />
+                {validationErrors.year && (
+                  <p className="mt-1 text-sm text-red-500">{validationErrors.year}</p>
+                )}
+              </div>
+
+              {/* Color */}
+              <div>
+                <label htmlFor="color" className="block text-sm font-medium text-foreground">
+                  {t('vehicleForm.fields.color')}
+                </label>
+                <input
+                  type="text"
+                  id="color"
+                  name="color"
+                  placeholder={t('vehicleForm.fields.colorPlaceholder')}
+                  className={inputClasses(false)}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Section 3: Body & Drivetrain (Collapsible) */}
+        <Collapsible defaultOpen={false}>
+          <div className="rounded-lg border border-border bg-card">
+            <CollapsibleTrigger className="flex w-full cursor-pointer items-center justify-between px-4 py-3 hover:bg-muted/50">
+              <div className="flex items-center gap-2">
+                <Settings className="h-4 w-4 text-primary" />
+                <div className="text-left">
+                  <h2 className="text-sm font-semibold">{t('vehicleForm.sections.bodyDrivetrain')}</h2>
+                  <p className="text-xs text-muted-foreground">{t('vehicleForm.sections.bodyDrivetrainHint')}</p>
+                </div>
+              </div>
+              <ChevronDown className="h-4 w-4 transition-transform [[data-state=open]_&]:rotate-180" />
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <div className="space-y-4 border-t border-border p-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {/* Body Type */}
+                  <div>
+                    <label htmlFor="bodyType" className="block text-sm font-medium text-foreground">
+                      {t('vehicleForm.fields.bodyType')}
+                    </label>
+                    <select id="bodyType" name="bodyType" className={selectClasses}>
+                      <option value="">{t('vehicleForm.fields.selectBodyType')}</option>
+                      {bodyTypes.map((type) => (
+                        <option key={type} value={type}>
+                          {t(`vehicleForm.bodyTypes.${type}`)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Drive Type */}
+                  <div>
+                    <label htmlFor="driveType" className="block text-sm font-medium text-foreground">
+                      {t('vehicleForm.fields.driveType')}
+                    </label>
+                    <select id="driveType" name="driveType" className={selectClasses}>
+                      <option value="">{t('vehicleForm.fields.selectDriveType')}</option>
+                      {driveTypes.map((type) => (
+                        <option key={type} value={type}>
+                          {t(`vehicleForm.driveTypes.${type}`)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {/* Gear Type */}
+                  <div>
+                    <label htmlFor="gearType" className="block text-sm font-medium text-foreground">
+                      {t('vehicleForm.fields.gearType')}
+                    </label>
+                    <select id="gearType" name="gearType" className={selectClasses}>
+                      <option value="">{t('vehicleForm.fields.selectGearType')}</option>
+                      {gearTypes.map((type) => (
+                        <option key={type} value={type}>
+                          {t(`vehicleForm.gearTypes.${type}`)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Suspension Type */}
+                  <div>
+                    <label htmlFor="suspensionType" className="block text-sm font-medium text-foreground">
+                      {t('vehicleForm.fields.suspensionType')}
+                    </label>
+                    <select id="suspensionType" name="suspensionType" className={selectClasses}>
+                      <option value="">{t('vehicleForm.fields.selectSuspensionType')}</option>
+                      {suspensionTypes.map((type) => (
+                        <option key={type} value={type}>
+                          {t(`vehicleForm.suspensionTypes.${type}`)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </CollapsibleContent>
+          </div>
+        </Collapsible>
+
+        {/* Section 4: Engine Specifications (Collapsible) */}
+        <Collapsible defaultOpen={false}>
+          <div className="rounded-lg border border-border bg-card">
+            <CollapsibleTrigger className="flex w-full cursor-pointer items-center justify-between px-4 py-3 hover:bg-muted/50">
+              <div className="flex items-center gap-2">
+                <Gauge className="h-4 w-4 text-primary" />
+                <div className="text-left">
+                  <h2 className="text-sm font-semibold">{t('vehicleForm.sections.engineSpecs')}</h2>
+                  <p className="text-xs text-muted-foreground">{t('vehicleForm.sections.engineSpecsHint')}</p>
+                </div>
+              </div>
+              <ChevronDown className="h-4 w-4 transition-transform [[data-state=open]_&]:rotate-180" />
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <div className="space-y-4 border-t border-border p-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {/* Fuel Type */}
+                  <div>
+                    <label htmlFor="fuel" className="block text-sm font-medium text-foreground">
+                      {t('vehicleForm.fields.fuel')}
+                    </label>
+                    <select id="fuel" name="fuel" className={selectClasses}>
+                      <option value="">{t('vehicleForm.fields.selectFuel')}</option>
+                      {fuelTypes.map((type) => (
+                        <option key={type} value={type}>
+                          {t(`vehicleForm.fuelTypes.${type}`)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Engine Cylinders */}
+                  <div>
+                    <label htmlFor="engineCylinders" className="block text-sm font-medium text-foreground">
+                      {t('vehicleForm.fields.engineCylinders')}
+                    </label>
+                    <input
+                      type="number"
+                      id="engineCylinders"
+                      name="engineCylinders"
+                      placeholder={t('vehicleForm.fields.engineCylindersPlaceholder')}
+                      min="1"
+                      max="16"
+                      className={inputClasses(false)}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {/* Engine Displacement */}
+                  <div>
+                    <label htmlFor="engineCc" className="block text-sm font-medium text-foreground">
+                      {t('vehicleForm.fields.engineCc')}
+                    </label>
+                    <div className="mt-1 flex">
+                      <input
+                        type="number"
+                        id="engineCc"
+                        name="engineCc"
+                        placeholder={t('vehicleForm.fields.engineCcPlaceholder')}
+                        min="0"
+                        className="w-full rounded-l-md border border-border bg-background px-3 py-2 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                      />
+                      <span className="inline-flex items-center rounded-r-md border border-l-0 border-border bg-muted px-3 text-sm text-muted-foreground">
+                        cc
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Engine Power */}
+                  <div>
+                    <label htmlFor="enginePowerHp" className="block text-sm font-medium text-foreground">
+                      {t('vehicleForm.fields.enginePowerHp')}
+                    </label>
+                    <div className="mt-1 flex">
+                      <input
+                        type="number"
+                        id="enginePowerHp"
+                        name="enginePowerHp"
+                        placeholder={t('vehicleForm.fields.enginePowerHpPlaceholder')}
+                        min="0"
+                        className="w-full rounded-l-md border border-border bg-background px-3 py-2 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                      />
+                      <span className="inline-flex items-center rounded-r-md border border-l-0 border-border bg-muted px-3 text-sm text-muted-foreground">
+                        HP
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CollapsibleContent>
+          </div>
+        </Collapsible>
+
         {/* Form Actions */}
-        <div className="mt-8 flex gap-4">
-          <button
+        <div className="flex gap-4">
+          <Button
             type="button"
+            variant="outline"
             onClick={() => navigate('/dashboard')}
             disabled={isSubmitting}
-            className="flex-1 rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent disabled:opacity-50 cursor-pointer"
+            className="flex-1"
           >
             {t('vehicleForm.buttons.cancel')}
-          </button>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="flex-1 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50 cursor-pointer"
-          >
+          </Button>
+          <Button type="submit" disabled={isSubmitting} className="flex-1">
             {isSubmitting ? t('vehicleForm.buttons.submitting') : t('vehicleForm.buttons.submit')}
-          </button>
+          </Button>
         </div>
       </form>
     </div>

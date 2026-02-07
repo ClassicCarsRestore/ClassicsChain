@@ -16,6 +16,15 @@
   "vehicleForm": {
     "title": "Registar Novo Veículo",
     "subtitle": "Adicione um veículo clássico à sua coleção",
+    "sections": {
+      "identification": "Identificação do Veículo",
+      "identificationHint": "É necessário pelo menos um número de motor ou matrícula",
+      "basicInfo": "Informação Básica",
+      "bodyDrivetrain": "Carroçaria e Transmissão",
+      "bodyDrivetrainHint": "Detalhes opcionais de carroçaria e transmissão",
+      "engineSpecs": "Especificações do Motor",
+      "engineSpecsHint": "Detalhes opcionais do motor e desempenho"
+    },
     "fields": {
       "make": "Marca",
       "makePlaceholder": "ex: Ford, Chevrolet, Mercedes-Benz",

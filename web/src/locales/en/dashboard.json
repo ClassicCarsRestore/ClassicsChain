@@ -16,6 +16,15 @@
   "vehicleForm": {
     "title": "Register New Vehicle",
     "subtitle": "Add a classic vehicle to your collection",
+    "sections": {
+      "identification": "Vehicle Identification",
+      "identificationHint": "At least an engine number or license plate is required",
+      "basicInfo": "Basic Information",
+      "bodyDrivetrain": "Body & Drivetrain",
+      "bodyDrivetrainHint": "Optional body and drivetrain details",
+      "engineSpecs": "Engine Specifications",
+      "engineSpecsHint": "Optional engine and performance details"
+    },
     "fields": {
       "make": "Make",
       "makePlaceholder": "e.g., Ford, Chevrolet, Mercedes-Benz",
