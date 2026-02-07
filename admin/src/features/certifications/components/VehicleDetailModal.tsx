@@ -296,7 +296,7 @@ function EventCard({ event, isLast }: EventCardProps) {
             <div className="flex items-center gap-1">
               <ExternalLink className="w-4 h-4" />
               <a
-                href={`https://explorer.perawallet.app/tx/${event.blockchainTxId}`}
+                href={`https://lora.algokit.io/${import.meta.env.VITE_ALGORAND_NETWORK || 'testnet'}/transaction/${event.blockchainTxId}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:underline"

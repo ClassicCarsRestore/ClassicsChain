@@ -35,6 +35,7 @@ jobs:
           VITE_KRATOS_URL=https://auth.classicschain.com
           VITE_PUBLIC_REDIRECT_URL=https://classicschain.com
           VITE_STORAGE_BASE_URL=https://vehicles.classicschain.com
+          VITE_ALGORAND_NETWORK=testnet
           EOF
 
       - name: Build
