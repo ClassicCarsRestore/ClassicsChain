@@ -4,6 +4,7 @@ import { X, Calendar, MapPin, Award, ExternalLink, ImageIcon, Link } from 'lucid
 import { CertificationForm } from './CertificationForm';
 import { EventCertificateForm } from './EventCertificateForm';
 import { OwnerManagementSection } from './OwnerManagementSection';
+import { PhotoLightbox } from '@/components/common/PhotoLightbox';
 import { useVehicleEvents } from '../hooks/useVehicles';
 import { generateStorageUrl } from '@/lib/storage';
 import type { Vehicle, EventType } from '../types';
@@ -198,6 +199,8 @@ interface EventCardProps {
 function EventCard({ event, isLast }: EventCardProps) {
   const { t } = useTranslation('vehicles');
   const hasBlockchainProof = !!event.blockchainTxId;
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   const formatMetadataKey = (key: string): string => {
     const translated = t(`eventCertificate.fields.${key}`, { defaultValue: '' });
@@ -260,23 +263,36 @@ function EventCard({ event, isLast }: EventCardProps) {
             </div>
             <div className="grid grid-cols-4 gap-1.5">
               {event.images.slice(0, 4).map((image, index) => (
-                <div
+                <button
                   key={image.id}
-                  className="relative aspect-square overflow-hidden rounded-md border border-border bg-muted"
+                  type="button"
+                  onClick={() => {
+                    setSelectedImageIndex(index);
+                    setLightboxOpen(true);
+                  }}
+                  className="relative aspect-square overflow-hidden rounded-md border border-border bg-muted cursor-pointer group"
                 >
                   <img
                     src={generateStorageUrl(image.objectKey)}
                     alt=""
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-cover transition-transform group-hover:scale-105"
                   />
                   {index === 3 && event.images!.length > 4 && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-white text-sm font-medium">
                       +{event.images!.length - 4}
                     </div>
                   )}
-                </div>
+                </button>
               ))}
             </div>
+            <PhotoLightbox
+              isOpen={lightboxOpen}
+              photos={event.images}
+              selectedIndex={selectedImageIndex}
+              onClose={() => setLightboxOpen(false)}
+              onNext={() => setSelectedImageIndex((prev) => (prev + 1) % event.images!.length)}
+              onPrevious={() => setSelectedImageIndex((prev) => (prev - 1 + event.images!.length) % event.images!.length)}
+            />
           </div>
         )}
 
