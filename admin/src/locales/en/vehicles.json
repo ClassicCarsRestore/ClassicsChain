@@ -91,6 +91,14 @@
       "basicStep": "Chassis Number, Make, and Model are required. Other fields can be filled based on available information.",
       "detailsStep": "Specify the vehicle's technical specifications. Body Type and Drive Type are required."
     },
+    "sections": {
+      "identification": "Identification",
+      "identificationHint": "Serial numbers for major components",
+      "bodyDrivetrain": "Body & Drivetrain",
+      "bodyDrivetrainHint": "Body Type and Drive Type are required",
+      "engineSpecs": "Engine Specifications",
+      "engineSpecsHint": "Optional engine and performance details"
+    },
     "summary": {
       "identification": "Identification",
       "basicInfo": "Basic Information",
