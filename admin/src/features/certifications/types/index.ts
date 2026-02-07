@@ -11,6 +11,10 @@ export interface VehicleFormData {
   driveType: string;
   gearType: string;
   suspensionType: string;
+  fuel: string;
+  engineCc: number | null;
+  engineCylinders: number | null;
+  enginePowerHp: number | null;
   ownerEmail?: string;
 }
 
@@ -28,6 +32,10 @@ export interface Vehicle {
   driveType: string;
   gearType: string;
   suspensionType: string;
+  fuel: string;
+  engineCc: number | null;
+  engineCylinders: number | null;
+  enginePowerHp: number | null;
   ownerId: string | null;
   blockchainAssetId: string | null;
   cid: string | null;

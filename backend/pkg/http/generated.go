@@ -219,11 +219,23 @@ type CreateCertifierVehicleRequest struct {
 	ChassisNumber *string `json:"chassisNumber,omitempty"`
 	Color         *string `json:"color,omitempty"`
 	DriveType     *string `json:"driveType,omitempty"`
-	EngineNumber  *string `json:"engineNumber,omitempty"`
-	GearType      *string `json:"gearType,omitempty"`
-	LicensePlate  *string `json:"licensePlate,omitempty"`
-	Make          string  `json:"make"`
-	Model         string  `json:"model"`
+
+	// EngineCc Engine displacement in cubic centimeters
+	EngineCc *int `json:"engineCc,omitempty"`
+
+	// EngineCylinders Number of cylinders
+	EngineCylinders *int    `json:"engineCylinders,omitempty"`
+	EngineNumber    *string `json:"engineNumber,omitempty"`
+
+	// EnginePowerHp Engine power in horsepower
+	EnginePowerHp *int `json:"enginePowerHp,omitempty"`
+
+	// Fuel Fuel type (petrol, diesel, lpg, hybrid, electric, hydrogen)
+	Fuel         *string `json:"fuel,omitempty"`
+	GearType     *string `json:"gearType,omitempty"`
+	LicensePlate *string `json:"licensePlate,omitempty"`
+	Make         string  `json:"make"`
+	Model        string  `json:"model"`
 
 	// OwnerEmail Optional email to assign ownership. If user exists, assigns directly. If not, sends invitation.
 	OwnerEmail         *openapi_types.Email `json:"ownerEmail,omitempty"`
@@ -340,11 +352,23 @@ type CreateShareLinkResponse struct {
 
 // CreateVehicleRequest defines model for CreateVehicleRequest.
 type CreateVehicleRequest struct {
-	BodyType           *string `json:"bodyType,omitempty"`
-	ChassisNumber      *string `json:"chassisNumber,omitempty"`
-	Color              *string `json:"color,omitempty"`
-	DriveType          *string `json:"driveType,omitempty"`
-	EngineNumber       *string `json:"engineNumber,omitempty"`
+	BodyType      *string `json:"bodyType,omitempty"`
+	ChassisNumber *string `json:"chassisNumber,omitempty"`
+	Color         *string `json:"color,omitempty"`
+	DriveType     *string `json:"driveType,omitempty"`
+
+	// EngineCc Engine displacement in cubic centimeters
+	EngineCc *int `json:"engineCc,omitempty"`
+
+	// EngineCylinders Number of cylinders
+	EngineCylinders *int    `json:"engineCylinders,omitempty"`
+	EngineNumber    *string `json:"engineNumber,omitempty"`
+
+	// EnginePowerHp Engine power in horsepower
+	EnginePowerHp *int `json:"enginePowerHp,omitempty"`
+
+	// Fuel Fuel type (petrol, diesel, lpg, hybrid, electric, hydrogen)
+	Fuel               *string `json:"fuel,omitempty"`
 	GearType           *string `json:"gearType,omitempty"`
 	LicensePlate       *string `json:"licensePlate,omitempty"`
 	Make               string  `json:"make"`
@@ -711,9 +735,21 @@ type UpdateCertifierVehicleRequest struct {
 	ChassisNumber *string `json:"chassisNumber,omitempty"`
 	Color         *string `json:"color,omitempty"`
 	DriveType     *string `json:"driveType,omitempty"`
-	EngineNumber  *string `json:"engineNumber,omitempty"`
-	GearType      *string `json:"gearType,omitempty"`
-	LicensePlate  *string `json:"licensePlate,omitempty"`
+
+	// EngineCc Engine displacement in cubic centimeters
+	EngineCc *int `json:"engineCc,omitempty"`
+
+	// EngineCylinders Number of cylinders
+	EngineCylinders *int    `json:"engineCylinders,omitempty"`
+	EngineNumber    *string `json:"engineNumber,omitempty"`
+
+	// EnginePowerHp Engine power in horsepower
+	EnginePowerHp *int `json:"enginePowerHp,omitempty"`
+
+	// Fuel Fuel type (petrol, diesel, lpg, hybrid, electric, hydrogen)
+	Fuel         *string `json:"fuel,omitempty"`
+	GearType     *string `json:"gearType,omitempty"`
+	LicensePlate *string `json:"licensePlate,omitempty"`
 
 	// OwnerEmail Optional email to assign ownership. Only allowed for orphaned vehicles. If user exists, assigns directly. If not, sends invitation.
 	OwnerEmail         *openapi_types.Email `json:"ownerEmail,omitempty"`
@@ -741,11 +777,23 @@ type UpdateEntityRequest struct {
 
 // UpdateVehicleRequest defines model for UpdateVehicleRequest.
 type UpdateVehicleRequest struct {
-	BodyType           *string             `json:"bodyType,omitempty"`
-	ChassisNumber      *string             `json:"chassisNumber,omitempty"`
-	Color              *string             `json:"color,omitempty"`
-	DriveType          *string             `json:"driveType,omitempty"`
-	EngineNumber       *string             `json:"engineNumber,omitempty"`
+	BodyType      *string `json:"bodyType,omitempty"`
+	ChassisNumber *string `json:"chassisNumber,omitempty"`
+	Color         *string `json:"color,omitempty"`
+	DriveType     *string `json:"driveType,omitempty"`
+
+	// EngineCc Engine displacement in cubic centimeters
+	EngineCc *int `json:"engineCc,omitempty"`
+
+	// EngineCylinders Number of cylinders
+	EngineCylinders *int    `json:"engineCylinders,omitempty"`
+	EngineNumber    *string `json:"engineNumber,omitempty"`
+
+	// EnginePowerHp Engine power in horsepower
+	EnginePowerHp *int `json:"enginePowerHp,omitempty"`
+
+	// Fuel Fuel type (petrol, diesel, lpg, hybrid, electric, hydrogen)
+	Fuel               *string             `json:"fuel,omitempty"`
 	GearType           *string             `json:"gearType,omitempty"`
 	LicensePlate       *string             `json:"licensePlate,omitempty"`
 	OwnerId            *openapi_types.UUID `json:"ownerId,omitempty"`
@@ -820,8 +868,20 @@ type Vehicle struct {
 	// DriveType Drive type (FWD, RWD, AWD, 4WD)
 	DriveType *string `json:"driveType,omitempty"`
 
+	// EngineCc Engine displacement in cubic centimeters
+	EngineCc *int `json:"engineCc,omitempty"`
+
+	// EngineCylinders Number of cylinders
+	EngineCylinders *int `json:"engineCylinders,omitempty"`
+
 	// EngineNumber Engine identification number
 	EngineNumber *string `json:"engineNumber,omitempty"`
+
+	// EnginePowerHp Engine power in horsepower
+	EnginePowerHp *int `json:"enginePowerHp,omitempty"`
+
+	// Fuel Fuel type (petrol, diesel, lpg, hybrid, electric, hydrogen)
+	Fuel *string `json:"fuel,omitempty"`
 
 	// GearType Transmission type (Manual, Automatic, CVT, DCT)
 	GearType *string            `json:"gearType,omitempty"`

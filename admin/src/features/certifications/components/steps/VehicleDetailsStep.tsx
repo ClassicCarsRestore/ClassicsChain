@@ -37,6 +37,8 @@ const SUSPENSION_TYPES = [
   'air_suspension',
 ];
 
+const FUEL_TYPES = ['petrol', 'diesel', 'lpg', 'hybrid', 'electric', 'hydrogen'];
+
 export function VehicleDetailsStep({ data, onChange }: VehicleDetailsStepProps) {
   const { t } = useTranslation('vehicles');
 
@@ -141,6 +143,77 @@ export function VehicleDetailsStep({ data, onChange }: VehicleDetailsStepProps) 
               </option>
             ))}
           </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            {t('form.fields.fuel')}
+          </label>
+          <select
+            value={data.fuel}
+            onChange={(e) => onChange({ fuel: e.target.value })}
+            className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            <option value="">{t('form.placeholders.selectFuel')}</option>
+            {FUEL_TYPES.map((type) => (
+              <option key={type} value={type}>
+                {t(`form.options.fuelTypes.${type}`)}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            {t('form.fields.engineCc')}
+          </label>
+          <div className="flex">
+            <input
+              type="number"
+              value={data.engineCc ?? ''}
+              onChange={(e) => onChange({ engineCc: e.target.value ? parseInt(e.target.value, 10) : null })}
+              placeholder="e.g., 2000"
+              min="0"
+              className="flex-1 px-3 py-2 border border-border rounded-l-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+            <span className="inline-flex items-center rounded-r-md border border-l-0 border-border bg-muted px-3 text-sm text-muted-foreground">
+              cc
+            </span>
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            {t('form.fields.engineCylinders')}
+          </label>
+          <input
+            type="number"
+            value={data.engineCylinders ?? ''}
+            onChange={(e) => onChange({ engineCylinders: e.target.value ? parseInt(e.target.value, 10) : null })}
+            placeholder="e.g., 4"
+            min="1"
+            max="16"
+            className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            {t('form.fields.enginePowerHp')}
+          </label>
+          <div className="flex">
+            <input
+              type="number"
+              value={data.enginePowerHp ?? ''}
+              onChange={(e) => onChange({ enginePowerHp: e.target.value ? parseInt(e.target.value, 10) : null })}
+              placeholder="e.g., 150"
+              min="0"
+              className="flex-1 px-3 py-2 border border-border rounded-l-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+            <span className="inline-flex items-center rounded-r-md border border-l-0 border-border bg-muted px-3 text-sm text-muted-foreground">
+              HP
+            </span>
+          </div>
         </div>
       </div>
 

@@ -41,6 +41,14 @@
       "selectGearType": "Select gear type",
       "suspensionType": "Suspension Type",
       "selectSuspensionType": "Select suspension type",
+      "fuel": "Fuel Type",
+      "selectFuel": "Select fuel type",
+      "engineCc": "Engine Displacement",
+      "engineCcPlaceholder": "e.g., 2000",
+      "engineCylinders": "Cylinders",
+      "engineCylindersPlaceholder": "e.g., 4",
+      "enginePowerHp": "Engine Power",
+      "enginePowerHpPlaceholder": "e.g., 150",
       "engineNumberOrLicensePlateHint": "At least one of these fields is required for vehicle identification"
     },
     "bodyTypes": {
@@ -81,6 +89,14 @@
       "double_wishbone": "Double Wishbone",
       "multi_link": "Multi-Link",
       "air_suspension": "Air Suspension"
+    },
+    "fuelTypes": {
+      "petrol": "Petrol",
+      "diesel": "Diesel",
+      "lpg": "LPG",
+      "hybrid": "Hybrid",
+      "electric": "Electric",
+      "hydrogen": "Hydrogen"
     },
     "buttons": {
       "submit": "Register Vehicle",

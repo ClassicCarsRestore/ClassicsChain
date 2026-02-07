@@ -554,6 +554,38 @@ export function VehicleDetailModal({
                       {formatFieldValue(vehicle.suspensionType, 'suspensionTypes')}
                     </p>
                   </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">
+                      {t('form.fields.fuel')}
+                    </p>
+                    <p className="text-sm font-medium">
+                      {formatFieldValue(vehicle.fuel, 'fuelTypes')}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">
+                      {t('form.fields.engineCc')}
+                    </p>
+                    <p className="text-sm font-medium">
+                      {vehicle.engineCc ? `${vehicle.engineCc} cc` : '-'}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">
+                      {t('form.fields.engineCylinders')}
+                    </p>
+                    <p className="text-sm font-medium">
+                      {vehicle.engineCylinders ?? '-'}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">
+                      {t('form.fields.enginePowerHp')}
+                    </p>
+                    <p className="text-sm font-medium">
+                      {vehicle.enginePowerHp ? `${vehicle.enginePowerHp} HP` : '-'}
+                    </p>
+                  </div>
                 </div>
               </div>
 

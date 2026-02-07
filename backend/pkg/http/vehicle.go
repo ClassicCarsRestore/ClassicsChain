@@ -137,6 +137,10 @@ func (a apiServer) CreateVehicle(ctx context.Context, request CreateVehicleReque
 		DriveType:          request.Body.DriveType,
 		GearType:           request.Body.GearType,
 		SuspensionType:     request.Body.SuspensionType,
+		Fuel:               request.Body.Fuel,
+		EngineCc:           request.Body.EngineCc,
+		EngineCylinders:    request.Body.EngineCylinders,
+		EnginePowerHp:      request.Body.EnginePowerHp,
 		OwnerID:            &ownerID,
 	}
 
@@ -231,6 +235,10 @@ func (a apiServer) UpdateVehicle(ctx context.Context, request UpdateVehicleReque
 		DriveType:          request.Body.DriveType,
 		GearType:           request.Body.GearType,
 		SuspensionType:     request.Body.SuspensionType,
+		Fuel:               request.Body.Fuel,
+		EngineCc:           request.Body.EngineCc,
+		EngineCylinders:    request.Body.EngineCylinders,
+		EnginePowerHp:      request.Body.EnginePowerHp,
 		OwnerID:            request.Body.OwnerId,
 	}
 
@@ -291,6 +299,10 @@ func (a apiServer) CreateCertifierVehicle(ctx context.Context, request CreateCer
 		DriveType:          request.Body.DriveType,
 		GearType:           request.Body.GearType,
 		SuspensionType:     request.Body.SuspensionType,
+		Fuel:               request.Body.Fuel,
+		EngineCc:           request.Body.EngineCc,
+		EngineCylinders:    request.Body.EngineCylinders,
+		EnginePowerHp:      request.Body.EnginePowerHp,
 		OwnerID:            ownerID,
 	}
 
@@ -405,6 +417,10 @@ func (a apiServer) UpdateCertifierVehicle(ctx context.Context, request UpdateCer
 		DriveType:          request.Body.DriveType,
 		GearType:           request.Body.GearType,
 		SuspensionType:     request.Body.SuspensionType,
+		Fuel:               request.Body.Fuel,
+		EngineCc:           request.Body.EngineCc,
+		EngineCylinders:    request.Body.EngineCylinders,
+		EnginePowerHp:      request.Body.EnginePowerHp,
 		OwnerID:            ownerID,
 	}
 
@@ -564,6 +580,10 @@ func domainToHTTPVehicle(domainVehicle vehicles.Vehicle) Vehicle {
 		SuspensionType:     domainVehicle.SuspensionType,
 		TransmissionNumber: domainVehicle.TransmissionNumber,
 		Year:               domainVehicle.Year,
+		Fuel:               domainVehicle.Fuel,
+		EngineCc:           domainVehicle.EngineCc,
+		EngineCylinders:    domainVehicle.EngineCylinders,
+		EnginePowerHp:      domainVehicle.EnginePowerHp,
 	}
 }
 
@@ -593,6 +613,10 @@ func domainToHTTPVehicleWithStats(domainVehicle vehicles.VehicleWithStats) Vehic
 		SuspensionType:            domainVehicle.SuspensionType,
 		TransmissionNumber:        domainVehicle.TransmissionNumber,
 		Year:                      domainVehicle.Year,
+		Fuel:                      domainVehicle.Fuel,
+		EngineCc:                  domainVehicle.EngineCc,
+		EngineCylinders:           domainVehicle.EngineCylinders,
+		EnginePowerHp:             domainVehicle.EnginePowerHp,
 		CertifiedEventsCount:      &certifiedEventsCount,
 		OwnerEventsCount:          &ownerEventsCount,
 		ActiveCertificationsCount: &activeCertificationsCount,

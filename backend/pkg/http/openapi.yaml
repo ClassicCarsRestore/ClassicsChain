@@ -1988,6 +1988,18 @@ components:
         suspensionType:
           type: string
           description: Suspension type
+        fuel:
+          type: string
+          description: Fuel type (petrol, diesel, lpg, hybrid, electric, hydrogen)
+        engineCc:
+          type: integer
+          description: Engine displacement in cubic centimeters
+        engineCylinders:
+          type: integer
+          description: Number of cylinders
+        enginePowerHp:
+          type: integer
+          description: Engine power in horsepower
         ownerId:
           type: string
           format: uuid
@@ -2052,6 +2064,18 @@ components:
           type: string
         suspensionType:
           type: string
+        fuel:
+          type: string
+          description: Fuel type (petrol, diesel, lpg, hybrid, electric, hydrogen)
+        engineCc:
+          type: integer
+          description: Engine displacement in cubic centimeters
+        engineCylinders:
+          type: integer
+          description: Number of cylinders
+        enginePowerHp:
+          type: integer
+          description: Engine power in horsepower
       required:
         - make
         - model
@@ -2087,6 +2111,18 @@ components:
           type: string
         suspensionType:
           type: string
+        fuel:
+          type: string
+          description: Fuel type (petrol, diesel, lpg, hybrid, electric, hydrogen)
+        engineCc:
+          type: integer
+          description: Engine displacement in cubic centimeters
+        engineCylinders:
+          type: integer
+          description: Number of cylinders
+        enginePowerHp:
+          type: integer
+          description: Engine power in horsepower
         ownerEmail:
           type: string
           format: email
@@ -2117,6 +2153,18 @@ components:
           type: string
         suspensionType:
           type: string
+        fuel:
+          type: string
+          description: Fuel type (petrol, diesel, lpg, hybrid, electric, hydrogen)
+        engineCc:
+          type: integer
+          description: Engine displacement in cubic centimeters
+        engineCylinders:
+          type: integer
+          description: Number of cylinders
+        enginePowerHp:
+          type: integer
+          description: Engine power in horsepower
         ownerId:
           type: string
           format: uuid
@@ -2143,6 +2191,18 @@ components:
           type: string
         suspensionType:
           type: string
+        fuel:
+          type: string
+          description: Fuel type (petrol, diesel, lpg, hybrid, electric, hydrogen)
+        engineCc:
+          type: integer
+          description: Engine displacement in cubic centimeters
+        engineCylinders:
+          type: integer
+          description: Number of cylinders
+        enginePowerHp:
+          type: integer
+          description: Engine power in horsepower
         ownerEmail:
           type: string
           format: email

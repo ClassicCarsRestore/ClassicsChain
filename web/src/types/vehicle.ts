@@ -12,6 +12,10 @@ export interface Vehicle {
   driveType?: string;
   gearType?: string;
   suspensionType?: string;
+  fuel?: string;
+  engineCc?: number;
+  engineCylinders?: number;
+  enginePowerHp?: number;
   ownerId: string;
   blockchainAssetId?: string;
   cid?: string;
@@ -34,6 +38,10 @@ export interface CreateVehicleRequest {
   driveType?: string;
   gearType?: string;
   suspensionType?: string;
+  fuel?: string;
+  engineCc?: number;
+  engineCylinders?: number;
+  enginePowerHp?: number;
 }
 
 export interface VehicleListResponse {

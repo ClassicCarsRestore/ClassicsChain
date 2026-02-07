@@ -37,6 +37,10 @@ export function BulkVehicleForm({ entities, onSuccess }: BulkVehicleFormProps) {
     driveType: '',
     gearType: '',
     suspensionType: '',
+    fuel: '',
+    engineCc: null,
+    engineCylinders: null,
+    enginePowerHp: null,
     ownerEmail: '',
   });
   const [selectedEntity] = useState<string>(
@@ -79,6 +83,10 @@ export function BulkVehicleForm({ entities, onSuccess }: BulkVehicleFormProps) {
             driveType: '',
             gearType: '',
             suspensionType: '',
+            fuel: '',
+            engineCc: null,
+            engineCylinders: null,
+            enginePowerHp: null,
             ownerEmail: '',
           });
         },

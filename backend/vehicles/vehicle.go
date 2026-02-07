@@ -30,6 +30,10 @@ type Vehicle struct {
 	DriveType          *string    `json:"driveType,omitempty"`
 	GearType           *string    `json:"gearType,omitempty"`
 	SuspensionType     *string    `json:"suspensionType,omitempty"`
+	Fuel               *string    `json:"fuel,omitempty"`
+	EngineCc           *int       `json:"engineCc,omitempty"`
+	EngineCylinders    *int       `json:"engineCylinders,omitempty"`
+	EnginePowerHp      *int       `json:"enginePowerHp,omitempty"`
 	BlockchainAssetID  *string    `json:"blockchainAssetId,omitempty"`
 	CID                *string    `json:"cid,omitempty"`
 	CIDSourceJSON      *string    `json:"cidSourceJson,omitempty"`
@@ -61,6 +65,10 @@ type CreateVehicleParams struct {
 	DriveType          *string
 	GearType           *string
 	SuspensionType     *string
+	Fuel               *string
+	EngineCc           *int
+	EngineCylinders    *int
+	EnginePowerHp      *int
 	OwnerID            *uuid.UUID
 	Documentation      *string
 	BlockchainAssetID  *string
@@ -80,6 +88,10 @@ type UpdateVehicleParams struct {
 	DriveType          *string
 	GearType           *string
 	SuspensionType     *string
+	Fuel               *string
+	EngineCc           *int
+	EngineCylinders    *int
+	EnginePowerHp      *int
 	OwnerID            *uuid.UUID
 	Documentation      *string
 	BlockchainAssetID  *string

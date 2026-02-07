@@ -99,6 +99,10 @@ type Vehicle struct {
 	BlockchainAssetID  string
 	CreatedAt          time.Time
 	UpdatedAt          time.Time
+	Fuel               string
+	EngineCc           *int32
+	EngineCylinders    *int32
+	EnginePowerHp      *int32
 }
 
 type VehicleDocument struct {

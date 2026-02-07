@@ -25,13 +25,18 @@
       "bodyType": "Body Type",
       "driveType": "Drive Type",
       "gearType": "Gear Type",
-      "suspensionType": "Suspension Type"
+      "suspensionType": "Suspension Type",
+      "fuel": "Fuel Type",
+      "engineCc": "Engine Displacement",
+      "engineCylinders": "Cylinders",
+      "enginePowerHp": "Engine Power"
     },
     "placeholders": {
       "selectBodyType": "Select body type...",
       "selectDriveType": "Select drive type...",
       "selectGearType": "Select gear type...",
-      "selectSuspensionType": "Select suspension type..."
+      "selectSuspensionType": "Select suspension type...",
+      "selectFuel": "Select fuel type..."
     },
     "options": {
       "bodyTypes": {
@@ -72,6 +77,14 @@
         "double_wishbone": "Double Wishbone",
         "multi_link": "Multi-Link",
         "air_suspension": "Air Suspension"
+      },
+      "fuelTypes": {
+        "petrol": "Petrol",
+        "diesel": "Diesel",
+        "lpg": "LPG",
+        "hybrid": "Hybrid",
+        "electric": "Electric",
+        "hydrogen": "Hydrogen"
       }
     },
     "hints": {

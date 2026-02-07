@@ -125,16 +125,7 @@ type Loader struct {
 
 func (l *Loader) loadVehicle(idx int, v VehicleJSON) error {
 	make_ := titleCase(v.Info.Make)
-	if override, ok := makeOverrides[v.Plate]; ok {
-		make_ = override
-	}
 	model := v.Info.Model
-	if override, ok := modelOverrides[v.Plate]; ok {
-		model = override
-	}
-	if model == "" {
-		model = make_
-	}
 	year := extractYear(v.Info.PlateDate)
 
 	vehicleReq := CreateCertifierVehicleReq{

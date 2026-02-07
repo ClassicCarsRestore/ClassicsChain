@@ -42,6 +42,10 @@ export function VehicleSummaryStep({
         { label: t('form.fields.driveType'), value: data.driveType ? t(`form.options.driveTypes.${data.driveType}`, { defaultValue: data.driveType }) : '' },
         { label: t('form.fields.gearType'), value: data.gearType ? t(`form.options.gearTypes.${data.gearType}`, { defaultValue: data.gearType }) : '' },
         { label: t('form.fields.suspensionType'), value: data.suspensionType ? t(`form.options.suspensionTypes.${data.suspensionType}`, { defaultValue: data.suspensionType }) : '' },
+        { label: t('form.fields.fuel'), value: data.fuel ? t(`form.options.fuelTypes.${data.fuel}`, { defaultValue: data.fuel }) : '' },
+        { label: t('form.fields.engineCc'), value: data.engineCc ? `${data.engineCc} cc` : '' },
+        { label: t('form.fields.engineCylinders'), value: data.engineCylinders?.toString() || '' },
+        { label: t('form.fields.enginePowerHp'), value: data.enginePowerHp ? `${data.enginePowerHp} HP` : '' },
       ],
     },
   ];

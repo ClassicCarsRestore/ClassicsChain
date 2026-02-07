@@ -41,6 +41,14 @@
       "selectGearType": "Selecione o tipo de câmbio",
       "suspensionType": "Tipo de Suspensão",
       "selectSuspensionType": "Selecione o tipo de suspensão",
+      "fuel": "Tipo de Combustível",
+      "selectFuel": "Selecione o tipo de combustível",
+      "engineCc": "Cilindrada",
+      "engineCcPlaceholder": "ex: 2000",
+      "engineCylinders": "Cilindros",
+      "engineCylindersPlaceholder": "ex: 4",
+      "enginePowerHp": "Potência do Motor",
+      "enginePowerHpPlaceholder": "ex: 150",
       "engineNumberOrLicensePlateHint": "Pelo menos um destes campos é obrigatório para identificação do veículo"
     },
     "bodyTypes": {
@@ -81,6 +89,14 @@
       "double_wishbone": "Duplo Triângulo",
       "multi_link": "Multi-Braço",
       "air_suspension": "Suspensão Pneumática"
+    },
+    "fuelTypes": {
+      "petrol": "Gasolina",
+      "diesel": "Gasóleo",
+      "lpg": "GPL",
+      "hybrid": "Híbrido",
+      "electric": "Elétrico",
+      "hydrogen": "Hidrogénio"
     },
     "buttons": {
       "submit": "Registar Veículo",

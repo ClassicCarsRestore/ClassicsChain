@@ -34,6 +34,10 @@ INSERT INTO vehicles (
     drive_type,
     gear_type,
     suspension_type,
+    fuel,
+    engine_cc,
+    engine_cylinders,
+    engine_power_hp,
     owner_id
 ) VALUES (
 $1,
@@ -48,7 +52,11 @@ $9,
 $10,
 $11,
 $12,
-$13
+$13,
+$14,
+$15,
+$16,
+$17
 )
 RETURNING *;
 
@@ -57,7 +65,8 @@ UPDATE vehicles
 SET license_plate = $2, chassis_number = $3, make = $4, model = $5,
     year = $6, color = $7, engine_number = $8, transmission_number = $9,
     body_type = $10, drive_type = $11, gear_type = $12, suspension_type = $13,
-    owner_id = $14, blockchain_asset_id = $15, cid = $16, cid_source_json = $17, cid_source_cbor_b64 = $18,
+    fuel = $14, engine_cc = $15, engine_cylinders = $16, engine_power_hp = $17,
+    owner_id = $18, blockchain_asset_id = $19, cid = $20, cid_source_json = $21, cid_source_cbor_b64 = $22,
     updated_at = NOW()
 WHERE id = $1
 RETURNING *;

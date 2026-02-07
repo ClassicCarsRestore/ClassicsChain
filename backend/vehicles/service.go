@@ -71,6 +71,10 @@ func (s *Service) Create(ctx context.Context, params CreateVehicleParams) (*Vehi
 		DriveType:          params.DriveType,
 		GearType:           params.GearType,
 		SuspensionType:     params.SuspensionType,
+		Fuel:               params.Fuel,
+		EngineCc:           params.EngineCc,
+		EngineCylinders:    params.EngineCylinders,
+		EnginePowerHp:      params.EnginePowerHp,
 		OwnerID:            params.OwnerID,
 		BlockchainAssetID:  params.BlockchainAssetID,
 	}
@@ -131,6 +135,18 @@ func (s *Service) Update(ctx context.Context, id uuid.UUID, params UpdateVehicle
 	}
 	if params.SuspensionType != nil {
 		vehicle.SuspensionType = params.SuspensionType
+	}
+	if params.Fuel != nil {
+		vehicle.Fuel = params.Fuel
+	}
+	if params.EngineCc != nil {
+		vehicle.EngineCc = params.EngineCc
+	}
+	if params.EngineCylinders != nil {
+		vehicle.EngineCylinders = params.EngineCylinders
+	}
+	if params.EnginePowerHp != nil {
+		vehicle.EnginePowerHp = params.EnginePowerHp
 	}
 	if params.OwnerID != nil {
 		vehicle.OwnerID = params.OwnerID

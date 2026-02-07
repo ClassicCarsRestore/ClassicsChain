@@ -24,13 +24,18 @@
       "bodyType": "Tipo de Carroceria",
       "driveType": "Tipo de Tração",
       "gearType": "Tipo de Transmissão",
-      "suspensionType": "Tipo de Suspensão"
+      "suspensionType": "Tipo de Suspensão",
+      "fuel": "Tipo de Combustível",
+      "engineCc": "Cilindrada",
+      "engineCylinders": "Cilindros",
+      "enginePowerHp": "Potência do Motor"
     },
     "placeholders": {
       "selectBodyType": "Selecionar tipo de carroceria...",
       "selectDriveType": "Selecionar tipo de tração...",
       "selectGearType": "Selecionar tipo de transmissão...",
-      "selectSuspensionType": "Selecionar tipo de suspensão..."
+      "selectSuspensionType": "Selecionar tipo de suspensão...",
+      "selectFuel": "Selecionar tipo de combustível..."
     },
     "options": {
       "bodyTypes": {
@@ -71,6 +76,14 @@
         "double_wishbone": "Duplo Comando",
         "multi_link": "Multi-link",
         "air_suspension": "Suspensão Pneumática"
+      },
+      "fuelTypes": {
+        "petrol": "Gasolina",
+        "diesel": "Gasóleo",
+        "lpg": "GPL",
+        "hybrid": "Híbrido",
+        "electric": "Elétrico",
+        "hydrogen": "Hidrogénio"
       }
     },
     "hints": {

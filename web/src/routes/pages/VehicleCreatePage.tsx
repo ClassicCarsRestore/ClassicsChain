@@ -68,6 +68,8 @@ export function VehicleCreatePage() {
     'air_suspension',
   ] as const;
 
+  const fuelTypes = ['petrol', 'diesel', 'lpg', 'hybrid', 'electric', 'hydrogen'] as const;
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
@@ -95,6 +97,10 @@ export function VehicleCreatePage() {
         driveType: (formData.get('driveType') as string) || undefined,
         gearType: (formData.get('gearType') as string) || undefined,
         suspensionType: (formData.get('suspensionType') as string) || undefined,
+        fuel: (formData.get('fuel') as string) || undefined,
+        engineCc: formData.get('engineCc') ? parseInt(formData.get('engineCc') as string, 10) : undefined,
+        engineCylinders: formData.get('engineCylinders') ? parseInt(formData.get('engineCylinders') as string, 10) : undefined,
+        enginePowerHp: formData.get('enginePowerHp') ? parseInt(formData.get('enginePowerHp') as string, 10) : undefined,
       };
 
       const response = await api.post('/v1/vehicles', vehicleData);
@@ -351,6 +357,81 @@ export function VehicleCreatePage() {
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* Fuel Type */}
+          <div>
+            <label htmlFor="fuel" className="block text-sm font-medium text-foreground">
+              {t('dashboard:vehicleForm.fields.fuel')}
+            </label>
+            <select
+              id="fuel"
+              name="fuel"
+              className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            >
+              <option value="">{t('dashboard:vehicleForm.fields.selectFuel')}</option>
+              {fuelTypes.map((type) => (
+                <option key={type} value={type}>
+                  {t(`dashboard:vehicleForm.fuelTypes.${type}`)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Engine Displacement */}
+          <div>
+            <label htmlFor="engineCc" className="block text-sm font-medium text-foreground">
+              {t('dashboard:vehicleForm.fields.engineCc')}
+            </label>
+            <div className="mt-1 flex">
+              <input
+                type="number"
+                id="engineCc"
+                name="engineCc"
+                placeholder={t('dashboard:vehicleForm.fields.engineCcPlaceholder')}
+                min="0"
+                className="w-full rounded-l-md border border-border bg-background px-3 py-2 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+              <span className="inline-flex items-center rounded-r-md border border-l-0 border-border bg-muted px-3 text-sm text-muted-foreground">
+                cc
+              </span>
+            </div>
+          </div>
+
+          {/* Engine Cylinders */}
+          <div>
+            <label htmlFor="engineCylinders" className="block text-sm font-medium text-foreground">
+              {t('dashboard:vehicleForm.fields.engineCylinders')}
+            </label>
+            <input
+              type="number"
+              id="engineCylinders"
+              name="engineCylinders"
+              placeholder={t('dashboard:vehicleForm.fields.engineCylindersPlaceholder')}
+              min="1"
+              max="16"
+              className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            />
+          </div>
+
+          {/* Engine Power */}
+          <div>
+            <label htmlFor="enginePowerHp" className="block text-sm font-medium text-foreground">
+              {t('dashboard:vehicleForm.fields.enginePowerHp')}
+            </label>
+            <div className="mt-1 flex">
+              <input
+                type="number"
+                id="enginePowerHp"
+                name="enginePowerHp"
+                placeholder={t('dashboard:vehicleForm.fields.enginePowerHpPlaceholder')}
+                min="0"
+                className="w-full rounded-l-md border border-border bg-background px-3 py-2 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+              <span className="inline-flex items-center rounded-r-md border border-l-0 border-border bg-muted px-3 text-sm text-muted-foreground">
+                HP
+              </span>
+            </div>
           </div>
         </div>
 
