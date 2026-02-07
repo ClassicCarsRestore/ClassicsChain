@@ -5,6 +5,7 @@ import { CertificationForm } from './CertificationForm';
 import { EventCertificateForm } from './EventCertificateForm';
 import { OwnerManagementSection } from './OwnerManagementSection';
 import { PhotoLightbox } from '@/components/common/PhotoLightbox';
+import { LazyImage } from '@/components/common/LazyImage';
 import { useVehicleEvents } from '../hooks/useVehicles';
 import { generateStorageUrl } from '@/lib/storage';
 import { getAlgorandAssetUrl, getAlgorandTxUrl } from '@/lib/utils';
@@ -273,7 +274,7 @@ function EventCard({ event, isLast }: EventCardProps) {
                   }}
                   className="relative aspect-square overflow-hidden rounded-md border border-border bg-muted cursor-pointer group"
                 >
-                  <img
+                  <LazyImage
                     src={generateStorageUrl(image.objectKey)}
                     alt=""
                     className="h-full w-full object-cover transition-transform group-hover:scale-105"

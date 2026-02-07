@@ -81,6 +81,7 @@ export function PhotoLightbox({
           <img
             src={generateStorageUrl(photo.objectKey)}
             alt={`Photo ${selectedIndex + 1}`}
+            loading="lazy"
             className="h-full w-full object-contain"
           />
         </div>
