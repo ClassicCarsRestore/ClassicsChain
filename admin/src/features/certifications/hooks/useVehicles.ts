@@ -14,15 +14,29 @@ const eventKeys = {
   byVehicle: (vehicleId: string) => [...eventKeys.all, 'byVehicle', vehicleId] as const,
 };
 
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface PaginatedVehicles {
+  data: Vehicle[];
+  meta: PaginationMeta;
+}
+
 /**
- * Fetch all vehicles
+ * Fetch vehicles with pagination
  */
-export function useVehicles(refreshTrigger?: number) {
+export function useVehicles(page: number = 1, limit: number = 20, refreshTrigger?: number) {
   return useQuery({
-    queryKey: [vehicleKeys.all, refreshTrigger],
+    queryKey: [vehicleKeys.all, page, limit, refreshTrigger],
     queryFn: async () => {
-      const response = await api.get<{ data: Vehicle[] }>('/v1/vehicles');
-      return response.data || [];
+      const response = await api.get<PaginatedVehicles>('/v1/vehicles', {
+        params: { page, limit },
+      });
+      return response;
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });

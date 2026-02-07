@@ -101,6 +101,10 @@
       "owned": "Owned Only"
     },
     "resultsCount": "Showing {{count}} vehicle(s)",
+    "paginatedResults": "Showing {{from}}-{{to}} of {{total}} vehicles",
+    "pagination": {
+      "page": "Page {{current}} of {{total}}"
+    },
     "loading": "Loading vehicles...",
     "noVehicles": "No vehicles found",
     "addFirstVehicle": "Add your first vehicle",

@@ -99,6 +99,10 @@
       "owned": "Apenas Possuídos"
     },
     "resultsCount": "Exibindo {{count}} veículo(s)",
+    "paginatedResults": "Exibindo {{from}}-{{to}} de {{total}} veículos",
+    "pagination": {
+      "page": "Página {{current}} de {{total}}"
+    },
     "loading": "Carregando veículos...",
     "noVehicles": "Nenhum veículo encontrado",
     "addFirstVehicle": "Adicione o seu primeiro veículo",

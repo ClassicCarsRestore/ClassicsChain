@@ -1,10 +1,15 @@
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, Filter, ChevronDown, Eye, Award, Car, Link2, FileCheck, Users } from 'lucide-react';
+import { Search, Filter, ChevronDown, Eye, Award, Car, Link2, FileCheck, Users, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
 import { useVehicles } from '../hooks/useVehicles';
 import { VehicleDetailModal } from './VehicleDetailModal';
 import { getAlgorandAssetUrl } from '@/lib/utils';
 import type { Vehicle } from '../types';
+
+const PAGE_SIZE = 10;
+
+type SortColumn = 'vehicle' | 'chassisNumber' | 'licensePlate' | 'events' | 'certifications' | 'status';
+type SortDirection = 'asc' | 'desc';
 
 interface Entity {
   id: string;
@@ -30,7 +35,19 @@ export function VehiclesList({ entities, refreshTrigger, onNavigateToCreate }: V
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [initialTab, setInitialTab] = useState<DetailTab>('details');
   const [filterOpen, setFilterOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortColumn, setSortColumn] = useState<SortColumn | null>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const filterRef = useRef<HTMLDivElement>(null);
+
+  const handleSort = useCallback((column: SortColumn) => {
+    if (sortColumn === column) {
+      setSortDirection((d) => (d === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  }, [sortColumn]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -42,10 +59,11 @@ export function VehiclesList({ entities, refreshTrigger, onNavigateToCreate }: V
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const { data: vehicles = [], isLoading } = useVehicles(refreshTrigger);
+  const { data, isLoading } = useVehicles(currentPage, PAGE_SIZE, refreshTrigger);
+  const meta = data?.meta;
 
   const filteredVehicles = useMemo(() => {
-    let result = vehicles;
+    let result = data?.data ?? [];
 
     // Filter by search query
     if (searchQuery) {
@@ -66,8 +84,49 @@ export function VehiclesList({ entities, refreshTrigger, onNavigateToCreate }: V
       result = result.filter((v) => v.ownerId);
     }
 
+    // Sort
+    if (sortColumn) {
+      const multiplier = sortDirection === 'asc' ? 1 : -1;
+      result = [...result].sort((a, b) => {
+        switch (sortColumn) {
+          case 'vehicle': {
+            const aVal = `${a.make ?? ''} ${a.model ?? ''}`.toLowerCase();
+            const bVal = `${b.make ?? ''} ${b.model ?? ''}`.toLowerCase();
+            return aVal.localeCompare(bVal) * multiplier;
+          }
+          case 'chassisNumber': {
+            const aVal = a.chassisNumber ?? '';
+            const bVal = b.chassisNumber ?? '';
+            return aVal.localeCompare(bVal) * multiplier;
+          }
+          case 'licensePlate': {
+            const aVal = a.licensePlate ?? '';
+            const bVal = b.licensePlate ?? '';
+            return aVal.localeCompare(bVal) * multiplier;
+          }
+          case 'events': {
+            const aVal = (a.certifiedEventsCount ?? 0) + (a.ownerEventsCount ?? 0);
+            const bVal = (b.certifiedEventsCount ?? 0) + (b.ownerEventsCount ?? 0);
+            return (aVal - bVal) * multiplier;
+          }
+          case 'certifications': {
+            const aVal = a.activeCertificationsCount ?? 0;
+            const bVal = b.activeCertificationsCount ?? 0;
+            return (aVal - bVal) * multiplier;
+          }
+          case 'status': {
+            const aVal = a.ownerId ? 1 : 0;
+            const bVal = b.ownerId ? 1 : 0;
+            return (aVal - bVal) * multiplier;
+          }
+          default:
+            return 0;
+        }
+      });
+    }
+
     return result;
-  }, [vehicles, searchQuery, filterType]);
+  }, [data?.data, searchQuery, filterType, sortColumn, sortDirection]);
 
   const handleViewDetails = (vehicle: Vehicle, tab: DetailTab = 'details') => {
     setSelectedVehicle(vehicle);
@@ -138,7 +197,11 @@ export function VehiclesList({ entities, refreshTrigger, onNavigateToCreate }: V
 
       {/* Results Summary */}
       <div className="text-sm text-muted-foreground">
-        {t('browse.resultsCount', { count: filteredVehicles.length })}
+        {meta ? t('browse.paginatedResults', {
+          from: (meta.page - 1) * meta.limit + 1,
+          to: Math.min(meta.page * meta.limit, meta.total),
+          total: meta.total
+        }) : t('browse.resultsCount', { count: filteredVehicles.length })}
       </div>
 
       {/* Vehicles Table */}
@@ -147,26 +210,86 @@ export function VehiclesList({ entities, refreshTrigger, onNavigateToCreate }: V
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {t('browse.columns.vehicle')}
+                <th
+                  onClick={() => handleSort('vehicle')}
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                >
+                  <div className="flex items-center gap-1">
+                    {t('browse.columns.vehicle')}
+                    {sortColumn === 'vehicle' ? (
+                      sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                    ) : (
+                      <ArrowUpDown className="w-3 h-3 text-gray-300" />
+                    )}
+                  </div>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {t('browse.columns.chassisNumber')}
+                <th
+                  onClick={() => handleSort('chassisNumber')}
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                >
+                  <div className="flex items-center gap-1">
+                    {t('browse.columns.chassisNumber')}
+                    {sortColumn === 'chassisNumber' ? (
+                      sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                    ) : (
+                      <ArrowUpDown className="w-3 h-3 text-gray-300" />
+                    )}
+                  </div>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {t('browse.columns.licensePlate')}
+                <th
+                  onClick={() => handleSort('licensePlate')}
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                >
+                  <div className="flex items-center gap-1">
+                    {t('browse.columns.licensePlate')}
+                    {sortColumn === 'licensePlate' ? (
+                      sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                    ) : (
+                      <ArrowUpDown className="w-3 h-3 text-gray-300" />
+                    )}
+                  </div>
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   {t('browse.columns.blockchainAssetId')}
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {t('browse.columns.events')}
+                <th
+                  onClick={() => handleSort('events')}
+                  className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                >
+                  <div className="flex items-center justify-center gap-1">
+                    {t('browse.columns.events')}
+                    {sortColumn === 'events' ? (
+                      sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                    ) : (
+                      <ArrowUpDown className="w-3 h-3 text-gray-300" />
+                    )}
+                  </div>
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {t('browse.columns.certifications')}
+                <th
+                  onClick={() => handleSort('certifications')}
+                  className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                >
+                  <div className="flex items-center justify-center gap-1">
+                    {t('browse.columns.certifications')}
+                    {sortColumn === 'certifications' ? (
+                      sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                    ) : (
+                      <ArrowUpDown className="w-3 h-3 text-gray-300" />
+                    )}
+                  </div>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {t('browse.columns.status')}
+                <th
+                  onClick={() => handleSort('status')}
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                >
+                  <div className="flex items-center gap-1">
+                    {t('browse.columns.status')}
+                    {sortColumn === 'status' ? (
+                      sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                    ) : (
+                      <ArrowUpDown className="w-3 h-3 text-gray-300" />
+                    )}
+                  </div>
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   {t('browse.columns.actions')}
@@ -292,6 +415,31 @@ export function VehiclesList({ entities, refreshTrigger, onNavigateToCreate }: V
           </table>
         </div>
       </div>
+
+      {/* Pagination */}
+      {meta && meta.totalPages > 1 && (
+        <div className="flex items-center justify-between px-2">
+          <div className="text-sm text-muted-foreground">
+            {t('browse.pagination.page', { current: meta.page, total: meta.totalPages })}
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border bg-white text-foreground hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(meta.totalPages, p + 1))}
+              disabled={currentPage === meta.totalPages}
+              className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border bg-white text-foreground hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Detail Modal */}
       {selectedVehicle && (
