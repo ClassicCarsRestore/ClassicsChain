@@ -79,3 +79,54 @@ WHERE chassis_number = $1 LIMIT 1;
 -- name: GetVehicleByLicensePlate :one
 SELECT * FROM vehicles
 WHERE license_plate = $1 LIMIT 1;
+
+-- name: ListVehiclesWithStats :many
+SELECT
+    v.*,
+    COALESCE(stats.certified_events_count, 0)::bigint AS certified_events_count,
+    COALESCE(stats.owner_events_count, 0)::bigint AS owner_events_count,
+    COALESCE(stats.active_certifications_count, 0)::bigint AS active_certifications_count
+FROM vehicles v
+LEFT JOIN (
+    SELECT
+        e.vehicle_id,
+        COUNT(*) FILTER (WHERE e.entity_id IS NOT NULL) AS certified_events_count,
+        COUNT(*) FILTER (WHERE e.entity_id IS NULL) AS owner_events_count,
+        COUNT(*) FILTER (
+            WHERE e.event_type = 'certification'
+            AND (
+                e.metadata->>'validityEndDate' IS NULL
+                OR (e.metadata->>'validityEndDate')::date >= CURRENT_DATE
+            )
+        ) AS active_certifications_count
+    FROM events e
+    GROUP BY e.vehicle_id
+) stats ON v.id = stats.vehicle_id
+ORDER BY v.created_at DESC
+LIMIT $1 OFFSET $2;
+
+-- name: ListVehiclesByOwnerWithStats :many
+SELECT
+    v.*,
+    COALESCE(stats.certified_events_count, 0)::bigint AS certified_events_count,
+    COALESCE(stats.owner_events_count, 0)::bigint AS owner_events_count,
+    COALESCE(stats.active_certifications_count, 0)::bigint AS active_certifications_count
+FROM vehicles v
+LEFT JOIN (
+    SELECT
+        e.vehicle_id,
+        COUNT(*) FILTER (WHERE e.entity_id IS NOT NULL) AS certified_events_count,
+        COUNT(*) FILTER (WHERE e.entity_id IS NULL) AS owner_events_count,
+        COUNT(*) FILTER (
+            WHERE e.event_type = 'certification'
+            AND (
+                e.metadata->>'validityEndDate' IS NULL
+                OR (e.metadata->>'validityEndDate')::date >= CURRENT_DATE
+            )
+        ) AS active_certifications_count
+    FROM events e
+    GROUP BY e.vehicle_id
+) stats ON v.id = stats.vehicle_id
+WHERE v.owner_id = $1
+ORDER BY v.created_at DESC
+LIMIT $2 OFFSET $3;

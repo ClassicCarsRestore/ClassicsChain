@@ -59,6 +59,51 @@ func (r *VehicleRepository) GetAll(ctx context.Context, limit, offset int, owner
 	return result, int(total), nil
 }
 
+func (r *VehicleRepository) GetAllWithStats(ctx context.Context, limit, offset int, ownerID *uuid.UUID) ([]vehicles.VehicleWithStats, int, error) {
+	var total int64
+	var err error
+
+	if ownerID != nil {
+		vhcls, err := r.queries.ListVehiclesByOwnerWithStats(ctx, db.ListVehiclesByOwnerWithStatsParams{
+			OwnerID: ownerID,
+			Limit:   int32(limit),
+			Offset:  int32(offset),
+		})
+		if err != nil {
+			return nil, 0, postgres.WrapError(err, "list vehicles by owner with stats")
+		}
+		total, err = r.queries.CountVehiclesByOwner(ctx, ownerID)
+		if err != nil {
+			return nil, 0, postgres.WrapError(err, "count vehicles by owner")
+		}
+
+		result := make([]vehicles.VehicleWithStats, len(vhcls))
+		for i, v := range vhcls {
+			result[i] = toVehicleWithStatsDomain(v)
+		}
+		return result, int(total), nil
+	}
+
+	vhcls, err := r.queries.ListVehiclesWithStats(ctx, db.ListVehiclesWithStatsParams{
+		Limit:  int32(limit),
+		Offset: int32(offset),
+	})
+	if err != nil {
+		return nil, 0, postgres.WrapError(err, "list vehicles with stats")
+	}
+	total, err = r.queries.CountVehicles(ctx)
+	if err != nil {
+		return nil, 0, postgres.WrapError(err, "count vehicles")
+	}
+
+	result := make([]vehicles.VehicleWithStats, len(vhcls))
+	for i, v := range vhcls {
+		result[i] = toVehicleWithStatsDomainFromRow(v)
+	}
+
+	return result, int(total), nil
+}
+
 func (r *VehicleRepository) GetByID(ctx context.Context, id uuid.UUID) (*vehicles.Vehicle, error) {
 	v, err := r.queries.GetVehicle(ctx, id)
 	if err != nil {
@@ -203,5 +248,65 @@ func toVehicleDomain(v db.Vehicle) vehicles.Vehicle {
 		CIDSourceCBOR:      v.CidSourceCborB64,
 		CreatedAt:          v.CreatedAt,
 		UpdatedAt:          v.UpdatedAt,
+	}
+}
+
+func toVehicleWithStatsDomainFromRow(v db.ListVehiclesWithStatsRow) vehicles.VehicleWithStats {
+	return vehicles.VehicleWithStats{
+		Vehicle: vehicles.Vehicle{
+			ID:                 v.ID,
+			LicensePlate:       nullableToStringPtr(v.LicensePlate),
+			ChassisNumber:      nullableToStringPtr(v.ChassisNumber),
+			Make:               v.Make,
+			Model:              v.Model,
+			Year:               int(v.Year),
+			Color:              nullableToStringPtr(v.Color),
+			EngineNumber:       nullableToStringPtr(v.EngineNumber),
+			TransmissionNumber: nullableToStringPtr(v.TransmissionNumber),
+			BodyType:           nullableToStringPtr(v.BodyType),
+			DriveType:          nullableToStringPtr(v.DriveType),
+			GearType:           nullableToStringPtr(v.GearType),
+			SuspensionType:     nullableToStringPtr(v.SuspensionType),
+			OwnerID:            v.OwnerID,
+			BlockchainAssetID:  nullableToStringPtr(v.BlockchainAssetID),
+			CID:                v.Cid,
+			CIDSourceJSON:      v.CidSourceJson,
+			CIDSourceCBOR:      v.CidSourceCborB64,
+			CreatedAt:          v.CreatedAt,
+			UpdatedAt:          v.UpdatedAt,
+		},
+		CertifiedEventsCount:      int(v.CertifiedEventsCount),
+		OwnerEventsCount:          int(v.OwnerEventsCount),
+		ActiveCertificationsCount: int(v.ActiveCertificationsCount),
+	}
+}
+
+func toVehicleWithStatsDomain(v db.ListVehiclesByOwnerWithStatsRow) vehicles.VehicleWithStats {
+	return vehicles.VehicleWithStats{
+		Vehicle: vehicles.Vehicle{
+			ID:                 v.ID,
+			LicensePlate:       nullableToStringPtr(v.LicensePlate),
+			ChassisNumber:      nullableToStringPtr(v.ChassisNumber),
+			Make:               v.Make,
+			Model:              v.Model,
+			Year:               int(v.Year),
+			Color:              nullableToStringPtr(v.Color),
+			EngineNumber:       nullableToStringPtr(v.EngineNumber),
+			TransmissionNumber: nullableToStringPtr(v.TransmissionNumber),
+			BodyType:           nullableToStringPtr(v.BodyType),
+			DriveType:          nullableToStringPtr(v.DriveType),
+			GearType:           nullableToStringPtr(v.GearType),
+			SuspensionType:     nullableToStringPtr(v.SuspensionType),
+			OwnerID:            v.OwnerID,
+			BlockchainAssetID:  nullableToStringPtr(v.BlockchainAssetID),
+			CID:                v.Cid,
+			CIDSourceJSON:      v.CidSourceJson,
+			CIDSourceCBOR:      v.CidSourceCborB64,
+			CreatedAt:          v.CreatedAt,
+			UpdatedAt:          v.UpdatedAt,
+		},
+		CertifiedEventsCount:      int(v.CertifiedEventsCount),
+		OwnerEventsCount:          int(v.OwnerEventsCount),
+		ActiveCertificationsCount: int(v.ActiveCertificationsCount),
 	}
 }

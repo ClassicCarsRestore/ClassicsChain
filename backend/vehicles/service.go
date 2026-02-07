@@ -11,6 +11,7 @@ import (
 // Repository defines the data access interface for vehicles
 type Repository interface {
 	GetAll(ctx context.Context, limit, offset int, ownerID *uuid.UUID) ([]Vehicle, int, error)
+	GetAllWithStats(ctx context.Context, limit, offset int, ownerID *uuid.UUID) ([]VehicleWithStats, int, error)
 	GetByID(ctx context.Context, id uuid.UUID) (*Vehicle, error)
 	GetByOwnerID(ctx context.Context, ownerID uuid.UUID, limit, offset int) ([]Vehicle, int, error)
 	GetByChassisNumber(ctx context.Context, chassisNumber string) (*Vehicle, error)
@@ -38,6 +39,11 @@ func NewService(repo Repository, anchorer VehicleAnchorer) *Service {
 // GetAll retrieves paginated vehicles with optional owner filter
 func (s *Service) GetAll(ctx context.Context, limit, offset int, ownerID *uuid.UUID) ([]Vehicle, int, error) {
 	return s.repo.GetAll(ctx, limit, offset, ownerID)
+}
+
+// GetAllWithStats retrieves paginated vehicles with event statistics
+func (s *Service) GetAllWithStats(ctx context.Context, limit, offset int, ownerID *uuid.UUID) ([]VehicleWithStats, int, error) {
+	return s.repo.GetAllWithStats(ctx, limit, offset, ownerID)
 }
 
 // GetByID retrieves a vehicle by its ID

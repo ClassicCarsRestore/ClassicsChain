@@ -247,6 +247,7 @@ services:
     depends_on:
       - backend
       - kratos
+      - hydra
       - garage
     networks:
       - intranet

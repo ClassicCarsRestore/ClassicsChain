@@ -32,6 +32,9 @@ export interface Vehicle {
   blockchainAssetId: string | null;
   cid: string | null;
   createdAt: string;
+  certifiedEventsCount?: number;
+  ownerEventsCount?: number;
+  activeCertificationsCount?: number;
 }
 
 // Event Type Union for type safety

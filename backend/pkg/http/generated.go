@@ -789,11 +789,17 @@ type UserProfile struct {
 
 // Vehicle defines model for Vehicle.
 type Vehicle struct {
+	// ActiveCertificationsCount Number of active/valid certifications
+	ActiveCertificationsCount *int `json:"activeCertificationsCount,omitempty"`
+
 	// BlockchainAssetId Algorand blockchain address for this vehicle
 	BlockchainAssetId *string `json:"blockchainAssetId,omitempty"`
 
 	// BodyType Body style (e.g., Sedan, Coupe, Convertible, Wagon)
 	BodyType *string `json:"bodyType,omitempty"`
+
+	// CertifiedEventsCount Number of events certified by entities
+	CertifiedEventsCount *int `json:"certifiedEventsCount,omitempty"`
 
 	// ChassisNumber Chassis/Frame number
 	ChassisNumber *string `json:"chassisNumber,omitempty"`
@@ -822,10 +828,13 @@ type Vehicle struct {
 	Id       openapi_types.UUID `json:"id"`
 
 	// LicensePlate License plate number
-	LicensePlate *string             `json:"licensePlate,omitempty"`
-	Make         string              `json:"make"`
-	Model        string              `json:"model"`
-	OwnerId      *openapi_types.UUID `json:"ownerId,omitempty"`
+	LicensePlate *string `json:"licensePlate,omitempty"`
+	Make         string  `json:"make"`
+	Model        string  `json:"model"`
+
+	// OwnerEventsCount Number of events created by owners
+	OwnerEventsCount *int                `json:"ownerEventsCount,omitempty"`
+	OwnerId          *openapi_types.UUID `json:"ownerId,omitempty"`
 
 	// SuspensionType Suspension type
 	SuspensionType *string `json:"suspensionType,omitempty"`

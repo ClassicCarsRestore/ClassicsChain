@@ -1,8 +1,9 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, Filter, ChevronDown, Eye, Award, Car } from 'lucide-react';
+import { Search, Filter, ChevronDown, Eye, Award, Car, Link2, FileCheck, Users } from 'lucide-react';
 import { useVehicles } from '../hooks/useVehicles';
 import { VehicleDetailModal } from './VehicleDetailModal';
+import { getAlgorandAssetUrl } from '@/lib/utils';
 import type { Vehicle } from '../types';
 
 interface Entity {
@@ -156,6 +157,15 @@ export function VehiclesList({ entities, refreshTrigger, onNavigateToCreate }: V
                   {t('browse.columns.licensePlate')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {t('browse.columns.blockchainAssetId')}
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {t('browse.columns.events')}
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {t('browse.columns.certifications')}
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   {t('browse.columns.status')}
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -166,13 +176,13 @@ export function VehiclesList({ entities, refreshTrigger, onNavigateToCreate }: V
             <tbody className="bg-white divide-y divide-gray-200">
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
+                  <td colSpan={8} className="px-6 py-4 text-center text-gray-500">
                     {t('browse.loading')}
                   </td>
                 </tr>
               ) : filteredVehicles.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center">
+                  <td colSpan={8} className="px-6 py-12 text-center">
                     <Car className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                     <p className="text-gray-500 mb-3">{t('browse.noVehicles')}</p>
                     {onNavigateToCreate && (
@@ -205,6 +215,47 @@ export function VehiclesList({ entities, refreshTrigger, onNavigateToCreate }: V
                       </code>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{vehicle.licensePlate || '-'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {vehicle.blockchainAssetId ? (
+                        <a
+                          href={getAlgorandAssetUrl(vehicle.blockchainAssetId)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1 hover:opacity-80 transition-opacity"
+                        >
+                          <Link2 className="h-3 w-3 text-green-600" />
+                          <code className="text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded font-mono">
+                            {vehicle.blockchainAssetId.length > 12
+                              ? `${vehicle.blockchainAssetId.slice(0, 12)}...`
+                              : vehicle.blockchainAssetId}
+                          </code>
+                        </a>
+                      ) : (
+                        <span className="text-xs text-gray-400">-</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <div className="flex items-center justify-center gap-3 text-xs">
+                        <span className="flex items-center gap-1" title={t('browse.tooltips.certifiedEvents')}>
+                          <FileCheck className="h-3.5 w-3.5 text-blue-600" />
+                          <span className="text-gray-700">{vehicle.certifiedEventsCount ?? 0}</span>
+                        </span>
+                        <span className="flex items-center gap-1" title={t('browse.tooltips.ownerEvents')}>
+                          <Users className="h-3.5 w-3.5 text-gray-500" />
+                          <span className="text-gray-700">{vehicle.ownerEventsCount ?? 0}</span>
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      {(vehicle.activeCertificationsCount ?? 0) > 0 ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                          <Award className="h-3 w-3" />
+                          {vehicle.activeCertificationsCount}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-gray-400">0</span>
+                      )}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {vehicle.ownerId ? (
                         <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">

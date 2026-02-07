@@ -2007,6 +2007,15 @@ components:
           type: string
           format: date-time
           description: When event was created
+        certifiedEventsCount:
+          type: integer
+          description: Number of events certified by entities
+        ownerEventsCount:
+          type: integer
+          description: Number of events created by owners
+        activeCertificationsCount:
+          type: integer
+          description: Number of active/valid certifications
       required:
         - id
         - make

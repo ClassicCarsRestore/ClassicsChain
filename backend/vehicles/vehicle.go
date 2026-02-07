@@ -92,3 +92,11 @@ type TransferOwnershipParams struct {
 	NewOwnerID   uuid.UUID
 	TransferDate time.Time
 }
+
+// VehicleWithStats represents a vehicle with event statistics for list views
+type VehicleWithStats struct {
+	Vehicle
+	CertifiedEventsCount      int `json:"certifiedEventsCount"`
+	OwnerEventsCount          int `json:"ownerEventsCount"`
+	ActiveCertificationsCount int `json:"activeCertificationsCount"`
+}

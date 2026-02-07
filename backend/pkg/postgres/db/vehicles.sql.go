@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -369,6 +370,210 @@ func (q *Queries) ListVehiclesByOwner(ctx context.Context, arg ListVehiclesByOwn
 			&i.BlockchainAssetID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listVehiclesByOwnerWithStats = `-- name: ListVehiclesByOwnerWithStats :many
+SELECT
+    v.id, v.owner_id, v.chassis_number, v.license_plate, v.engine_number, v.transmission_number, v.make, v.model, v.year, v.color, v.body_type, v.drive_type, v.gear_type, v.suspension_type, v.cid, v.cid_source_json, v.cid_source_cbor_b64, v.blockchain_asset_id, v.created_at, v.updated_at,
+    COALESCE(stats.certified_events_count, 0)::bigint AS certified_events_count,
+    COALESCE(stats.owner_events_count, 0)::bigint AS owner_events_count,
+    COALESCE(stats.active_certifications_count, 0)::bigint AS active_certifications_count
+FROM vehicles v
+LEFT JOIN (
+    SELECT
+        e.vehicle_id,
+        COUNT(*) FILTER (WHERE e.entity_id IS NOT NULL) AS certified_events_count,
+        COUNT(*) FILTER (WHERE e.entity_id IS NULL) AS owner_events_count,
+        COUNT(*) FILTER (
+            WHERE e.event_type = 'certification'
+            AND (
+                e.metadata->>'validityEndDate' IS NULL
+                OR (e.metadata->>'validityEndDate')::date >= CURRENT_DATE
+            )
+        ) AS active_certifications_count
+    FROM events e
+    GROUP BY e.vehicle_id
+) stats ON v.id = stats.vehicle_id
+WHERE v.owner_id = $1
+ORDER BY v.created_at DESC
+LIMIT $2 OFFSET $3
+`
+
+type ListVehiclesByOwnerWithStatsParams struct {
+	OwnerID *uuid.UUID
+	Limit   int32
+	Offset  int32
+}
+
+type ListVehiclesByOwnerWithStatsRow struct {
+	ID                        uuid.UUID
+	OwnerID                   *uuid.UUID
+	ChassisNumber             string
+	LicensePlate              string
+	EngineNumber              string
+	TransmissionNumber        string
+	Make                      string
+	Model                     string
+	Year                      int32
+	Color                     string
+	BodyType                  string
+	DriveType                 string
+	GearType                  string
+	SuspensionType            string
+	Cid                       *string
+	CidSourceJson             *string
+	CidSourceCborB64          *string
+	BlockchainAssetID         string
+	CreatedAt                 time.Time
+	UpdatedAt                 time.Time
+	CertifiedEventsCount      int64
+	OwnerEventsCount          int64
+	ActiveCertificationsCount int64
+}
+
+func (q *Queries) ListVehiclesByOwnerWithStats(ctx context.Context, arg ListVehiclesByOwnerWithStatsParams) ([]ListVehiclesByOwnerWithStatsRow, error) {
+	rows, err := q.db.Query(ctx, listVehiclesByOwnerWithStats, arg.OwnerID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListVehiclesByOwnerWithStatsRow{}
+	for rows.Next() {
+		var i ListVehiclesByOwnerWithStatsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.OwnerID,
+			&i.ChassisNumber,
+			&i.LicensePlate,
+			&i.EngineNumber,
+			&i.TransmissionNumber,
+			&i.Make,
+			&i.Model,
+			&i.Year,
+			&i.Color,
+			&i.BodyType,
+			&i.DriveType,
+			&i.GearType,
+			&i.SuspensionType,
+			&i.Cid,
+			&i.CidSourceJson,
+			&i.CidSourceCborB64,
+			&i.BlockchainAssetID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.CertifiedEventsCount,
+			&i.OwnerEventsCount,
+			&i.ActiveCertificationsCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listVehiclesWithStats = `-- name: ListVehiclesWithStats :many
+SELECT
+    v.id, v.owner_id, v.chassis_number, v.license_plate, v.engine_number, v.transmission_number, v.make, v.model, v.year, v.color, v.body_type, v.drive_type, v.gear_type, v.suspension_type, v.cid, v.cid_source_json, v.cid_source_cbor_b64, v.blockchain_asset_id, v.created_at, v.updated_at,
+    COALESCE(stats.certified_events_count, 0)::bigint AS certified_events_count,
+    COALESCE(stats.owner_events_count, 0)::bigint AS owner_events_count,
+    COALESCE(stats.active_certifications_count, 0)::bigint AS active_certifications_count
+FROM vehicles v
+LEFT JOIN (
+    SELECT
+        e.vehicle_id,
+        COUNT(*) FILTER (WHERE e.entity_id IS NOT NULL) AS certified_events_count,
+        COUNT(*) FILTER (WHERE e.entity_id IS NULL) AS owner_events_count,
+        COUNT(*) FILTER (
+            WHERE e.event_type = 'certification'
+            AND (
+                e.metadata->>'validityEndDate' IS NULL
+                OR (e.metadata->>'validityEndDate')::date >= CURRENT_DATE
+            )
+        ) AS active_certifications_count
+    FROM events e
+    GROUP BY e.vehicle_id
+) stats ON v.id = stats.vehicle_id
+ORDER BY v.created_at DESC
+LIMIT $1 OFFSET $2
+`
+
+type ListVehiclesWithStatsParams struct {
+	Limit  int32
+	Offset int32
+}
+
+type ListVehiclesWithStatsRow struct {
+	ID                        uuid.UUID
+	OwnerID                   *uuid.UUID
+	ChassisNumber             string
+	LicensePlate              string
+	EngineNumber              string
+	TransmissionNumber        string
+	Make                      string
+	Model                     string
+	Year                      int32
+	Color                     string
+	BodyType                  string
+	DriveType                 string
+	GearType                  string
+	SuspensionType            string
+	Cid                       *string
+	CidSourceJson             *string
+	CidSourceCborB64          *string
+	BlockchainAssetID         string
+	CreatedAt                 time.Time
+	UpdatedAt                 time.Time
+	CertifiedEventsCount      int64
+	OwnerEventsCount          int64
+	ActiveCertificationsCount int64
+}
+
+func (q *Queries) ListVehiclesWithStats(ctx context.Context, arg ListVehiclesWithStatsParams) ([]ListVehiclesWithStatsRow, error) {
+	rows, err := q.db.Query(ctx, listVehiclesWithStats, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListVehiclesWithStatsRow{}
+	for rows.Next() {
+		var i ListVehiclesWithStatsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.OwnerID,
+			&i.ChassisNumber,
+			&i.LicensePlate,
+			&i.EngineNumber,
+			&i.TransmissionNumber,
+			&i.Make,
+			&i.Model,
+			&i.Year,
+			&i.Color,
+			&i.BodyType,
+			&i.DriveType,
+			&i.GearType,
+			&i.SuspensionType,
+			&i.Cid,
+			&i.CidSourceJson,
+			&i.CidSourceCborB64,
+			&i.BlockchainAssetID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.CertifiedEventsCount,
+			&i.OwnerEventsCount,
+			&i.ActiveCertificationsCount,
 		); err != nil {
 			return nil, err
 		}

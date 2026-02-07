@@ -7,6 +7,7 @@ import { OwnerManagementSection } from './OwnerManagementSection';
 import { PhotoLightbox } from '@/components/common/PhotoLightbox';
 import { useVehicleEvents } from '../hooks/useVehicles';
 import { generateStorageUrl } from '@/lib/storage';
+import { getAlgorandAssetUrl, getAlgorandTxUrl } from '@/lib/utils';
 import type { Vehicle, EventType } from '../types';
 
 interface Entity {
@@ -312,7 +313,7 @@ function EventCard({ event, isLast }: EventCardProps) {
             <div className="flex items-center gap-1">
               <ExternalLink className="w-4 h-4" />
               <a
-                href={`https://lora.algokit.io/${import.meta.env.VITE_ALGORAND_NETWORK || 'testnet'}/transaction/${event.blockchainTxId}`}
+                href={getAlgorandTxUrl(event.blockchainTxId)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:underline"
@@ -575,7 +576,7 @@ export function VehicleDetailModal({
                       {vehicle.blockchainAssetId}
                     </code>
                     <a
-                      href={`https://lora.algokit.io/testnet/asset/${vehicle.blockchainAssetId}`}
+                      href={getAlgorandAssetUrl(vehicle.blockchainAssetId)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/50 hover:bg-emerald-200 dark:hover:bg-emerald-900 rounded-md transition-colors"

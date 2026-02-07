@@ -30,6 +30,12 @@ ${AUTH_DOMAIN} {
     reverse_proxy cc-kratos:4433
 }
 
+# OAuth2 (Hydra)
+${OAUTH_DOMAIN} {
+    encode gzip
+    reverse_proxy cc-hydra:4444
+}
+
 # Storage Uploads (Garage S3 API) - S3 operations only
 ${UPLOADS_DOMAIN} {
     @s3_operations {

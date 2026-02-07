@@ -93,14 +93,14 @@ func (a apiServer) GetVehicles(ctx context.Context, request GetVehiclesRequestOb
 		offset = (*request.Params.Page - 1) * limit
 	}
 
-	vehicleList, total, err := a.vehicleService.GetAll(ctx, limit, offset, ownerID)
+	vehicleList, total, err := a.vehicleService.GetAllWithStats(ctx, limit, offset, ownerID)
 	if err != nil {
 		return nil, err
 	}
 
 	httpVehicles := make([]Vehicle, len(vehicleList))
 	for i, vehicle := range vehicleList {
-		httpVehicles[i] = domainToHTTPVehicle(vehicle)
+		httpVehicles[i] = domainToHTTPVehicleWithStats(vehicle)
 	}
 
 	return GetVehicles200JSONResponse{
@@ -564,5 +564,37 @@ func domainToHTTPVehicle(domainVehicle vehicles.Vehicle) Vehicle {
 		SuspensionType:     domainVehicle.SuspensionType,
 		TransmissionNumber: domainVehicle.TransmissionNumber,
 		Year:               domainVehicle.Year,
+	}
+}
+
+// domainToHTTPVehicleWithStats converts a domain vehicle with stats to HTTP vehicle
+func domainToHTTPVehicleWithStats(domainVehicle vehicles.VehicleWithStats) Vehicle {
+	certifiedEventsCount := domainVehicle.CertifiedEventsCount
+	ownerEventsCount := domainVehicle.OwnerEventsCount
+	activeCertificationsCount := domainVehicle.ActiveCertificationsCount
+
+	return Vehicle{
+		BlockchainAssetId:         domainVehicle.BlockchainAssetID,
+		BodyType:                  domainVehicle.BodyType,
+		ChassisNumber:             domainVehicle.ChassisNumber,
+		Cid:                       domainVehicle.CID,
+		CidSourceCBOR:             domainVehicle.CIDSourceCBOR,
+		CidSourceJSON:             domainVehicle.CIDSourceJSON,
+		Color:                     domainVehicle.Color,
+		CreatedAt:                 time.Time{},
+		DriveType:                 domainVehicle.DriveType,
+		EngineNumber:              domainVehicle.EngineNumber,
+		GearType:                  domainVehicle.GearType,
+		Id:                        domainVehicle.ID,
+		LicensePlate:              domainVehicle.LicensePlate,
+		Make:                      domainVehicle.Make,
+		Model:                     domainVehicle.Model,
+		OwnerId:                   domainVehicle.OwnerID,
+		SuspensionType:            domainVehicle.SuspensionType,
+		TransmissionNumber:        domainVehicle.TransmissionNumber,
+		Year:                      domainVehicle.Year,
+		CertifiedEventsCount:      &certifiedEventsCount,
+		OwnerEventsCount:          &ownerEventsCount,
+		ActiveCertificationsCount: &activeCertificationsCount,
 	}
 }

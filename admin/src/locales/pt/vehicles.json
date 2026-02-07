@@ -106,8 +106,15 @@
       "vehicle": "Veículo",
       "chassisNumber": "Número de Chassis",
       "licensePlate": "Placa de Licença",
+      "blockchainAssetId": "Blockchain",
+      "events": "Eventos",
+      "certifications": "Certificações",
       "status": "Status",
       "actions": "Ações"
+    },
+    "tooltips": {
+      "certifiedEvents": "Eventos certificados por entidades",
+      "ownerEvents": "Eventos adicionados pelo proprietário"
     },
     "status": {
       "owned": "Possuído",

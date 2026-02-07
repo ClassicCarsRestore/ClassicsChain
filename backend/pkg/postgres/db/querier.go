@@ -90,6 +90,8 @@ type Querier interface {
 	ListUsers(ctx context.Context, arg ListUsersParams) ([]User, error)
 	ListVehicles(ctx context.Context, arg ListVehiclesParams) ([]Vehicle, error)
 	ListVehiclesByOwner(ctx context.Context, arg ListVehiclesByOwnerParams) ([]Vehicle, error)
+	ListVehiclesByOwnerWithStats(ctx context.Context, arg ListVehiclesByOwnerWithStatsParams) ([]ListVehiclesByOwnerWithStatsRow, error)
+	ListVehiclesWithStats(ctx context.Context, arg ListVehiclesWithStatsParams) ([]ListVehiclesWithStatsRow, error)
 	RemoveUserFromEntity(ctx context.Context, arg RemoveUserFromEntityParams) error
 	RevokeShareLink(ctx context.Context, id uuid.UUID) (VehicleShareLink, error)
 	UpdateEntity(ctx context.Context, arg UpdateEntityParams) (Entity, error)
