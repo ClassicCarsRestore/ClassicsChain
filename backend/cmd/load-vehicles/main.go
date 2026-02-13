@@ -35,6 +35,8 @@ type VehicleInfo struct {
 	Model     string `json:"model"`
 	PlateDate string `json:"plateDate"`
 	CubicCap  string `json:"cubicCap"`
+	FuelType  string `json:"fuelType"`
+	PowerCV   string `json:"powercv"`
 }
 
 // API request/response types
@@ -44,6 +46,9 @@ type CreateCertifierVehicleReq struct {
 	Year          int    `json:"year"`
 	LicensePlate  string `json:"licensePlate,omitempty"`
 	ChassisNumber string `json:"chassisNumber,omitempty"`
+	Fuel          string `json:"fuel,omitempty"`
+	EngineCc      int    `json:"engineCc,omitempty"`
+	EnginePowerHp int    `json:"enginePowerHp,omitempty"`
 }
 
 type VehicleResp struct {
@@ -134,6 +139,9 @@ func (l *Loader) loadVehicle(idx int, v VehicleJSON) error {
 		Year:          year,
 		LicensePlate:  v.Plate,
 		ChassisNumber: v.Info.VIN,
+		Fuel:          mapFuelType(v.Info.FuelType),
+		EngineCc:      parseIntOrZero(v.Info.CubicCap),
+		EnginePowerHp: parseIntOrZero(v.Info.PowerCV),
 	}
 
 	log.Printf("[%d] Vehicle: %s %s %s (%d)", idx, v.Plate, make_, model, year)
@@ -376,4 +384,33 @@ func titleCase(s string) string {
 		}
 	}
 	return strings.Join(words, " ")
+}
+
+func mapFuelType(fuelType string) string {
+	switch strings.ToUpper(fuelType) {
+	case "GASOLINA":
+		return "petrol"
+	case "GASÓLEO", "GASOLEO", "DIESEL":
+		return "diesel"
+	case "GPL", "LPG":
+		return "lpg"
+	case "ELÉTRICO", "ELETRICO", "ELECTRIC":
+		return "electric"
+	case "HÍBRIDO", "HIBRIDO", "HYBRID":
+		return "hybrid"
+	case "HIDROGÉNIO", "HIDROGENIO", "HYDROGEN":
+		return "hydrogen"
+	default:
+		return ""
+	}
+}
+
+func parseIntOrZero(s string) int {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return 0
+	}
+	var n int
+	fmt.Sscanf(s, "%d", &n)
+	return n
 }
