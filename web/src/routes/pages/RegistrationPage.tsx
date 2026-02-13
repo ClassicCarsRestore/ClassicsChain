@@ -122,7 +122,7 @@ export function RegistrationPage() {
       await refreshSession();
 
       // If this was an invitation-based registration, claim the pending invitations
-      if (invitationToken) {
+      if (invitationData) {
         try {
           await api.post('/v1/invitations/claim');
         } catch (claimErr) {
