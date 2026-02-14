@@ -1,6 +1,8 @@
 package anchorer
 
 import (
+	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"testing"
 	"time"
@@ -382,4 +384,89 @@ func TestGenerateCID_Reproducibility(t *testing.T) {
 	for i := 1; i < 10; i++ {
 		assert.Equal(t, cids[0], cids[i], "CID should be reproducible across multiple calls")
 	}
+}
+
+func TestGenerateCID_SourceJSONKeyOrderMatchesCBOR(t *testing.T) {
+	record := VehicleRecord{
+		ID:            uuid.New(),
+		LicensePlate:  ptr("ABC123"),
+		ChassisNumber: ptr("VIN999"),
+		Make:          ptr("Porsche"),
+		Model:         ptr("911"),
+		Year:          ptr(1973),
+		Color:         ptr("Silver"),
+		CreatedAt:     time.Now(),
+	}
+
+	result, err := GenerateCID(record)
+	require.NoError(t, err)
+
+	// Decode the CBOR bytes back to an IPLD node and serialize to JSON
+	cborBytes, err := base64.StdEncoding.DecodeString(result.SourceCBOR)
+	require.NoError(t, err)
+
+	cborNode, err := ipldDecode(cborBytes)
+	require.NoError(t, err)
+
+	derivedJSON, err := ipldNodeToJSON(cborNode)
+	require.NoError(t, err)
+
+	assert.Equal(t, string(derivedJSON), result.SourceJSON,
+		"SourceJSON key order should match CBOR-decoded key order")
+
+	// Verify it's valid JSON
+	var parsed interface{}
+	require.NoError(t, json.Unmarshal([]byte(result.SourceJSON), &parsed))
+
+	// Verify key order uses CBOR canonical ordering (length-first, then lexicographic)
+	// Extract top-level keys in order from the raw JSON
+	keys := extractJSONKeyOrder(t, result.SourceJSON)
+	require.True(t, len(keys) > 1, "should have multiple keys")
+
+	for i := 1; i < len(keys); i++ {
+		prev, curr := keys[i-1], keys[i]
+		if len(prev) > len(curr) {
+			t.Errorf("CBOR canonical order violated: key %q (len %d) before %q (len %d)",
+				prev, len(prev), curr, len(curr))
+		}
+	}
+}
+
+// extractJSONKeyOrder returns top-level keys from a JSON object in their appearance order.
+func extractJSONKeyOrder(t *testing.T, raw string) []string {
+	t.Helper()
+	dec := json.NewDecoder(bytes.NewReader([]byte(raw)))
+	token, err := dec.Token()
+	require.NoError(t, err)
+	require.Equal(t, json.Delim('{'), token)
+
+	var keys []string
+	depth := 0
+	for dec.More() {
+		token, err := dec.Token()
+		require.NoError(t, err)
+		if depth == 0 {
+			key, ok := token.(string)
+			require.True(t, ok)
+			keys = append(keys, key)
+			// skip the value
+			token, err = dec.Token()
+			require.NoError(t, err)
+			switch token {
+			case json.Delim('{'), json.Delim('['):
+				depth = 1
+				for depth > 0 {
+					t2, err := dec.Token()
+					require.NoError(t, err)
+					switch t2 {
+					case json.Delim('{'), json.Delim('['):
+						depth++
+					case json.Delim('}'), json.Delim(']'):
+						depth--
+					}
+				}
+			}
+		}
+	}
+	return keys
 }

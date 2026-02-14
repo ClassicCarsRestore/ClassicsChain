@@ -5,10 +5,10 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/ipfs/go-cid"
 	"github.com/ipld/go-ipld-prime/codec/dagcbor"
-	"github.com/ipld/go-ipld-prime/codec/dagjson"
 	"github.com/ipld/go-ipld-prime/datamodel"
 	"github.com/ipld/go-ipld-prime/node/basicnode"
 	mh "github.com/multiformats/go-multihash"
@@ -22,8 +22,8 @@ type CID struct {
 
 // GenerateCID generates a deterministic CIDv1 using dag-cbor codec and SHA-256 hashing.
 // DAG-CBOR provides canonical encoding guarantees, ensuring the same data always produces
-// the same CID regardless of platform or Go version. The returned CID struct includes the
-// CID string, the canonical DAG-JSON representation, and the base64-encoded DAG-CBOR bytes that was hashed.
+// the same CID regardless of platform or Go version. SourceJSON is derived from the CBOR
+// bytes so its key order matches what any CBOR decoder would produce.
 func GenerateCID(data interface{}) (*CID, error) {
 	result := &CID{}
 
@@ -33,19 +33,23 @@ func GenerateCID(data interface{}) (*CID, error) {
 		return nil, fmt.Errorf("failed to convert to IPLD node: %w", err)
 	}
 
-	// 2. Encode as canonical DAG-JSON (for storage/display)
-	var jsonBuf bytes.Buffer
-	if err := dagjson.Encode(node, &jsonBuf); err != nil {
-		return nil, fmt.Errorf("failed to encode as DAG-JSON: %w", err)
-	}
-	result.SourceJSON = string(jsonBuf.Bytes())
-
-	// 3. Encode as DAG-CBOR (for CID generation)
+	// 2. Encode as DAG-CBOR (for CID generation)
 	var cborBuf bytes.Buffer
 	if err := dagcbor.Encode(node, &cborBuf); err != nil {
 		return nil, fmt.Errorf("failed to encode as DAG-CBOR: %w", err)
 	}
 	result.SourceCBOR = base64.StdEncoding.EncodeToString(cborBuf.Bytes())
+
+	// 3. Derive JSON from CBOR bytes so key order matches what CBOR decoders produce
+	cborNode, err := ipldDecode(cborBuf.Bytes())
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode DAG-CBOR for JSON derivation: %w", err)
+	}
+	jsonBytes, err := ipldNodeToJSON(cborNode)
+	if err != nil {
+		return nil, fmt.Errorf("failed to serialize IPLD node to JSON: %w", err)
+	}
+	result.SourceJSON = string(jsonBytes)
 
 	// 4. (Multi)Hash CBOR and create CID
 	hash, err := mh.Sum(cborBuf.Bytes(), mh.SHA2_256, -1)
@@ -93,6 +97,91 @@ func (g *CIDGenerator) GenerateFileCID(content []byte) (string, error) {
 // NewCIDGenerator creates a new CIDGenerator instance
 func NewCIDGenerator() *CIDGenerator {
 	return &CIDGenerator{}
+}
+
+// ipldDecode decodes DAG-CBOR bytes into an IPLD node.
+func ipldDecode(data []byte) (datamodel.Node, error) {
+	builder := basicnode.Prototype.Any.NewBuilder()
+	if err := dagcbor.Decode(builder, bytes.NewReader(data)); err != nil {
+		return nil, err
+	}
+	return builder.Build(), nil
+}
+
+// ipldNodeToJSON serializes an IPLD node to JSON, preserving the node's key iteration order.
+func ipldNodeToJSON(node datamodel.Node) ([]byte, error) {
+	var buf bytes.Buffer
+	if err := writeIPLDJSON(&buf, node); err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
+func writeIPLDJSON(buf *bytes.Buffer, node datamodel.Node) error {
+	switch node.Kind() {
+	case datamodel.Kind_Null:
+		buf.WriteString("null")
+	case datamodel.Kind_Bool:
+		v, _ := node.AsBool()
+		if v {
+			buf.WriteString("true")
+		} else {
+			buf.WriteString("false")
+		}
+	case datamodel.Kind_Int:
+		v, _ := node.AsInt()
+		buf.WriteString(strconv.FormatInt(v, 10))
+	case datamodel.Kind_Float:
+		v, _ := node.AsFloat()
+		buf.WriteString(strconv.FormatFloat(v, 'f', -1, 64))
+	case datamodel.Kind_String:
+		v, _ := node.AsString()
+		b, _ := json.Marshal(v)
+		buf.Write(b)
+	case datamodel.Kind_List:
+		buf.WriteByte('[')
+		iter := node.ListIterator()
+		first := true
+		for !iter.Done() {
+			_, val, err := iter.Next()
+			if err != nil {
+				return err
+			}
+			if !first {
+				buf.WriteByte(',')
+			}
+			first = false
+			if err := writeIPLDJSON(buf, val); err != nil {
+				return err
+			}
+		}
+		buf.WriteByte(']')
+	case datamodel.Kind_Map:
+		buf.WriteByte('{')
+		iter := node.MapIterator()
+		first := true
+		for !iter.Done() {
+			key, val, err := iter.Next()
+			if err != nil {
+				return err
+			}
+			if !first {
+				buf.WriteByte(',')
+			}
+			first = false
+			k, _ := key.AsString()
+			kb, _ := json.Marshal(k)
+			buf.Write(kb)
+			buf.WriteByte(':')
+			if err := writeIPLDJSON(buf, val); err != nil {
+				return err
+			}
+		}
+		buf.WriteByte('}')
+	default:
+		return fmt.Errorf("unsupported IPLD kind: %v", node.Kind())
+	}
+	return nil
 }
 
 // convertToIPLDNode recursively converts Go types to IPLD nodes
