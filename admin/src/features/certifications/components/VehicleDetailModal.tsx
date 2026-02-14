@@ -249,7 +249,7 @@ function EventCard({ event, isLast }: EventCardProps) {
                     <img
                       src={generateStorageUrl(event.entityLogoObjectKey)}
                       alt=""
-                      className="h-4 w-4 rounded object-cover"
+                      className="h-5 w-5 rounded object-cover"
                     />
                   )}
                   {event.entityName}

@@ -179,54 +179,43 @@ export function EventCard({ event, isCertified, entityName }: EventCardProps) {
 
   return (
     <>
-      <div className="rounded-lg border border-border bg-card p-4">
+      <div className={`rounded-lg border bg-card p-4 ${isCertified ? 'border-blue-500/20 border-l-[3px] border-l-blue-500/60' : 'border-border'}`}>
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
             {/* Header with badge */}
-            <div className="mb-2 flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <div className="mb-3 flex items-start justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   {getEventTypeIcon(event.type)}
                 </div>
-                <h3 className="font-semibold text-foreground">{event.title}</h3>
+                <div>
+                  <h3 className="font-semibold text-foreground leading-tight">{event.title}</h3>
+                  <span className="text-xs text-muted-foreground">{getEventTypeLabel(event.type)}</span>
+                </div>
               </div>
-              <span
-                className={`flex-shrink-0 inline-flex flex-col items-center rounded-lg px-2.5 py-1 text-xs ${
-                  isCertified
-                    ? 'bg-blue-500/10 text-blue-500'
-                    : 'bg-amber-500/10 text-amber-500'
-                }`}
-              >
-                {isCertified ? (
-                  <>
-                    <span className="flex items-center gap-1 font-medium">
-                      {event.entityLogoObjectKey ? (
-                        <img
-                          src={generateStorageUrl(event.entityLogoObjectKey)}
-                          alt=""
-                          className="h-3.5 w-3.5 rounded-sm object-cover"
-                        />
-                      ) : (
-                        <Shield className="h-3 w-3" />
-                      )}
-                      {t('vehicle:eventBadges.certified')}
-                    </span>
-                    {entityName && (
-                      <span className="text-[10px] text-blue-400/80">{entityName}</span>
-                    )}
-                  </>
-                ) : (
-                  <span className="flex items-center gap-1 font-medium">
-                    <User className="h-3 w-3" />
-                    {t('vehicle:eventBadges.ownerProvided')}
+              {isCertified ? (
+                <div className="flex-shrink-0 flex flex-col items-center gap-1.5 rounded-lg bg-blue-500/5 border border-blue-500/10 px-3 py-2">
+                  <span className="flex items-center gap-1 text-xs font-medium text-blue-500">
+                    <Shield className="h-3 w-3" />
+                    {t('vehicle:eventBadges.certified')}
                   </span>
-                )}
-              </span>
-            </div>
-
-            {/* Event type and date */}
-            <div className="mb-2 text-sm text-muted-foreground">
-              <span>{getEventTypeLabel(event.type)}</span>
+                  {event.entityLogoObjectKey && (
+                    <img
+                      src={generateStorageUrl(event.entityLogoObjectKey)}
+                      alt=""
+                      className="h-8 w-8 rounded object-cover"
+                    />
+                  )}
+                  {entityName && (
+                    <span className="text-[10px] text-blue-400/60">{entityName}</span>
+                  )}
+                </div>
+              ) : (
+                <span className="flex-shrink-0 inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-medium bg-amber-500/10 text-amber-500">
+                  <User className="h-3 w-3" />
+                  {t('vehicle:eventBadges.ownerProvided')}
+                </span>
+              )}
             </div>
 
             {/* Description */}
@@ -269,18 +258,19 @@ export function EventCard({ event, isCertified, entityName }: EventCardProps) {
             )}
 
             {/* Event details */}
-            <div className="space-y-2 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                <span>{formattedDate}</span>
-              </div>
-
-              {event.location && (
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4" />
-                  <span>{event.location}</span>
+            <div className="space-y-3 text-sm text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                <div className="flex items-center gap-1.5">
+                  <Calendar className="h-3.5 w-3.5" />
+                  <span>{formattedDate}</span>
                 </div>
-              )}
+                {event.location && (
+                  <div className="flex items-center gap-1.5">
+                    <MapPin className="h-3.5 w-3.5" />
+                    <span>{event.location}</span>
+                  </div>
+                )}
+              </div>
 
               {(event.blockchainTxId || event.cid || event.cidSourceJSON || event.cidSourceCBOR) && (
                 <div className="pt-2 border-t border-border">
