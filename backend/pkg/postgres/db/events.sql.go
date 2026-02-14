@@ -199,7 +199,8 @@ func (q *Queries) ListEventsByVehicle(ctx context.Context, vehicleID uuid.UUID) 
 const listEventsByVehicleWithEntity = `-- name: ListEventsByVehicleWithEntity :many
 SELECT
     e.id, e.vehicle_id, e.entity_id, e.event_type, e.title, e.description, e.event_date, e.location, e.metadata, e.cid, e.cid_source_json, e.cid_source_cbor_b64, e.blockchain_tx_id, e.created_at,
-    ent.name AS entity_name
+    ent.name AS entity_name,
+    ent.logo_object_key AS entity_logo_object_key
 FROM events e
 LEFT JOIN entities ent ON e.entity_id = ent.id
 WHERE e.vehicle_id = $1
@@ -207,21 +208,22 @@ ORDER BY e.event_date DESC
 `
 
 type ListEventsByVehicleWithEntityRow struct {
-	ID               uuid.UUID
-	VehicleID        uuid.UUID
-	EntityID         *uuid.UUID
-	EventType        string
-	Title            string
-	Description      string
-	EventDate        time.Time
-	Location         string
-	Metadata         []byte
-	Cid              *string
-	CidSourceJson    *string
-	CidSourceCborB64 *string
-	BlockchainTxID   string
-	CreatedAt        time.Time
-	EntityName       *string
+	ID                  uuid.UUID
+	VehicleID           uuid.UUID
+	EntityID            *uuid.UUID
+	EventType           string
+	Title               string
+	Description         string
+	EventDate           time.Time
+	Location            string
+	Metadata            []byte
+	Cid                 *string
+	CidSourceJson       *string
+	CidSourceCborB64    *string
+	BlockchainTxID      string
+	CreatedAt           time.Time
+	EntityName          *string
+	EntityLogoObjectKey *string
 }
 
 func (q *Queries) ListEventsByVehicleWithEntity(ctx context.Context, vehicleID uuid.UUID) ([]ListEventsByVehicleWithEntityRow, error) {
@@ -249,6 +251,7 @@ func (q *Queries) ListEventsByVehicleWithEntity(ctx context.Context, vehicleID u
 			&i.BlockchainTxID,
 			&i.CreatedAt,
 			&i.EntityName,
+			&i.EntityLogoObjectKey,
 		); err != nil {
 			return nil, err
 		}

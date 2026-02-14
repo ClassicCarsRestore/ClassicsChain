@@ -22,6 +22,7 @@ export interface Entity {
   website?: string;
   address?: Address;
   certifiedBy?: string;
+  logoObjectKey?: string;
   createdAt: string;
   updatedAt: string;
 }

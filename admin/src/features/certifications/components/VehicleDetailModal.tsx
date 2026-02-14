@@ -39,6 +39,8 @@ interface VehicleEvent {
   id: string;
   vehicleId: string;
   entityId?: string;
+  entityName?: string;
+  entityLogoObjectKey?: string;
   type: EventType;
   title: string;
   description?: string;
@@ -241,6 +243,18 @@ function EventCard({ event, isLast }: EventCardProps) {
               <span className={`inline-block px-2 py-1 text-xs font-medium rounded ${getEventTypeBadgeColor(event.type)}`}>
                 {formatEventType(event.type)}
               </span>
+              {event.entityName && (
+                <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                  {event.entityLogoObjectKey && (
+                    <img
+                      src={generateStorageUrl(event.entityLogoObjectKey)}
+                      alt=""
+                      className="h-4 w-4 rounded object-cover"
+                    />
+                  )}
+                  {event.entityName}
+                </span>
+              )}
               {event.metadata?.certificateNumber && (
                 <code className="text-xs bg-background px-2 py-1 rounded border border-border">
                   #{event.metadata.certificateNumber}

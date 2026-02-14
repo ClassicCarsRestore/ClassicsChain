@@ -11,6 +11,32 @@ import (
 	"github.com/google/uuid"
 )
 
+const clearEntityLogo = `-- name: ClearEntityLogo :one
+UPDATE entities
+SET logo_object_key = NULL, updated_at = NOW()
+WHERE id = $1
+RETURNING id, name, entity_type, description, contact_email, website, address, certified_by, created_at, updated_at, logo_object_key
+`
+
+func (q *Queries) ClearEntityLogo(ctx context.Context, id uuid.UUID) (Entity, error) {
+	row := q.db.QueryRow(ctx, clearEntityLogo, id)
+	var i Entity
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.EntityType,
+		&i.Description,
+		&i.ContactEmail,
+		&i.Website,
+		&i.Address,
+		&i.CertifiedBy,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.LogoObjectKey,
+	)
+	return i, err
+}
+
 const countEntities = `-- name: CountEntities :one
 SELECT COUNT(*) FROM entities
 `
@@ -40,7 +66,7 @@ INSERT INTO entities (
 ) VALUES (
     $1, $2, $3, $4, $5, $6, $7
 )
-RETURNING id, name, entity_type, description, contact_email, website, address, certified_by, created_at, updated_at
+RETURNING id, name, entity_type, description, contact_email, website, address, certified_by, created_at, updated_at, logo_object_key
 `
 
 type CreateEntityParams struct {
@@ -75,6 +101,7 @@ func (q *Queries) CreateEntity(ctx context.Context, arg CreateEntityParams) (Ent
 		&i.CertifiedBy,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.LogoObjectKey,
 	)
 	return i, err
 }
@@ -90,7 +117,7 @@ func (q *Queries) DeleteEntity(ctx context.Context, id uuid.UUID) error {
 }
 
 const getEntity = `-- name: GetEntity :one
-SELECT id, name, entity_type, description, contact_email, website, address, certified_by, created_at, updated_at FROM entities
+SELECT id, name, entity_type, description, contact_email, website, address, certified_by, created_at, updated_at, logo_object_key FROM entities
 WHERE id = $1 LIMIT 1
 `
 
@@ -108,12 +135,13 @@ func (q *Queries) GetEntity(ctx context.Context, id uuid.UUID) (Entity, error) {
 		&i.CertifiedBy,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.LogoObjectKey,
 	)
 	return i, err
 }
 
 const listEntities = `-- name: ListEntities :many
-SELECT id, name, entity_type, description, contact_email, website, address, certified_by, created_at, updated_at FROM entities
+SELECT id, name, entity_type, description, contact_email, website, address, certified_by, created_at, updated_at, logo_object_key FROM entities
 ORDER BY created_at DESC
 LIMIT $1 OFFSET $2
 `
@@ -143,6 +171,7 @@ func (q *Queries) ListEntities(ctx context.Context, arg ListEntitiesParams) ([]E
 			&i.CertifiedBy,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.LogoObjectKey,
 		); err != nil {
 			return nil, err
 		}
@@ -155,7 +184,7 @@ func (q *Queries) ListEntities(ctx context.Context, arg ListEntitiesParams) ([]E
 }
 
 const listEntitiesByType = `-- name: ListEntitiesByType :many
-SELECT id, name, entity_type, description, contact_email, website, address, certified_by, created_at, updated_at FROM entities
+SELECT id, name, entity_type, description, contact_email, website, address, certified_by, created_at, updated_at, logo_object_key FROM entities
 WHERE entity_type = $1
 ORDER BY created_at DESC
 LIMIT $2 OFFSET $3
@@ -187,6 +216,7 @@ func (q *Queries) ListEntitiesByType(ctx context.Context, arg ListEntitiesByType
 			&i.CertifiedBy,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.LogoObjectKey,
 		); err != nil {
 			return nil, err
 		}
@@ -202,7 +232,7 @@ const updateEntity = `-- name: UpdateEntity :one
 UPDATE entities
 SET name = $2, description = $3, contact_email = $4, website = $5, address = $6, updated_at = NOW()
 WHERE id = $1
-RETURNING id, name, entity_type, description, contact_email, website, address, certified_by, created_at, updated_at
+RETURNING id, name, entity_type, description, contact_email, website, address, certified_by, created_at, updated_at, logo_object_key
 `
 
 type UpdateEntityParams struct {
@@ -235,6 +265,38 @@ func (q *Queries) UpdateEntity(ctx context.Context, arg UpdateEntityParams) (Ent
 		&i.CertifiedBy,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.LogoObjectKey,
+	)
+	return i, err
+}
+
+const updateEntityLogo = `-- name: UpdateEntityLogo :one
+UPDATE entities
+SET logo_object_key = $2, updated_at = NOW()
+WHERE id = $1
+RETURNING id, name, entity_type, description, contact_email, website, address, certified_by, created_at, updated_at, logo_object_key
+`
+
+type UpdateEntityLogoParams struct {
+	ID            uuid.UUID
+	LogoObjectKey *string
+}
+
+func (q *Queries) UpdateEntityLogo(ctx context.Context, arg UpdateEntityLogoParams) (Entity, error) {
+	row := q.db.QueryRow(ctx, updateEntityLogo, arg.ID, arg.LogoObjectKey)
+	var i Entity
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.EntityType,
+		&i.Description,
+		&i.ContactEmail,
+		&i.Website,
+		&i.Address,
+		&i.CertifiedBy,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.LogoObjectKey,
 	)
 	return i, err
 }

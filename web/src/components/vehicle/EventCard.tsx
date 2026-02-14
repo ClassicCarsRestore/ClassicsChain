@@ -200,7 +200,15 @@ export function EventCard({ event, isCertified, entityName }: EventCardProps) {
                 {isCertified ? (
                   <>
                     <span className="flex items-center gap-1 font-medium">
-                      <Shield className="h-3 w-3" />
+                      {event.entityLogoObjectKey ? (
+                        <img
+                          src={generateStorageUrl(event.entityLogoObjectKey)}
+                          alt=""
+                          className="h-3.5 w-3.5 rounded-sm object-cover"
+                        />
+                      ) : (
+                        <Shield className="h-3 w-3" />
+                      )}
                       {t('vehicle:eventBadges.certified')}
                     </span>
                     {entityName && (

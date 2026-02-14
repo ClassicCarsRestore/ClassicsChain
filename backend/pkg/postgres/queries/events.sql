@@ -10,7 +10,8 @@ ORDER BY event_date DESC;
 -- name: ListEventsByVehicleWithEntity :many
 SELECT
     e.*,
-    ent.name AS entity_name
+    ent.name AS entity_name,
+    ent.logo_object_key AS entity_logo_object_key
 FROM events e
 LEFT JOIN entities ent ON e.entity_id = ent.id
 WHERE e.vehicle_id = $1

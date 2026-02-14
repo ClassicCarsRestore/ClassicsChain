@@ -34,6 +34,18 @@ SET name = $2, description = $3, contact_email = $4, website = $5, address = $6,
 WHERE id = $1
 RETURNING *;
 
+-- name: UpdateEntityLogo :one
+UPDATE entities
+SET logo_object_key = $2, updated_at = NOW()
+WHERE id = $1
+RETURNING *;
+
+-- name: ClearEntityLogo :one
+UPDATE entities
+SET logo_object_key = NULL, updated_at = NOW()
+WHERE id = $1
+RETURNING *;
+
 -- name: DeleteEntity :exec
 DELETE FROM entities
 WHERE id = $1;

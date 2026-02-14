@@ -4,6 +4,7 @@ import { Building2, MapPin, ExternalLink, ChevronDown } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Button } from '@/components/ui/button';
 import { api } from '@/lib/api';
+import { generateStorageUrl } from '@/lib/storage';
 import type { PublicEntity, PublicEntityListResponse } from "@/types/entity.ts";
 
 type EntityTypeFilter = 'all' | 'certifier' | 'partner';
@@ -203,9 +204,17 @@ export function EntitiesPage() {
                 className="rounded-lg border border-border bg-background p-4"
               >
                 <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                    <Building2 className="h-5 w-5 text-primary" />
-                  </div>
+                  {entity.logoObjectKey ? (
+                    <img
+                      src={generateStorageUrl(entity.logoObjectKey)}
+                      alt=""
+                      className="h-10 w-10 shrink-0 rounded-lg object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                      <Building2 className="h-5 w-5 text-primary" />
+                    </div>
+                  )}
                   <div className="flex-1 overflow-hidden">
                     <h3 className="font-semibold text-foreground">
                       {entity.name}

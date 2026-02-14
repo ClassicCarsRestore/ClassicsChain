@@ -218,7 +218,7 @@ func main() {
 	userService.SetUserInvitationService(userInvitationService)
 
 	// Entity service with user invitation service
-	entityService := entity.New(entityRepo, userRepo, kratosClient, userService, hydraClient, userInvitationService)
+	entityService := entity.New(entityRepo, userRepo, kratosClient, userService, hydraClient, userInvitationService, photoStorage)
 
 	// Initialize Casbin enforcer
 	enforcer, err := casbin.NewEnforcer("casbin_model.conf", "casbin_policy.csv")

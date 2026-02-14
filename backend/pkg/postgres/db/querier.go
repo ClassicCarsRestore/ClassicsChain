@@ -19,6 +19,7 @@ type Querier interface {
 	ClaimInvitationsByEmail(ctx context.Context, email string) error
 	ClaimUserInvitation(ctx context.Context, token string) error
 	ClaimVehicle(ctx context.Context, arg ClaimVehicleParams) (Vehicle, error)
+	ClearEntityLogo(ctx context.Context, id uuid.UUID) (Entity, error)
 	ConfirmDocumentUpload(ctx context.Context, id uuid.UUID) (VehicleDocument, error)
 	ConfirmEventImageUpload(ctx context.Context, arg ConfirmEventImageUploadParams) (EventImage, error)
 	ConfirmPhotoUpload(ctx context.Context, id uuid.UUID) (VehiclePhoto, error)
@@ -95,6 +96,7 @@ type Querier interface {
 	RemoveUserFromEntity(ctx context.Context, arg RemoveUserFromEntityParams) error
 	RevokeShareLink(ctx context.Context, id uuid.UUID) (VehicleShareLink, error)
 	UpdateEntity(ctx context.Context, arg UpdateEntityParams) (Entity, error)
+	UpdateEntityLogo(ctx context.Context, arg UpdateEntityLogoParams) (Entity, error)
 	UpdateEvent(ctx context.Context, arg UpdateEventParams) (Event, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 	UpdateUserEntityRole(ctx context.Context, arg UpdateUserEntityRoleParams) (UserEntity, error)

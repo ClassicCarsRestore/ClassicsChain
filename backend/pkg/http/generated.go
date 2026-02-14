@@ -408,15 +408,27 @@ type Entity struct {
 	ContactEmail openapi_types.Email `json:"contactEmail"`
 	Description  *string             `json:"description,omitempty"`
 	Id           openapi_types.UUID  `json:"id"`
-	Name         string              `json:"name"`
-	Type         EntityType          `json:"type"`
-	Website      *string             `json:"website,omitempty"`
+
+	// LogoObjectKey S3 object key for the entity logo
+	LogoObjectKey *string    `json:"logoObjectKey,omitempty"`
+	Name          string     `json:"name"`
+	Type          EntityType `json:"type"`
+	Website       *string    `json:"website,omitempty"`
 }
 
 // EntityListResponse defines model for EntityListResponse.
 type EntityListResponse struct {
 	Data []Entity       `json:"data"`
 	Meta PaginationMeta `json:"meta"`
+}
+
+// EntityLogoUploadUrlResponse defines model for EntityLogoUploadUrlResponse.
+type EntityLogoUploadUrlResponse struct {
+	// ObjectKey S3 object key for the uploaded logo
+	ObjectKey string `json:"objectKey"`
+
+	// UploadUrl Pre-signed URL for uploading the logo file
+	UploadUrl string `json:"uploadUrl"`
 }
 
 // EntityMember defines model for EntityMember.
@@ -468,6 +480,9 @@ type Event struct {
 	Date        openapi_types.Date  `json:"date"`
 	Description *string             `json:"description,omitempty"`
 	EntityId    *openapi_types.UUID `json:"entityId,omitempty"`
+
+	// EntityLogoObjectKey S3 object key for the entity logo
+	EntityLogoObjectKey *string `json:"entityLogoObjectKey,omitempty"`
 
 	// EntityName Name of the issuing entity (for certified events)
 	EntityName *string            `json:"entityName,omitempty"`
@@ -681,9 +696,12 @@ type PublicEntity struct {
 	CertifiedBy *openapi_types.UUID `json:"certifiedBy,omitempty"`
 	Description *string             `json:"description,omitempty"`
 	Id          openapi_types.UUID  `json:"id"`
-	Name        string              `json:"name"`
-	Type        EntityType          `json:"type"`
-	Website     *string             `json:"website,omitempty"`
+
+	// LogoObjectKey S3 object key for the entity logo
+	LogoObjectKey *string    `json:"logoObjectKey,omitempty"`
+	Name          string     `json:"name"`
+	Type          EntityType `json:"type"`
+	Website       *string    `json:"website,omitempty"`
 }
 
 // PublicEntityListResponse defines model for PublicEntityListResponse.
@@ -1066,6 +1084,9 @@ type CreateEntityJSONRequestBody = CreateEntityRequest
 // UpdateEntityJSONRequestBody defines body for UpdateEntity for application/json ContentType.
 type UpdateEntityJSONRequestBody = UpdateEntityRequest
 
+// GenerateEntityLogoUploadUrlJSONRequestBody defines body for GenerateEntityLogoUploadUrl for application/json ContentType.
+type GenerateEntityLogoUploadUrlJSONRequestBody = GenerateUploadUrlRequest
+
 // AddEntityMemberJSONRequestBody defines body for AddEntityMember for application/json ContentType.
 type AddEntityMemberJSONRequestBody = AddEntityMemberRequest
 
@@ -1140,6 +1161,12 @@ type ServerInterface interface {
 	// Update entity
 	// (PUT /entities/{entityId})
 	UpdateEntity(w http.ResponseWriter, r *http.Request, entityId EntityIdParam)
+	// Delete entity logo
+	// (DELETE /entities/{entityId}/logo)
+	DeleteEntityLogo(w http.ResponseWriter, r *http.Request, entityId EntityIdParam)
+	// Generate entity logo upload URL
+	// (POST /entities/{entityId}/logo/upload-url)
+	GenerateEntityLogoUploadUrl(w http.ResponseWriter, r *http.Request, entityId EntityIdParam)
 	// List entity members
 	// (GET /entities/{entityId}/members)
 	GetEntityMembers(w http.ResponseWriter, r *http.Request, entityId EntityIdParam)
@@ -1617,6 +1644,68 @@ func (siw *ServerInterfaceWrapper) UpdateEntity(w http.ResponseWriter, r *http.R
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.UpdateEntity(w, r, entityId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// DeleteEntityLogo operation middleware
+func (siw *ServerInterfaceWrapper) DeleteEntityLogo(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "entityId" -------------
+	var entityId EntityIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "entityId", r.PathValue("entityId"), &entityId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "entityId", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.DeleteEntityLogo(w, r, entityId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GenerateEntityLogoUploadUrl operation middleware
+func (siw *ServerInterfaceWrapper) GenerateEntityLogoUploadUrl(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "entityId" -------------
+	var entityId EntityIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "entityId", r.PathValue("entityId"), &entityId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "entityId", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GenerateEntityLogoUploadUrl(w, r, entityId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -3072,6 +3161,8 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("DELETE "+options.BaseURL+"/entities/{entityId}", wrapper.DeleteEntity)
 	m.HandleFunc("GET "+options.BaseURL+"/entities/{entityId}", wrapper.GetEntity)
 	m.HandleFunc("PUT "+options.BaseURL+"/entities/{entityId}", wrapper.UpdateEntity)
+	m.HandleFunc("DELETE "+options.BaseURL+"/entities/{entityId}/logo", wrapper.DeleteEntityLogo)
+	m.HandleFunc("POST "+options.BaseURL+"/entities/{entityId}/logo/upload-url", wrapper.GenerateEntityLogoUploadUrl)
 	m.HandleFunc("GET "+options.BaseURL+"/entities/{entityId}/members", wrapper.GetEntityMembers)
 	m.HandleFunc("POST "+options.BaseURL+"/entities/{entityId}/members", wrapper.AddEntityMember)
 	m.HandleFunc("DELETE "+options.BaseURL+"/entities/{entityId}/members/{userId}", wrapper.RemoveEntityMember)
@@ -3614,6 +3705,103 @@ func (response UpdateEntity403JSONResponse) VisitUpdateEntityResponse(w http.Res
 type UpdateEntity404JSONResponse struct{ NotFoundJSONResponse }
 
 func (response UpdateEntity404JSONResponse) VisitUpdateEntityResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type DeleteEntityLogoRequestObject struct {
+	EntityId EntityIdParam `json:"entityId"`
+}
+
+type DeleteEntityLogoResponseObject interface {
+	VisitDeleteEntityLogoResponse(w http.ResponseWriter) error
+}
+
+type DeleteEntityLogo204Response struct {
+}
+
+func (response DeleteEntityLogo204Response) VisitDeleteEntityLogoResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
+}
+
+type DeleteEntityLogo401JSONResponse struct{ UnauthorizedJSONResponse }
+
+func (response DeleteEntityLogo401JSONResponse) VisitDeleteEntityLogoResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type DeleteEntityLogo403JSONResponse struct{ ForbiddenJSONResponse }
+
+func (response DeleteEntityLogo403JSONResponse) VisitDeleteEntityLogoResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type DeleteEntityLogo404JSONResponse struct{ NotFoundJSONResponse }
+
+func (response DeleteEntityLogo404JSONResponse) VisitDeleteEntityLogoResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GenerateEntityLogoUploadUrlRequestObject struct {
+	EntityId EntityIdParam `json:"entityId"`
+	Body     *GenerateEntityLogoUploadUrlJSONRequestBody
+}
+
+type GenerateEntityLogoUploadUrlResponseObject interface {
+	VisitGenerateEntityLogoUploadUrlResponse(w http.ResponseWriter) error
+}
+
+type GenerateEntityLogoUploadUrl200JSONResponse EntityLogoUploadUrlResponse
+
+func (response GenerateEntityLogoUploadUrl200JSONResponse) VisitGenerateEntityLogoUploadUrlResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GenerateEntityLogoUploadUrl400JSONResponse struct{ BadRequestJSONResponse }
+
+func (response GenerateEntityLogoUploadUrl400JSONResponse) VisitGenerateEntityLogoUploadUrlResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GenerateEntityLogoUploadUrl401JSONResponse struct{ UnauthorizedJSONResponse }
+
+func (response GenerateEntityLogoUploadUrl401JSONResponse) VisitGenerateEntityLogoUploadUrlResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GenerateEntityLogoUploadUrl403JSONResponse struct{ ForbiddenJSONResponse }
+
+func (response GenerateEntityLogoUploadUrl403JSONResponse) VisitGenerateEntityLogoUploadUrlResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GenerateEntityLogoUploadUrl404JSONResponse struct{ NotFoundJSONResponse }
+
+func (response GenerateEntityLogoUploadUrl404JSONResponse) VisitGenerateEntityLogoUploadUrlResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(404)
 
@@ -5384,6 +5572,12 @@ type StrictServerInterface interface {
 	// Update entity
 	// (PUT /entities/{entityId})
 	UpdateEntity(ctx context.Context, request UpdateEntityRequestObject) (UpdateEntityResponseObject, error)
+	// Delete entity logo
+	// (DELETE /entities/{entityId}/logo)
+	DeleteEntityLogo(ctx context.Context, request DeleteEntityLogoRequestObject) (DeleteEntityLogoResponseObject, error)
+	// Generate entity logo upload URL
+	// (POST /entities/{entityId}/logo/upload-url)
+	GenerateEntityLogoUploadUrl(ctx context.Context, request GenerateEntityLogoUploadUrlRequestObject) (GenerateEntityLogoUploadUrlResponseObject, error)
 	// List entity members
 	// (GET /entities/{entityId}/members)
 	GetEntityMembers(ctx context.Context, request GetEntityMembersRequestObject) (GetEntityMembersResponseObject, error)
@@ -5876,6 +6070,65 @@ func (sh *strictHandler) UpdateEntity(w http.ResponseWriter, r *http.Request, en
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(UpdateEntityResponseObject); ok {
 		if err := validResponse.VisitUpdateEntityResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// DeleteEntityLogo operation middleware
+func (sh *strictHandler) DeleteEntityLogo(w http.ResponseWriter, r *http.Request, entityId EntityIdParam) {
+	var request DeleteEntityLogoRequestObject
+
+	request.EntityId = entityId
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.DeleteEntityLogo(ctx, request.(DeleteEntityLogoRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "DeleteEntityLogo")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(DeleteEntityLogoResponseObject); ok {
+		if err := validResponse.VisitDeleteEntityLogoResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GenerateEntityLogoUploadUrl operation middleware
+func (sh *strictHandler) GenerateEntityLogoUploadUrl(w http.ResponseWriter, r *http.Request, entityId EntityIdParam) {
+	var request GenerateEntityLogoUploadUrlRequestObject
+
+	request.EntityId = entityId
+
+	var body GenerateEntityLogoUploadUrlJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GenerateEntityLogoUploadUrl(ctx, request.(GenerateEntityLogoUploadUrlRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GenerateEntityLogoUploadUrl")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GenerateEntityLogoUploadUrlResponseObject); ok {
+		if err := validResponse.VisitGenerateEntityLogoUploadUrlResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

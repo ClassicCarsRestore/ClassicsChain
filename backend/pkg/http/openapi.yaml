@@ -526,6 +526,56 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+  /entities/{entityId}/logo/upload-url:
+    post:
+      operationId: generateEntityLogoUploadUrl
+      summary: Generate entity logo upload URL
+      description: Generates a pre-signed URL for uploading an entity logo. If the entity already has a logo, the old one is replaced.
+      tags:
+        - Entities
+      parameters:
+        - $ref: '#/components/parameters/EntityIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateUploadUrlRequest'
+      responses:
+        '200':
+          description: Pre-signed upload URL generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityLogoUploadUrlResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /entities/{entityId}/logo:
+    delete:
+      operationId: deleteEntityLogo
+      summary: Delete entity logo
+      description: Deletes the entity logo from storage and clears the reference.
+      tags:
+        - Entities
+      parameters:
+        - $ref: '#/components/parameters/EntityIdParam'
+      responses:
+        '204':
+          description: Logo deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
   /public/entities:
     get:
       operationId: getPublicEntities
@@ -1779,6 +1829,9 @@ components:
         certifiedBy:
           type: string
           format: uuid
+        logoObjectKey:
+          type: string
+          description: S3 object key for the entity logo
       required:
         - id
         - name
@@ -1805,6 +1858,9 @@ components:
         certifiedBy:
           type: string
           format: uuid
+        logoObjectKey:
+          type: string
+          description: S3 object key for the entity logo
       required:
         - id
         - name
@@ -2251,6 +2307,9 @@ components:
         entityName:
           type: string
           description: Name of the issuing entity (for certified events)
+        entityLogoObjectKey:
+          type: string
+          description: S3 object key for the entity logo
         type:
           $ref: '#/components/schemas/EventType'
         title:
@@ -2615,6 +2674,20 @@ components:
       required:
         - photoId
         - uploadUrl
+
+    EntityLogoUploadUrlResponse:
+      type: object
+      properties:
+        uploadUrl:
+          type: string
+          format: uri
+          description: Pre-signed URL for uploading the logo file
+        objectKey:
+          type: string
+          description: S3 object key for the uploaded logo
+      required:
+        - uploadUrl
+        - objectKey
 
     # Document schemas
     Document:

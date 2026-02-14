@@ -5,6 +5,7 @@ import { Edit, Trash2 } from 'lucide-react';
 import { useEntities } from '../hooks/useEntities';
 import { EntityType } from '../types';
 import { entitiesApi } from '../api/entitiesApi';
+import { generateStorageUrl } from '@/lib/storage';
 
 export function EntitiesList() {
   const navigate = useNavigate();
@@ -106,12 +107,27 @@ export function EntitiesList() {
               {entities.map((entity) => (
                 <tr key={entity.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{entity.name}</div>
-                    {entity.description && (
-                      <div className="text-sm text-gray-500 truncate max-w-xs">
-                        {entity.description}
+                    <div className="flex items-center gap-3">
+                      {entity.logoObjectKey ? (
+                        <img
+                          src={generateStorageUrl(entity.logoObjectKey)}
+                          alt=""
+                          className="h-8 w-8 rounded object-cover flex-shrink-0"
+                        />
+                      ) : (
+                        <div className="h-8 w-8 rounded bg-gray-100 flex items-center justify-center text-gray-400 text-xs font-bold flex-shrink-0">
+                          {entity.name.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">{entity.name}</div>
+                        {entity.description && (
+                          <div className="text-sm text-gray-500 truncate max-w-xs">
+                            {entity.description}
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span

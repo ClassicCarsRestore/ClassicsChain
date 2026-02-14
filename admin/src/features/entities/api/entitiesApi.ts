@@ -34,4 +34,13 @@ export const entitiesApi = {
     api.put<Entity>(`/v1/entities/${id}`, data),
 
   deleteEntity: (id: string) => api.delete(`/v1/entities/${id}`),
+
+  generateLogoUploadUrl: async (entityId: string, filename: string) => {
+    return api.post<{ uploadUrl: string; objectKey: string }>(
+      `/v1/entities/${entityId}/logo/upload-url`,
+      { filename }
+    );
+  },
+
+  deleteLogo: (entityId: string) => api.delete(`/v1/entities/${entityId}/logo`),
 };

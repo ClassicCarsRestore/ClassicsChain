@@ -319,30 +319,112 @@ func (a apiServer) DeleteEntity(ctx context.Context, request DeleteEntityRequest
 	return DeleteEntity204Response{}, nil
 }
 
+func (a apiServer) GenerateEntityLogoUploadUrl(ctx context.Context, request GenerateEntityLogoUploadUrlRequestObject) (GenerateEntityLogoUploadUrlResponseObject, error) {
+	if request.Body == nil {
+		return GenerateEntityLogoUploadUrl400JSONResponse{
+			BadRequestJSONResponse: BadRequestJSONResponse{
+				Error: "Request body is required",
+			},
+		}, nil
+	}
+
+	if err := a.authorizer.Authorize(ctx, ResourceEntities, ActionUpdate); err != nil {
+		return GenerateEntityLogoUploadUrl403JSONResponse{
+			ForbiddenJSONResponse: ForbiddenJSONResponse{
+				Error: "forbidden",
+			},
+		}, nil
+	}
+
+	if !auth.IsAdmin(ctx) {
+		if err := a.authorizer.AuthorizeEntityMembership(ctx, request.EntityId, EntityRoleAdmin); err != nil {
+			return GenerateEntityLogoUploadUrl403JSONResponse{
+				ForbiddenJSONResponse: ForbiddenJSONResponse{
+					Error: "forbidden",
+				},
+			}, nil
+		}
+	}
+
+	fileExtension := extractFileExtension(request.Body.Filename)
+	objectKey, uploadURL, err := a.entityService.GenerateLogoUploadURL(ctx, request.EntityId, fileExtension)
+	if err != nil {
+		if errors.Is(err, entity.ErrEntityNotFound) {
+			return GenerateEntityLogoUploadUrl404JSONResponse{
+				NotFoundJSONResponse: NotFoundJSONResponse{
+					Error: "Entity not found",
+				},
+			}, nil
+		}
+		return nil, err
+	}
+
+	return GenerateEntityLogoUploadUrl200JSONResponse{
+		UploadUrl: uploadURL,
+		ObjectKey: objectKey,
+	}, nil
+}
+
+func (a apiServer) DeleteEntityLogo(ctx context.Context, request DeleteEntityLogoRequestObject) (DeleteEntityLogoResponseObject, error) {
+	if err := a.authorizer.Authorize(ctx, ResourceEntities, ActionUpdate); err != nil {
+		return DeleteEntityLogo403JSONResponse{
+			ForbiddenJSONResponse: ForbiddenJSONResponse{
+				Error: "forbidden",
+			},
+		}, nil
+	}
+
+	if !auth.IsAdmin(ctx) {
+		if err := a.authorizer.AuthorizeEntityMembership(ctx, request.EntityId, EntityRoleAdmin); err != nil {
+			return DeleteEntityLogo403JSONResponse{
+				ForbiddenJSONResponse: ForbiddenJSONResponse{
+					Error: "forbidden",
+				},
+			}, nil
+		}
+	}
+
+	err := a.entityService.DeleteLogo(ctx, request.EntityId)
+	if err != nil {
+		if errors.Is(err, entity.ErrEntityNotFound) {
+			return DeleteEntityLogo404JSONResponse{
+				NotFoundJSONResponse: NotFoundJSONResponse{
+					Error: "Entity not found",
+				},
+			}, nil
+		}
+		return nil, err
+	}
+
+	return DeleteEntityLogo204Response{}, nil
+}
+
 // domainToHTTPEntity converts a domain entity to HTTP entity
 func domainToHTTPEntity(domainEntity entity.Entity) Entity {
 	return Entity{
-		Id:           domainEntity.ID,
-		Name:         domainEntity.Name,
-		Type:         EntityType(domainEntity.Type),
-		Description:  domainEntity.Description,
-		ContactEmail: openapi_types.Email(domainEntity.ContactEmail),
-		Website:      domainEntity.Website,
-		Address:      domainToHTTPAddress(domainEntity.Address),
-		CertifiedBy:  domainEntity.CertifiedBy,
+		Id:            domainEntity.ID,
+		Name:          domainEntity.Name,
+		Type:          EntityType(domainEntity.Type),
+		Description:   domainEntity.Description,
+		ContactEmail:  openapi_types.Email(domainEntity.ContactEmail),
+		Website:       domainEntity.Website,
+		Address:       domainToHTTPAddress(domainEntity.Address),
+		CertifiedBy:   domainEntity.CertifiedBy,
+		LogoObjectKey: domainEntity.LogoObjectKey,
 	}
 }
 
 // domainToHTTPPublicEntity converts a domain entity to public HTTP entity (without contact email)
 func domainToHTTPPublicEntity(domainEntity entity.Entity) PublicEntity {
 	return PublicEntity{
-		Id:          domainEntity.ID,
-		Name:        domainEntity.Name,
-		Type:        EntityType(domainEntity.Type),
-		Description: domainEntity.Description,
-		Website:     domainEntity.Website,
-		Address:     domainToHTTPAddress(domainEntity.Address),
-		CertifiedBy: domainEntity.CertifiedBy,
+		Id:            domainEntity.ID,
+		Name:          domainEntity.Name,
+		Type:          EntityType(domainEntity.Type),
+		Description:   domainEntity.Description,
+		Website:       domainEntity.Website,
+		Address:       domainToHTTPAddress(domainEntity.Address),
+		CertifiedBy:   domainEntity.CertifiedBy,
+		LogoObjectKey: domainEntity.LogoObjectKey,
 	}
 }
 

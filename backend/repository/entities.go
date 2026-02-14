@@ -118,6 +118,32 @@ func (r *EntityRepository) Update(ctx context.Context, ent *entity.Entity) error
 	return nil
 }
 
+func (r *EntityRepository) UpdateLogo(ctx context.Context, id uuid.UUID, objectKey string) (*entity.Entity, error) {
+	updated, err := r.queries.UpdateEntityLogo(ctx, db.UpdateEntityLogoParams{
+		ID:            id,
+		LogoObjectKey: &objectKey,
+	})
+	if err != nil {
+		if postgres.IsNotFoundError(err) {
+			return nil, entity.ErrEntityNotFound
+		}
+		return nil, postgres.WrapError(err, "update entity logo")
+	}
+	result := toEntityDomain(updated)
+	return &result, nil
+}
+
+func (r *EntityRepository) ClearLogo(ctx context.Context, id uuid.UUID) error {
+	_, err := r.queries.ClearEntityLogo(ctx, id)
+	if err != nil {
+		if postgres.IsNotFoundError(err) {
+			return entity.ErrEntityNotFound
+		}
+		return postgres.WrapError(err, "clear entity logo")
+	}
+	return nil
+}
+
 func (r *EntityRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	return postgres.WrapError(r.queries.DeleteEntity(ctx, id), "delete entity")
 }
@@ -131,15 +157,16 @@ func toEntityDomain(e db.Entity) entity.Entity {
 	}
 
 	return entity.Entity{
-		ID:           e.ID,
-		Name:         e.Name,
-		Type:         entity.EntityType(e.EntityType),
-		Description:  nullableToStringPtr(e.Description),
-		ContactEmail: e.ContactEmail,
-		Website:      nullableToStringPtr(e.Website),
-		Address:      addr,
-		CertifiedBy:  e.CertifiedBy,
-		CreatedAt:    e.CreatedAt,
-		UpdatedAt:    e.UpdatedAt,
+		ID:            e.ID,
+		Name:          e.Name,
+		Type:          entity.EntityType(e.EntityType),
+		Description:   nullableToStringPtr(e.Description),
+		ContactEmail:  e.ContactEmail,
+		Website:       nullableToStringPtr(e.Website),
+		Address:       addr,
+		CertifiedBy:   e.CertifiedBy,
+		LogoObjectKey: e.LogoObjectKey,
+		CreatedAt:     e.CreatedAt,
+		UpdatedAt:     e.UpdatedAt,
 	}
 }

@@ -12,6 +12,7 @@ export interface PublicEntity {
         country: string;
     };
     certifiedBy?: string;
+    logoObjectKey?: string;
 }
 
 export interface PublicEntityListResponse {

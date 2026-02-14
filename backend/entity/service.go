@@ -3,12 +3,14 @@ package entity
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/s1moe2/classics-chain/auth"
 	"github.com/s1moe2/classics-chain/pkg/hydra"
 	"github.com/s1moe2/classics-chain/pkg/kratos"
+	"github.com/s1moe2/classics-chain/pkg/storage"
 	"github.com/s1moe2/classics-chain/user"
 	"github.com/s1moe2/classics-chain/user_invitation"
 )
@@ -20,6 +22,14 @@ type Repository interface {
 	Create(ctx context.Context, entity *Entity) error
 	Update(ctx context.Context, entity *Entity) error
 	Delete(ctx context.Context, id uuid.UUID) error
+	UpdateLogo(ctx context.Context, id uuid.UUID, objectKey string) (*Entity, error)
+	ClearLogo(ctx context.Context, id uuid.UUID) error
+}
+
+// Storage defines the interface for object storage operations
+type Storage interface {
+	GeneratePresignedUploadURL(ctx context.Context, entityID, fileID uuid.UUID, bucket, fileType, fileExtension string) (objectKey string, uploadURL string, err error)
+	DeleteObject(ctx context.Context, bucket, objectKey string) error
 }
 
 // UserRepository defines interface for user data access needed by entity service
@@ -62,10 +72,11 @@ type Service struct {
 	userService           UserService
 	hydraClient           *hydra.Client
 	userInvitationService UserInvitationService
+	storage               Storage
 }
 
 // New creates a new entity service with all dependencies
-func New(repo Repository, userRepo UserRepository, kratosUserService KratosUserService, userService UserService, hydraClient *hydra.Client, userInvitationService UserInvitationService) *Service {
+func New(repo Repository, userRepo UserRepository, kratosUserService KratosUserService, userService UserService, hydraClient *hydra.Client, userInvitationService UserInvitationService, storage Storage) *Service {
 	return &Service{
 		repo:                  repo,
 		userRepo:              userRepo,
@@ -73,6 +84,7 @@ func New(repo Repository, userRepo UserRepository, kratosUserService KratosUserS
 		userService:           userService,
 		hydraClient:           hydraClient,
 		userInvitationService: userInvitationService,
+		storage:               storage,
 	}
 }
 
@@ -293,6 +305,51 @@ func (s *Service) AddMemberWithInvite(ctx context.Context, params AddMemberWithI
 	}
 
 	return nil
+}
+
+// GenerateLogoUploadURL generates a presigned URL for uploading an entity logo.
+// If the entity already has a logo, the old one is deleted from storage.
+func (s *Service) GenerateLogoUploadURL(ctx context.Context, entityID uuid.UUID, fileExtension string) (string, string, error) {
+	ent, err := s.repo.GetByID(ctx, entityID)
+	if err != nil {
+		return "", "", err
+	}
+
+	// Delete old logo from storage if one exists
+	if ent.LogoObjectKey != nil {
+		if err := s.storage.DeleteObject(ctx, storage.VehiclesBucket, *ent.LogoObjectKey); err != nil {
+			log.Printf("WARN: failed to delete old logo from storage: %v", err)
+		}
+	}
+
+	fileID := uuid.New()
+	objectKey, uploadURL, err := s.storage.GeneratePresignedUploadURL(ctx, entityID, fileID, storage.VehiclesBucket, "logo", fileExtension)
+	if err != nil {
+		return "", "", fmt.Errorf("generate presigned URL: %w", err)
+	}
+
+	_, err = s.repo.UpdateLogo(ctx, entityID, objectKey)
+	if err != nil {
+		return "", "", fmt.Errorf("update entity logo: %w", err)
+	}
+
+	return objectKey, uploadURL, nil
+}
+
+// DeleteLogo deletes an entity's logo from storage and clears the DB field.
+func (s *Service) DeleteLogo(ctx context.Context, entityID uuid.UUID) error {
+	ent, err := s.repo.GetByID(ctx, entityID)
+	if err != nil {
+		return err
+	}
+
+	if ent.LogoObjectKey != nil {
+		if err := s.storage.DeleteObject(ctx, storage.VehiclesBucket, *ent.LogoObjectKey); err != nil {
+			log.Printf("WARN: failed to delete logo from storage: %v", err)
+		}
+	}
+
+	return s.repo.ClearLogo(ctx, entityID)
 }
 
 // CreateClientParams contains parameters for creating an OAuth2 client

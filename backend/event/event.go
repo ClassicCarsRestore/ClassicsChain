@@ -13,11 +13,12 @@ var (
 
 // Event represents a vehicle history event in the system
 type Event struct {
-	ID             uuid.UUID              `json:"id"`
-	VehicleID      uuid.UUID              `json:"vehicleId"`
-	EntityID       *uuid.UUID             `json:"entityId"`
-	EntityName     *string                `json:"entityName,omitempty"`
-	Type           EventType              `json:"type"`
+	ID                  uuid.UUID              `json:"id"`
+	VehicleID           uuid.UUID              `json:"vehicleId"`
+	EntityID            *uuid.UUID             `json:"entityId"`
+	EntityName          *string                `json:"entityName,omitempty"`
+	EntityLogoObjectKey *string                `json:"entityLogoObjectKey,omitempty"`
+	Type                EventType              `json:"type"`
 	Title          string                 `json:"title"`
 	Description    *string                `json:"description,omitempty"`
 	Date           time.Time              `json:"date"`

@@ -77,6 +77,7 @@ export interface Event {
   vehicleId: string;
   entityId?: string;
   entityName?: string;
+  entityLogoObjectKey?: string;
   type: EventType;
   title: string;
   description?: string;

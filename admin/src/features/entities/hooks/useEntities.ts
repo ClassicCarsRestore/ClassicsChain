@@ -40,3 +40,32 @@ export const useUpdateEntity = () => {
     },
   });
 };
+
+export const useUploadEntityLogo = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ entityId, file }: { entityId: string; file: File }) => {
+      const { uploadUrl } = await entitiesApi.generateLogoUploadUrl(entityId, file.name);
+      await fetch(uploadUrl, {
+        method: 'PUT',
+        body: file,
+        headers: { 'Content-Type': file.type },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['entities'] });
+    },
+  });
+};
+
+export const useDeleteEntityLogo = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (entityId: string) => entitiesApi.deleteLogo(entityId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['entities'] });
+    },
+  });
+};

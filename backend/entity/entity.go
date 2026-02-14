@@ -13,16 +13,17 @@ var (
 
 // Entity represents a certifier or partner in the system
 type Entity struct {
-	ID           uuid.UUID  `json:"id"`
-	Name         string     `json:"name"`
-	Type         EntityType `json:"type"`
-	Description  *string    `json:"description,omitempty"`
-	ContactEmail string     `json:"contactEmail"`
-	Website      *string    `json:"website,omitempty"`
-	Address      *Address   `json:"address,omitempty"`
-	CertifiedBy  *uuid.UUID `json:"certifiedBy,omitempty"`
-	CreatedAt    time.Time  `json:"createdAt"`
-	UpdatedAt    time.Time  `json:"updatedAt"`
+	ID            uuid.UUID  `json:"id"`
+	Name          string     `json:"name"`
+	Type          EntityType `json:"type"`
+	Description   *string    `json:"description,omitempty"`
+	ContactEmail  string     `json:"contactEmail"`
+	Website       *string    `json:"website,omitempty"`
+	Address       *Address   `json:"address,omitempty"`
+	CertifiedBy   *uuid.UUID `json:"certifiedBy,omitempty"`
+	LogoObjectKey *string    `json:"logoObjectKey,omitempty"`
+	CreatedAt     time.Time  `json:"createdAt"`
+	UpdatedAt     time.Time  `json:"updatedAt"`
 }
 
 // EntityType represents the type of entity

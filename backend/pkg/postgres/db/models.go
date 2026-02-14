@@ -12,16 +12,17 @@ import (
 )
 
 type Entity struct {
-	ID           uuid.UUID
-	Name         string
-	EntityType   string
-	Description  string
-	ContactEmail string
-	Website      string
-	Address      []byte
-	CertifiedBy  *uuid.UUID
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
+	ID            uuid.UUID
+	Name          string
+	EntityType    string
+	Description   string
+	ContactEmail  string
+	Website       string
+	Address       []byte
+	CertifiedBy   *uuid.UUID
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	LogoObjectKey *string
 }
 
 type Event struct {
