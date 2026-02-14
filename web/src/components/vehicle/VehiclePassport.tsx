@@ -20,6 +20,7 @@ import {
 import type { Vehicle } from '@/types/vehicle';
 import type { SharedVehicle, SharedPhoto, SharedDocument, SharedEvent } from '@/types/shareLink';
 import { generateStorageUrl } from '@/lib/storage';
+import { BrandLogo } from './BrandLogo';
 
 type PassportPhoto = SharedPhoto | { id: string; objectKey: string };
 type PassportDocument = SharedDocument | { id: string; objectKey: string; filename: string };
@@ -123,9 +124,12 @@ export function VehiclePassport({
               <p className="text-xs text-primary uppercase tracking-widest font-medium mb-2">
                 {t('passport.label')}
               </p>
-              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                {vehicle.year} {vehicle.make} {vehicle.model}
-              </h1>
+              <div className="flex items-center gap-3">
+                <BrandLogo make={vehicle.make} size="md" />
+                <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                  {vehicle.year} {vehicle.make} {vehicle.model}
+                </h1>
+              </div>
               {vehicle.chassisNumber && (
                 <p className="mt-2 font-mono text-sm text-muted-foreground">
                   {vehicle.chassisNumber}

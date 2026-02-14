@@ -7,3 +7,5 @@ node_modules
 .env
 .envrc
 .mcp.json
+shared/package.json
+shared/package-lock.json

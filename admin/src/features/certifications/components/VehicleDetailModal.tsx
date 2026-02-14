@@ -9,6 +9,7 @@ import { LazyImage } from '@/components/common/LazyImage';
 import { useVehicleEvents } from '../hooks/useVehicles';
 import { generateStorageUrl } from '@/lib/storage';
 import { getAlgorandAssetUrl, getAlgorandTxUrl } from '@/lib/utils';
+import { BrandLogo } from '@/components/vehicle/BrandLogo';
 import type { Vehicle, EventType } from '../types';
 
 interface Entity {
@@ -391,11 +392,14 @@ export function VehicleDetailModal({
       <div className="bg-card rounded-lg max-w-2xl w-full max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border bg-card rounded-t-lg">
-          <div>
-            <h2 className="text-2xl font-bold">
-              {vehicle.make} {vehicle.model}
-            </h2>
-            <p className="text-sm text-muted-foreground">{vehicle.year}</p>
+          <div className="flex items-center gap-3">
+            <BrandLogo make={vehicle.make} size="md" />
+            <div>
+              <h2 className="text-2xl font-bold">
+                {vehicle.make} {vehicle.model}
+              </h2>
+              <p className="text-sm text-muted-foreground">{vehicle.year}</p>
+            </div>
           </div>
           <button
             onClick={onClose}

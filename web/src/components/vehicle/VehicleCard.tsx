@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { generateStorageUrl } from '@/lib/storage';
 import { VerificationBadge } from './VerificationBadge';
+import { BrandLogo } from './BrandLogo';
 import type { Vehicle, EventListResponse } from '@/types/vehicle';
 import type { PhotoListResponse } from '@/features/vehicles/types/photo';
 
@@ -53,6 +54,9 @@ export function VehicleCard({ vehicle }: VehicleCardProps) {
             <Car className="h-12 w-12 text-muted-foreground/50" />
           </div>
         )}
+        <div className="absolute bottom-2 right-2">
+          <BrandLogo make={vehicle.make} size="md" />
+        </div>
       </div>
 
       {/* Vehicle Info */}

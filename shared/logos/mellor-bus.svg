@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+   sodipodi:docname="mellor wordmark 2023.svg"
+   id="svg22"
+   version="1.1"
+   viewBox="0 0 118 21"
+   height="21px"
+   width="118px">
+  <metadata
+     id="metadata28">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs26" />
+  <sodipodi:namedview
+     inkscape:current-layer="svg22"
+     inkscape:window-maximized="1"
+     inkscape:window-y="-11"
+     inkscape:window-x="83"
+     inkscape:cy="10.5"
+     inkscape:cx="60.324912"
+     inkscape:zoom="12.076271"
+     showgrid="false"
+     id="namedview24"
+     inkscape:window-height="1406"
+     inkscape:window-width="2466"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0"
+     guidetolerance="10"
+     gridtolerance="10"
+     objecttolerance="10"
+     borderopacity="1"
+     bordercolor="#666666"
+     pagecolor="#ffffff" />
+  <g
+     id="g897">
+    <g
+       id="g887">
+      <polygon
+         class="triangle"
+         fill="#66b711"
+         points="39.993902,12.999241 33,13 40,8 "
+         id="polygon2"
+         style="fill:#b7b7b7;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1" />
+      <polygon
+         fill="#ffffff"
+         points="27,21 42,21 42,17.368712 31.460719,17.368712 31.460719,12.635303 31.474035,17.368712 31.474035,4.6018066 31.460719,9.0341237 31.460719,4.6018066 42,4.6018066 42,1 27,1 "
+         id="polygon4"
+         style="fill:#666666;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1" />
+    </g>
+    <polygon
+       style="fill:#666666;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1"
+       id="polygon6"
+       points="49.305913,17.308493 49.305913,1 45,1 45,21 58,21 58,17.308493 "
+       fill="#ffffff" />
+    <polygon
+       style="fill:#666666;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1"
+       id="polygon8"
+       points="67.305913,17.308493 67.305913,1 63,1 63,21 76,21 76,17.308493 "
+       fill="#ffffff" />
+    <path
+       style="fill:#666666;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1"
+       id="path10"
+       fill="#ffffff"
+       d="m 91.973442,15.287195 c -1.12931,1.266188 -2.681481,1.93525 -4.488882,1.93525 -3.615431,0 -6.141254,-2.764733 -6.141254,-6.723082 0,-3.9577115 2.525823,-6.7224441 6.141254,-6.7224441 3.634337,0 6.171503,2.7647326 6.171503,6.7224441 0,1.87159 -0.597425,3.571936 -1.682621,4.787832 M 87.48456,0 C 81.409477,0 77,4.4160604 77,10.499363 77,16.58394 81.409477,21 87.48456,21 93.577919,21 98,16.58394 98,10.499363 98,4.4160604 93.577919,0 87.48456,0" />
+    <path
+       style="fill:#666666;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1"
+       id="path12"
+       fill="#ffffff"
+       d="m 105.4233,4.6018065 h 4.75538 c 1.88617,0 3.20326,1.1523021 3.20326,2.8026597 0,1.6503575 -1.31709,2.8032868 -3.20326,2.8032868 H 105.4233 Z M 108.78567,13.827123 112.92377,21 H 118 l -4.74283,-7.630787 0.0482,-0.01066 c 1.22862,-0.275373 2.34633,-0.924602 3.14715,-1.827876 0.94737,-1.068248 1.4478,-2.4846321 1.4478,-4.0960987 C 117.90031,3.5862502 115.06478,1 110.8435,1 H 101 v 20 h 4.4233 v -7.191068 h 3.35181 z" />
+    <polygon
+       style="fill:#666666;fill-opacity:1;stroke:none;stroke-width:1"
+       id="polygon14"
+       points="10.984786,13.473763 15.914246,1 22,1 22,21 17.648686,21 17.648686,6.6071964 11.928078,21 10.041494,21 4.3208852,6.6071964 4.3208852,21 0,21 0,1 6.055325,1 "
+       fill-rule="nonzero"
+       fill="#ffffff" />
+  </g>
+</svg>

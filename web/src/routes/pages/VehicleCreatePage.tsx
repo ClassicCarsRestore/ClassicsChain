@@ -5,6 +5,7 @@ import { ArrowLeft, Car, Hash, Settings, Gauge, ChevronDown } from 'lucide-react
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { BrandCombobox } from '@/components/vehicle/BrandCombobox';
 import type { CreateVehicleRequest } from '@/types/vehicle';
 
 export function VehicleCreatePage() {
@@ -13,6 +14,7 @@ export function VehicleCreatePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [makeValue, setMakeValue] = useState('');
 
   const validateForm = (formData: FormData): boolean => {
     const errors: Record<string, string> = {};
@@ -231,15 +233,14 @@ export function VehicleCreatePage() {
           <div className="space-y-4 p-4">
             {/* Make */}
             <div>
-              <label htmlFor="make" className="block text-sm font-medium text-foreground">
+              <label className="block text-sm font-medium text-foreground">
                 {t('vehicleForm.fields.make')} <span className="text-amber-500">*</span>
               </label>
-              <input
-                type="text"
-                id="make"
-                name="make"
+              <BrandCombobox
+                value={makeValue}
+                onValueChange={setMakeValue}
                 placeholder={t('vehicleForm.fields.makePlaceholder')}
-                className={inputClasses(!!validationErrors.make)}
+                hasError={!!validationErrors.make}
               />
               {validationErrors.make && (
                 <p className="mt-1 text-sm text-red-500">{validationErrors.make}</p>

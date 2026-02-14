@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { BrandCombobox } from '@/components/vehicle/BrandCombobox';
 import type { VehicleFormData } from '../../types';
 
 interface VehicleBasicsStepProps {
@@ -44,12 +45,10 @@ export function VehicleBasicsStep({ data, onChange }: VehicleBasicsStepProps) {
           <label className="block text-sm font-medium mb-1">
             {t('form.fields.make')} *
           </label>
-          <input
-            type="text"
+          <BrandCombobox
             value={data.make}
-            onChange={(e) => onChange({ make: e.target.value })}
+            onValueChange={(v) => onChange({ make: v })}
             placeholder="e.g., BMW"
-            className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
 

@@ -4,6 +4,7 @@ import { Search, Filter, ChevronDown, Eye, Award, Car, Link2, FileCheck, Users, 
 import { useVehicles } from '../hooks/useVehicles';
 import { VehicleDetailModal } from './VehicleDetailModal';
 import { getAlgorandAssetUrl } from '@/lib/utils';
+import { BrandLogo } from '@/components/vehicle/BrandLogo';
 import type { Vehicle } from '../types';
 
 const PAGE_SIZE = 10;
@@ -323,13 +324,16 @@ export function VehiclesList({ entities, refreshTrigger, onNavigateToCreate }: V
                 filteredVehicles.map((vehicle) => (
                   <tr key={vehicle.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">
-                          {vehicle.make} {vehicle.model}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {vehicle.year}
-                        </p>
+                      <div className="flex items-center gap-2">
+                        <BrandLogo make={vehicle.make} size="sm" />
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">
+                            {vehicle.make} {vehicle.model}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {vehicle.year}
+                          </p>
+                        </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

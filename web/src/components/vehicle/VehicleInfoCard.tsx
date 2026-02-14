@@ -4,6 +4,7 @@ import { ChevronDown } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { VerificationBadge } from './VerificationBadge';
 import { VehicleVerificationDialog } from './VehicleVerificationDialog';
+import { BrandLogo } from './BrandLogo';
 import type { Vehicle } from '@/types/vehicle';
 import type { SharedVehicle } from '@/types/shareLink';
 
@@ -32,6 +33,7 @@ export function VehicleInfoCard({ vehicle, hasVerifiedEvents = false }: VehicleI
     <>
       <div className="rounded-lg border border-border bg-card p-6 mb-8">
         <div className="flex items-center gap-3 flex-wrap">
+          <BrandLogo make={vehicle.make} size="md" />
           <h1 className="text-3xl font-bold text-foreground">
             {vehicle.make} {vehicle.model}
           </h1>
