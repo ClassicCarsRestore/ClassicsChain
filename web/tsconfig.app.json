@@ -23,5 +23,6 @@
     "noUncheckedSideEffectImports": true
   },
   "include": ["src", "../shared"],
+  "exclude": ["../shared/scripts"],
   "typeRoots": ["./node_modules/@types"]
 }
