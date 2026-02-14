@@ -64,6 +64,7 @@ export function HashingStep({ data, onNext, onBack }: HashingStepProps) {
         href={sha256ToolUrl}
         label={t('hashing.verifyLink')}
         description={t('hashing.verifyDescription')}
+        hint={t('hashing.verifyHint')}
       />
 
       <div className="flex justify-between pt-4">

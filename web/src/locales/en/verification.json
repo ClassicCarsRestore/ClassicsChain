@@ -29,7 +29,7 @@
     "jsonLabel": "Original data (JSON)",
     "cborLabel": "Encoded data (CBOR, Base64)",
     "verifyLink": "Verify: Decode this CBOR",
-    "verifyDescription": "Open cbor.me to confirm the CBOR decodes back to the original JSON"
+    "verifyDescription": "Open CBOR decoder to confirm the CBOR decodes back to the original JSON"
   },
   "hashing": {
     "title": "Creating the Fingerprint",
@@ -37,7 +37,8 @@
     "cborLabel": "CBOR data (Base64)",
     "hashLabel": "SHA-256 Hash (computed in your browser)",
     "verifyLink": "Verify: Hash the data yourself",
-    "verifyDescription": "Use an independent SHA-256 calculator to verify"
+    "verifyDescription": "Use an independent SHA-256 calculator to verify",
+    "verifyHint": "Set the input type to \"Base64\" before pasting the CBOR data"
   },
   "cid": {
     "title": "The Content Identifier (CID)",
@@ -60,7 +61,7 @@
     "txLabel": "Transaction ID",
     "verifyLink": "Verify: View on Algorand",
     "verifyDescription": "Open Algorand Explorer to see this transaction",
-    "note": "Look for the \"Note\" field in the transaction. It contains our CID."
+    "note": "Look for the \"Note\" field in the transaction and switch its encoding to UTF-8. It contains our CID."
   },
   "verified": {
     "title": "Verification Complete",

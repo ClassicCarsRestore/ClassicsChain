@@ -29,7 +29,7 @@
     "jsonLabel": "Dados originais (JSON)",
     "cborLabel": "Dados codificados (CBOR, Base64)",
     "verifyLink": "Verificar: Descodificar este CBOR",
-    "verifyDescription": "Abrir cbor.me para confirmar que o CBOR descodifica para o JSON original"
+    "verifyDescription": "Abrir descodificador CBOR para confirmar que o CBOR descodifica para o JSON original"
   },
   "hashing": {
     "title": "Criar a Impressão Digital",
@@ -37,7 +37,8 @@
     "cborLabel": "Dados CBOR (Base64)",
     "hashLabel": "Hash SHA-256 (calculado no seu navegador)",
     "verifyLink": "Verificar: Calcular o hash você mesmo",
-    "verifyDescription": "Use uma calculadora SHA-256 independente para verificar"
+    "verifyDescription": "Use uma calculadora SHA-256 independente para verificar",
+    "verifyHint": "Selecione o tipo de entrada \"Base64\" antes de colar os dados CBOR"
   },
   "cid": {
     "title": "O Identificador de Conteúdo (CID)",
@@ -60,7 +61,7 @@
     "txLabel": "ID da Transação",
     "verifyLink": "Verificar: Ver na Algorand",
     "verifyDescription": "Abrir o Algorand Explorer para ver esta transação",
-    "note": "Procure o campo \"Note\" na transação. Contém o nosso CID."
+    "note": "Procure o campo \"Note\" na transação e mude a codificação para UTF-8. Contém o nosso CID."
   },
   "verified": {
     "title": "Verificação Completa",

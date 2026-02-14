@@ -76,7 +76,7 @@ export function CIDStep({ data, onNext, onBack }: CIDStepProps) {
               <span className="text-muted-foreground">{t('cid.hashMatch')}</span>
             </div>
             <p className="text-xs font-mono text-muted-foreground mt-1 break-all">
-              {computedHash.slice(0, 32)}...
+              {computedHash}
             </p>
           </div>
         )}

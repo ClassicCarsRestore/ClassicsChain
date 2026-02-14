@@ -4,9 +4,10 @@ interface ExternalToolLinkProps {
   href: string;
   label: string;
   description: string;
+  hint?: string;
 }
 
-export function ExternalToolLink({ href, label, description }: ExternalToolLinkProps) {
+export function ExternalToolLink({ href, label, description, hint }: ExternalToolLinkProps) {
   return (
     <a
       href={href}
@@ -26,6 +27,11 @@ export function ExternalToolLink({ href, label, description }: ExternalToolLinkP
         <p className="text-xs text-muted-foreground mt-0.5">
           {description}
         </p>
+        {hint && (
+          <p className="text-xs text-muted-foreground/80 mt-1 italic">
+            {hint}
+          </p>
+        )}
       </div>
     </a>
   );

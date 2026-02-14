@@ -11,25 +11,10 @@ interface CBORStepProps {
   onBack: () => void;
 }
 
-function base64ToHex(base64: string): string {
-  try {
-    const binary = atob(base64);
-    let hex = '';
-    for (let i = 0; i < binary.length; i++) {
-      const byte = binary.charCodeAt(i).toString(16).padStart(2, '0');
-      hex += byte;
-    }
-    return hex;
-  } catch {
-    return base64;
-  }
-}
-
 export function CBORStep({ data, onNext, onBack }: CBORStepProps) {
   const { t } = useTranslation('verification');
 
-  const cborHex = base64ToHex(data.cidSourceCBOR);
-  const cborMeUrl = `https://cbor.me/?bytes=${cborHex}`;
+  const cborToolUrl = 'https://cbor.williamchong.cloud/';
 
   const formattedJSON = (() => {
     try {
@@ -63,7 +48,7 @@ export function CBORStep({ data, onNext, onBack }: CBORStepProps) {
       </div>
 
       <ExternalToolLink
-        href={cborMeUrl}
+        href={cborToolUrl}
         label={t('cbor.verifyLink')}
         description={t('cbor.verifyDescription')}
       />
