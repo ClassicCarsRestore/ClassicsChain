@@ -91,7 +91,7 @@ export function Navigation() {
                 </button>
 
                 {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 rounded-md border border-border bg-card shadow-lg">
+                  <div className="absolute right-0 mt-2 w-48 rounded-md border border-border bg-card shadow-lg z-50">
                     <div className="p-4 border-b border-border">
                       <p className="text-xs text-muted-foreground">{t('account')}</p>
                       <p className="text-sm font-medium text-foreground">{userEmail}</p>
