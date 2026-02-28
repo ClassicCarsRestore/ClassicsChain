@@ -1,3 +1,5 @@
+import type { Vehicle, Event } from '@/types/vehicle';
+
 export interface SharePermissions {
   canViewDetails: boolean;
   canViewPhotos: boolean;
@@ -55,47 +57,9 @@ export interface SharedDocument {
   createdAt: string;
 }
 
-export interface SharedEvent {
-  id: string;
-  vehicleId: string;
-  entityId?: string;
-  entityName?: string;
-  type: string;
-  title: string;
-  description?: string;
-  date: string;
-  location?: string;
-  metadata?: Record<string, any>;
-  blockchainTxId?: string;
-  cid?: string;
-  cidSourceJSON?: string;
-  cidSourceCBOR?: string;
-  ipfsHash?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
 export interface SharedVehicleData {
-  vehicle: SharedVehicle;
+  vehicle: Vehicle;
   photos?: SharedPhoto[];
   documents?: SharedDocument[];
-  history?: SharedEvent[];
-}
-
-export interface SharedVehicle {
-  id: string;
-  licensePlate?: string;
-  chassisNumber?: string;
-  make: string;
-  model: string;
-  year: number;
-  color?: string;
-  engineNumber?: string;
-  transmissionNumber?: string;
-  bodyType?: string;
-  driveType?: string;
-  gearType?: string;
-  suspensionType?: string;
-  createdAt: string;
-  updatedAt: string;
+  history?: Event[];
 }

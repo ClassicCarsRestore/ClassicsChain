@@ -17,28 +17,17 @@ import {
   ExternalLink,
   Building2,
 } from 'lucide-react';
-import type { Vehicle } from '@/types/vehicle';
-import type { SharedVehicle, SharedPhoto, SharedDocument, SharedEvent } from '@/types/shareLink';
+import type { Vehicle, Event } from '@/types/vehicle';
+import type { SharedPhoto, SharedDocument } from '@/types/shareLink';
 import { generateStorageUrl } from '@/lib/storage';
 import { BrandLogo } from './BrandLogo';
 
 type PassportPhoto = SharedPhoto | { id: string; objectKey: string };
 type PassportDocument = SharedDocument | { id: string; objectKey: string; filename: string };
-type PassportEvent = SharedEvent | {
-  id: string;
-  type: string;
-  title: string;
-  date: string;
-  description?: string;
-  location?: string;
-  entityId?: string;
-  entityName?: string;
-  blockchainTxId?: string;
-};
 
 interface VehiclePassportProps {
-  vehicle: Vehicle | SharedVehicle;
-  events?: PassportEvent[];
+  vehicle: Vehicle;
+  events?: Event[];
   photos?: PassportPhoto[];
   documents?: PassportDocument[];
   showPhotos?: boolean;
@@ -84,7 +73,7 @@ export function VehiclePassport({
 
   const heroPhoto = photos.length > 0 ? photos[0] : null;
   const galleryPhotos = photos.slice(1);
-  const hasBlockchainData = 'blockchainAssetId' in vehicle && vehicle.blockchainAssetId;
+  const hasBlockchainData = !!vehicle.blockchainAssetId;
   const hasVerifiedEvents = events.some(e => !!e.blockchainTxId);
   const network = import.meta.env.VITE_ALGORAND_NETWORK || 'testnet';
 
@@ -351,7 +340,7 @@ export function VehiclePassport({
         {/* Blockchain Footer */}
         {hasBlockchainData && (
           <a
-            href={`https://lora.algokit.io/${network}/asset/${(vehicle as Vehicle).blockchainAssetId}`}
+            href={`https://lora.algokit.io/${network}/asset/${vehicle.blockchainAssetId}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-between gap-4 px-6 py-4 border-t border-border bg-muted/30 hover:bg-muted/50 transition-colors"
@@ -361,7 +350,7 @@ export function VehiclePassport({
               <span className="text-xs text-muted-foreground">{t('passport.anchored')}</span>
             </div>
             <span className="text-xs font-mono text-primary truncate">
-              {(vehicle as Vehicle).blockchainAssetId}
+              {vehicle.blockchainAssetId}
             </span>
           </a>
         )}

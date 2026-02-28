@@ -6,10 +6,9 @@ import { VerificationBadge } from './VerificationBadge';
 import { VehicleVerificationDialog } from './VehicleVerificationDialog';
 import { BrandLogo } from './BrandLogo';
 import type { Vehicle } from '@/types/vehicle';
-import type { SharedVehicle } from '@/types/shareLink';
 
 interface VehicleInfoCardProps {
-  vehicle: Vehicle | SharedVehicle;
+  vehicle: Vehicle;
   hasVerifiedEvents?: boolean;
 }
 
@@ -17,13 +16,8 @@ export function VehicleInfoCard({ vehicle, hasVerifiedEvents = false }: VehicleI
   const { t } = useTranslation(['vehicle', 'dashboard']);
   const [showVerificationDialog, setShowVerificationDialog] = useState(false);
 
-  const isBlockchainVehicle = (v: Vehicle | SharedVehicle): v is Vehicle => {
-    return 'blockchainAssetId' in v;
-  };
-
-  const vehicle_ = vehicle as Vehicle;
   const network = import.meta.env.VITE_ALGORAND_NETWORK || 'testnet';
-  const hasBlockchainData = isBlockchainVehicle(vehicle) && vehicle_.blockchainAssetId;
+  const hasBlockchainData = !!vehicle.blockchainAssetId;
 
   const hasAnyTechnicalInfo = vehicle.engineNumber || vehicle.licensePlate || vehicle.chassisNumber ||
     vehicle.transmissionNumber || vehicle.bodyType || vehicle.driveType || vehicle.gearType ||
@@ -178,10 +172,10 @@ export function VehicleInfoCard({ vehicle, hasVerifiedEvents = false }: VehicleI
           onOpenChange={setShowVerificationDialog}
           data={{
             vehicleName: `${vehicle.make} ${vehicle.model}`,
-            blockchainAssetId: vehicle_.blockchainAssetId!,
-            cid: vehicle_.cid,
-            cidSourceJson: vehicle_.cidSourceJson,
-            cidSourceCbor: vehicle_.cidSourceCbor,
+            blockchainAssetId: vehicle.blockchainAssetId!,
+            cid: vehicle.cid,
+            cidSourceJson: vehicle.cidSourceJson,
+            cidSourceCbor: vehicle.cidSourceCbor,
             network,
           }}
         />
