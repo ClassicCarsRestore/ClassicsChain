@@ -1110,6 +1110,54 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+  # Public Verification
+  /public/verify/{vehicleId}:
+    get:
+      operationId: getVehicleVerification
+      summary: Get vehicle verification data
+      description: Public endpoint to verify a vehicle's blockchain-backed authenticity. No authentication required.
+      tags:
+        - Public
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/VehicleIdParam'
+      responses:
+        '200':
+          description: Vehicle verification data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleVerificationResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /public/verify/lookup:
+    get:
+      operationId: lookupVehicleVerification
+      summary: Lookup vehicle by chassis number
+      description: Public endpoint to find a vehicle by chassis number for verification. No authentication required.
+      tags:
+        - Public
+      security: []
+      parameters:
+        - name: chassisNumber
+          in: query
+          required: true
+          description: Vehicle chassis number
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Vehicle verification data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleVerificationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
   /shared/vehicles/{token}:
     get:
       operationId: getSharedVehicle
@@ -3067,6 +3115,76 @@ components:
       required:
         - imageId
         - uploadUrl
+
+    VehicleVerificationResponse:
+      type: object
+      properties:
+        vehicleId:
+          type: string
+          format: uuid
+        make:
+          type: string
+        model:
+          type: string
+        year:
+          type: integer
+        isAnchored:
+          type: boolean
+        blockchainAssetId:
+          type: string
+        vehicleCid:
+          type: string
+        algorandNetwork:
+          type: string
+        totalEvents:
+          type: integer
+        anchoredEvents:
+          type: integer
+        certifiedEvents:
+          type: integer
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/VerificationEvent'
+      required:
+        - vehicleId
+        - make
+        - model
+        - year
+        - isAnchored
+        - algorandNetwork
+        - totalEvents
+        - anchoredEvents
+        - certifiedEvents
+        - events
+
+    VerificationEvent:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+        title:
+          type: string
+        date:
+          type: string
+          format: date
+        entityName:
+          type: string
+        isAnchored:
+          type: boolean
+        blockchainTxId:
+          type: string
+        cid:
+          type: string
+      required:
+        - id
+        - type
+        - title
+        - date
+        - isAnchored
 
 tags:
   - name: Health

@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Plus, FileText, Share2, Clock, Eye, X } from 'lucide-react';
+import { ArrowLeft, Plus, FileText, Share2, Clock, Eye, X, QrCode } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Vehicle, Event, EventListResponse, CreateOwnerEventRequest } from '@/types/vehicle';
@@ -15,6 +15,7 @@ import { VehiclePhotosSection } from '@/features/vehicles';
 import { VehicleDocumentsSection } from '@/features/vehicles/components/VehicleDocumentsSection';
 import { ShareLinkModal } from '@/features/vehicles/components/ShareLinkModal';
 import { ShareLinksList } from '@/features/vehicles/components/ShareLinksList';
+import { VehicleQRCode } from '@/components/vehicle/VehicleQRCode';
 import { useCreateShareLink } from '@/features/vehicles/hooks/useVehicleShareLinks';
 import { eventsApi } from '@/features/vehicles/api/eventsApi';
 import type { PhotoListResponse } from '@/features/vehicles/types/photo';
@@ -35,6 +36,7 @@ export function VehicleDetailsPage() {
   const [isSubmittingEvent, setIsSubmittingEvent] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isPassportOpen, setIsPassportOpen] = useState(false);
+  const [isQRCodeOpen, setIsQRCodeOpen] = useState(false);
   const createShareLink = useCreateShareLink(vehicleId || '');
 
   const { data: photosData } = useQuery({
@@ -186,13 +188,24 @@ export function VehicleDetailsPage() {
             <ArrowLeft className="h-4 w-4" />
             {t('vehicle:buttons.backToDashboard')}
           </button>
-          <button
-            onClick={() => setIsPassportOpen(true)}
-            className="flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground hover:border-primary/50 cursor-pointer"
-          >
-            <Eye className="h-4 w-4" />
-            {t('vehicle:passport.previewButton')}
-          </button>
+          <div className="flex items-center gap-2">
+            {vehicle.ownerId === userProfile?.id && (
+              <button
+                onClick={() => setIsQRCodeOpen(true)}
+                className="flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground hover:border-primary/50 cursor-pointer"
+              >
+                <QrCode className="h-4 w-4" />
+                {t('vehicle:publicVerification.qrCode')}
+              </button>
+            )}
+            <button
+              onClick={() => setIsPassportOpen(true)}
+              className="flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground hover:border-primary/50 cursor-pointer"
+            >
+              <Eye className="h-4 w-4" />
+              {t('vehicle:passport.previewButton')}
+            </button>
+          </div>
         </div>
         <VehicleInfoCard vehicle={vehicle} hasVerifiedEvents={vehicleStats.hasVerifiedEvents} />
       </div>
@@ -317,6 +330,14 @@ export function VehicleDetailsPage() {
           </div>
         </div>
       )}
+
+      {/* QR Code Modal */}
+      <VehicleQRCode
+        vehicleId={vehicleId!}
+        vehicleName={`${vehicle.make} ${vehicle.model} ${vehicle.year}`}
+        isOpen={isQRCodeOpen}
+        onClose={() => setIsQRCodeOpen(false)}
+      />
     </div>
   );
 }

@@ -311,6 +311,108 @@ func (q *Queries) GetVehicleByLicensePlate(ctx context.Context, licensePlate str
 	return i, err
 }
 
+const getVehicleForVerification = `-- name: GetVehicleForVerification :one
+SELECT
+    v.id, v.make, v.model, v.year, v.chassis_number,
+    v.blockchain_asset_id, v.cid,
+    COALESCE(stats.total_events, 0)::bigint AS total_events,
+    COALESCE(stats.anchored_events, 0)::bigint AS anchored_events,
+    COALESCE(stats.certified_events, 0)::bigint AS certified_events
+FROM vehicles v
+LEFT JOIN (
+    SELECT
+        e.vehicle_id,
+        COUNT(*) AS total_events,
+        COUNT(*) FILTER (WHERE e.blockchain_tx_id != '') AS anchored_events,
+        COUNT(*) FILTER (WHERE e.entity_id IS NOT NULL) AS certified_events
+    FROM events e
+    GROUP BY e.vehicle_id
+) stats ON v.id = stats.vehicle_id
+WHERE v.id = $1 LIMIT 1
+`
+
+type GetVehicleForVerificationRow struct {
+	ID                uuid.UUID
+	Make              string
+	Model             string
+	Year              int32
+	ChassisNumber     string
+	BlockchainAssetID string
+	Cid               *string
+	TotalEvents       int64
+	AnchoredEvents    int64
+	CertifiedEvents   int64
+}
+
+func (q *Queries) GetVehicleForVerification(ctx context.Context, id uuid.UUID) (GetVehicleForVerificationRow, error) {
+	row := q.db.QueryRow(ctx, getVehicleForVerification, id)
+	var i GetVehicleForVerificationRow
+	err := row.Scan(
+		&i.ID,
+		&i.Make,
+		&i.Model,
+		&i.Year,
+		&i.ChassisNumber,
+		&i.BlockchainAssetID,
+		&i.Cid,
+		&i.TotalEvents,
+		&i.AnchoredEvents,
+		&i.CertifiedEvents,
+	)
+	return i, err
+}
+
+const getVehicleForVerificationByChassisNumber = `-- name: GetVehicleForVerificationByChassisNumber :one
+SELECT
+    v.id, v.make, v.model, v.year, v.chassis_number,
+    v.blockchain_asset_id, v.cid,
+    COALESCE(stats.total_events, 0)::bigint AS total_events,
+    COALESCE(stats.anchored_events, 0)::bigint AS anchored_events,
+    COALESCE(stats.certified_events, 0)::bigint AS certified_events
+FROM vehicles v
+LEFT JOIN (
+    SELECT
+        e.vehicle_id,
+        COUNT(*) AS total_events,
+        COUNT(*) FILTER (WHERE e.blockchain_tx_id != '') AS anchored_events,
+        COUNT(*) FILTER (WHERE e.entity_id IS NOT NULL) AS certified_events
+    FROM events e
+    GROUP BY e.vehicle_id
+) stats ON v.id = stats.vehicle_id
+WHERE v.chassis_number = $1 AND v.chassis_number != '' LIMIT 1
+`
+
+type GetVehicleForVerificationByChassisNumberRow struct {
+	ID                uuid.UUID
+	Make              string
+	Model             string
+	Year              int32
+	ChassisNumber     string
+	BlockchainAssetID string
+	Cid               *string
+	TotalEvents       int64
+	AnchoredEvents    int64
+	CertifiedEvents   int64
+}
+
+func (q *Queries) GetVehicleForVerificationByChassisNumber(ctx context.Context, chassisNumber string) (GetVehicleForVerificationByChassisNumberRow, error) {
+	row := q.db.QueryRow(ctx, getVehicleForVerificationByChassisNumber, chassisNumber)
+	var i GetVehicleForVerificationByChassisNumberRow
+	err := row.Scan(
+		&i.ID,
+		&i.Make,
+		&i.Model,
+		&i.Year,
+		&i.ChassisNumber,
+		&i.BlockchainAssetID,
+		&i.Cid,
+		&i.TotalEvents,
+		&i.AnchoredEvents,
+		&i.CertifiedEvents,
+	)
+	return i, err
+}
+
 const listVehicles = `-- name: ListVehicles :many
 SELECT id, owner_id, chassis_number, license_plate, engine_number, transmission_number, make, model, year, color, body_type, drive_type, gear_type, suspension_type, cid, cid_source_json, cid_source_cbor_b64, blockchain_asset_id, created_at, updated_at, fuel, engine_cc, engine_cylinders, engine_power_hp FROM vehicles
 ORDER BY created_at DESC

@@ -19,6 +19,7 @@ import (
 	"github.com/s1moe2/classics-chain/invitation"
 	"github.com/s1moe2/classics-chain/photos"
 	"github.com/s1moe2/classics-chain/pkg/kratos"
+	"github.com/s1moe2/classics-chain/pkg/postgres/db"
 	"github.com/s1moe2/classics-chain/user"
 	"github.com/s1moe2/classics-chain/user_invitation"
 	"github.com/s1moe2/classics-chain/vehicles"
@@ -65,7 +66,7 @@ func createResponseErrorHandler() func(w http.ResponseWriter, r *http.Request, e
 }
 
 // New creates a new HTTP server with the API server as its handler.
-func New(cfg Config, entityService *entity.Service, eventService *event.Service, vehicleService *vehicles.Service, photoService *photos.Service, documentService *documents.Service, shareLinksService *vehicleshare.Service, userService *user.Service, invitationService *invitation.Service, userInvitationService *user_invitation.Service, eventImageService *eventimages.Service, kratosClient *kratos.Client, authMiddleware *auth.Middleware, authorizer *auth.Authorizer) *http.Server {
+func New(cfg Config, entityService *entity.Service, eventService *event.Service, vehicleService *vehicles.Service, photoService *photos.Service, documentService *documents.Service, shareLinksService *vehicleshare.Service, userService *user.Service, invitationService *invitation.Service, userInvitationService *user_invitation.Service, eventImageService *eventimages.Service, kratosClient *kratos.Client, authMiddleware *auth.Middleware, authorizer *auth.Authorizer, querier db.Querier, algorandNetwork string) *http.Server {
 	server := &apiServer{
 		entityService:         entityService,
 		eventService:          eventService,
@@ -79,6 +80,8 @@ func New(cfg Config, entityService *entity.Service, eventService *event.Service,
 		eventImageService:     eventImageService,
 		kratosClient:          kratosClient,
 		authorizer:            authorizer,
+		querier:               querier,
+		algorandNetwork:       algorandNetwork,
 	}
 
 	// Create strict handler with custom error handler
@@ -139,4 +142,6 @@ type apiServer struct {
 	eventImageService     *eventimages.Service
 	kratosClient          *kratos.Client
 	authorizer            *auth.Authorizer
+	querier               db.Querier
+	algorandNetwork       string
 }

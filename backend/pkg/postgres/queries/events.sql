@@ -22,6 +22,16 @@ SELECT * FROM events
 WHERE entity_id = $1
 ORDER BY event_date DESC;
 
+-- name: ListEventsForVerification :many
+SELECT
+    e.id, e.event_type, e.title, e.event_date,
+    e.blockchain_tx_id, e.cid,
+    ent.name AS entity_name
+FROM events e
+LEFT JOIN entities ent ON e.entity_id = ent.id
+WHERE e.vehicle_id = $1
+ORDER BY e.event_date DESC;
+
 -- name: CreateEvent :one
 INSERT INTO events (
     vehicle_id,

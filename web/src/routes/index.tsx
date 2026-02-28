@@ -13,6 +13,7 @@ import { RecoveryPage } from './pages/RecoveryPage';
 import { InvitationPage } from './pages/InvitationPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { SharedVehiclePage } from './pages/SharedVehiclePage';
+import { VerificationPage } from './pages/VerificationPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { ErrorPage } from './pages/ErrorPage';
 
@@ -40,6 +41,16 @@ export const router = createBrowserRouter([
   {
     path: '/shared/:token',
     element: <SharedVehiclePage />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/verify/:vehicleId',
+    element: <VerificationPage />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/verify',
+    element: <VerificationPage />,
     errorElement: <ErrorPage />,
   },
   {

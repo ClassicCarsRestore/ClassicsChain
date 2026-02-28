@@ -250,7 +250,7 @@ func main() {
 		},
 	}
 
-	server := http.New(httpCfg, entityService, eventService, vehicleService, photoService, documentService, shareLinksService, userService, invitationService, userInvitationService, eventImageService, kratosClient, authMiddleware, authorizer)
+	server := http.New(httpCfg, entityService, eventService, vehicleService, photoService, documentService, shareLinksService, userService, invitationService, userInvitationService, eventImageService, kratosClient, authMiddleware, authorizer, querier, cfg.Algorand.Network)
 
 	log.Printf("Starting HTTP server on port %d", httpCfg.Port)
 	if err := server.ListenAndServe(); err != nil {
