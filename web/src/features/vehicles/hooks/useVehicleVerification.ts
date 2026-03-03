@@ -10,11 +10,3 @@ export function useVehicleVerification(vehicleId: string) {
   });
 }
 
-export function useVehicleLookup(chassisNumber: string, enabled: boolean) {
-  return useQuery({
-    queryKey: ['vehicleLookup', chassisNumber],
-    queryFn: () => verificationApi.lookupByChassisNumber(chassisNumber),
-    enabled: enabled && chassisNumber.length > 0,
-    retry: 1,
-  });
-}

@@ -49,11 +49,6 @@ export const router = createBrowserRouter([
     errorElement: <ErrorPage />,
   },
   {
-    path: '/verify',
-    element: <VerificationPage />,
-    errorElement: <ErrorPage />,
-  },
-  {
     path: '/',
     element: <RootLayout />,
     errorElement: <ErrorPage />,

@@ -7,10 +7,4 @@ export const verificationApi = {
       `/v1/public/verify/${vehicleId}`
     );
   },
-
-  lookupByChassisNumber: async (chassisNumber: string) => {
-    return await api.get<VehicleVerificationResponse>(
-      `/v1/public/verify/lookup?chassisNumber=${encodeURIComponent(chassisNumber)}`
-    );
-  },
 };

@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   ArrowLeft,
@@ -8,20 +7,18 @@ import {
   ShieldCheck,
   ShieldX,
   ExternalLink,
-  Search,
   Clock,
   BookOpen,
   Award,
 } from 'lucide-react';
 import { useVehicleVerification } from '@/features/vehicles/hooks/useVehicleVerification';
-import { verificationApi } from '@/features/vehicles/api/verificationApi';
 import type { VehicleVerificationResponse, VerificationEvent } from '@/types/verification';
 
 export function VerificationPage() {
   const { vehicleId } = useParams<{ vehicleId: string }>();
 
   if (!vehicleId) {
-    return <LookupOnlyPage />;
+    return <NotFoundView />;
   }
 
   return <VehicleVerificationView vehicleId={vehicleId} />;
@@ -61,9 +58,6 @@ function VehicleVerificationView({ vehicleId }: { vehicleId: string }) {
               </div>
             </div>
           </div>
-          <div className="mt-8">
-            <ChassisLookup />
-          </div>
         </div>
       </div>
     );
@@ -74,9 +68,6 @@ function VehicleVerificationView({ vehicleId }: { vehicleId: string }) {
       <div className="container mx-auto max-w-4xl px-4 py-8">
         <BackButton />
         <VerificationContent data={data} />
-        <div className="mt-8">
-          <ChassisLookup />
-        </div>
       </div>
     </div>
   );
@@ -231,13 +222,15 @@ function VerificationContent({ data }: { data: VehicleVerificationResponse }) {
         <p className="text-sm text-muted-foreground mb-3">
           {t('publicVerification.howToVerifyDescription')}
         </p>
-        <Link
-          to="/concepts"
+        <a
+          href="/concepts"
+          target="_blank"
+          rel="noopener noreferrer"
           className="inline-flex items-center gap-1 text-sm text-primary hover:text-primary/80 transition-colors"
         >
           {t('publicVerification.learnMore')}
           <ExternalLink className="h-3 w-3" />
-        </Link>
+        </a>
       </div>
     </>
   );
@@ -306,79 +299,26 @@ function EventRow({ event, network }: { event: VerificationEvent; network: strin
   );
 }
 
-function ChassisLookup() {
-  const { t } = useTranslation('vehicle');
-  const navigate = useNavigate();
-  const [chassisNumber, setChassisNumber] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
-  const [lookupError, setLookupError] = useState<string | null>(null);
-
-  const handleLookup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!chassisNumber.trim()) return;
-
-    setIsSearching(true);
-    setLookupError(null);
-
-    try {
-      const result = await verificationApi.lookupByChassisNumber(chassisNumber.trim());
-      navigate(`/verify/${result.vehicleId}`);
-    } catch {
-      setLookupError(t('publicVerification.lookupNotFound'));
-    } finally {
-      setIsSearching(false);
-    }
-  };
-
-  return (
-    <div className="rounded-lg border border-border bg-card p-6">
-      <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground mb-1">
-        <Search className="h-5 w-5 text-primary" />
-        {t('publicVerification.lookupTitle')}
-      </h2>
-      <p className="text-sm text-muted-foreground mb-4">
-        {t('publicVerification.lookupDescription')}
-      </p>
-      <form onSubmit={handleLookup} className="flex gap-3">
-        <input
-          type="text"
-          value={chassisNumber}
-          onChange={(e) => {
-            setChassisNumber(e.target.value);
-            setLookupError(null);
-          }}
-          placeholder={t('publicVerification.chassisNumberPlaceholder')}
-          className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
-        />
-        <button
-          type="submit"
-          disabled={isSearching || !chassisNumber.trim()}
-          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isSearching ? t('publicVerification.lookupSearching') : t('publicVerification.lookupButton')}
-        </button>
-      </form>
-      {lookupError && (
-        <p className="mt-2 text-sm text-red-500">{lookupError}</p>
-      )}
-    </div>
-  );
-}
-
-function LookupOnlyPage() {
+function NotFoundView() {
   const { t } = useTranslation('vehicle');
 
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto max-w-4xl px-4 py-8">
         <BackButton />
-        <div className="mb-8 text-center">
-          <ShieldCheck className="mx-auto h-12 w-12 text-primary mb-4" />
-          <h1 className="text-2xl font-bold text-foreground mb-2">
-            {t('publicVerification.title')}
-          </h1>
+        <div className="rounded-lg border border-red-500/50 bg-red-500/10 p-6">
+          <div className="flex items-start gap-4">
+            <AlertCircle className="h-6 w-6 flex-shrink-0 text-red-500 mt-1" />
+            <div>
+              <h2 className="font-semibold text-foreground mb-1">
+                {t('publicVerification.notFound')}
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                {t('publicVerification.notFoundDescription')}
+              </p>
+            </div>
+          </div>
         </div>
-        <ChassisLookup />
       </div>
     </div>
   );
