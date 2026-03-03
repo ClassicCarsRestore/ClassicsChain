@@ -117,9 +117,6 @@ ${MEDIA_DOMAIN} {
     }
 
     handle @get_requests {
-        forward_auth cc-kratos:4433 {
-            uri /sessions/whoami
-        }
         header Access-Control-Allow-Methods "GET, OPTIONS"
         header Cache-Control "public, max-age=31536000, immutable"
         header Access-Control-Allow-Credentials "true"

@@ -154,6 +154,7 @@ func main() {
 	shareLinkRepo := repository.NewShareLinkRepository(querier)
 	invitationRepo := repository.NewInvitationRepository(querier)
 	eventImageRepo := repository.NewEventImageRepository(querier)
+	userInvitationRepo := repository.NewUserInvitationRepository(querier)
 
 	// Initialize storage backend
 	photoStorage, err := storage.New(storage.Config{
@@ -194,9 +195,6 @@ func main() {
 		BaseURL:    cfg.Mailer.BaseURL,
 		WebBaseURL: cfg.Mailer.WebBaseURL,
 	})
-
-	// Initialize repositories
-	userInvitationRepo := repository.NewUserInvitationRepository(querier)
 
 	// Initialize services
 	anchorerService := anchorer.New(algorandClient, vehicleRepo, eventRepo)
