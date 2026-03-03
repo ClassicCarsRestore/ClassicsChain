@@ -35,6 +35,8 @@ export function SharedVehiclePage() {
   }, []);
 
   const photos = data?.photos ?? [];
+  const documents = data?.documents;
+  const history = data?.history;
 
   const handleNextPhoto = useCallback(() => {
     setSelectedPhotoIndex((prev) => (prev + 1) % photos.length);
@@ -43,6 +45,31 @@ export function SharedVehiclePage() {
   const handlePreviousPhoto = useCallback(() => {
     setSelectedPhotoIndex((prev) => (prev - 1 + photos.length) % photos.length);
   }, [photos.length]);
+
+  const sortedEvents = useMemo(() => {
+    if (!history) return [];
+    return [...history].sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+  }, [history]);
+
+  const vehicleStats = useMemo(() => {
+    const anchoredEvents = sortedEvents.filter(e => !!e.blockchainTxId).length;
+    const earliestEvent = sortedEvents.length > 0
+      ? sortedEvents.reduce((earliest, event) =>
+          new Date(event.date) < new Date(earliest.date) ? event : earliest
+        )
+      : null;
+
+    return {
+      totalEvents: sortedEvents.length,
+      anchoredEvents,
+      photosCount: photos.length,
+      documentsCount: documents?.length || 0,
+      earliestEventDate: earliestEvent?.date,
+      hasVerifiedEvents: anchoredEvents > 0,
+    };
+  }, [sortedEvents, photos, documents]);
 
   if (!token) {
     return (
@@ -111,32 +138,7 @@ export function SharedVehiclePage() {
     );
   }
 
-  const { vehicle, documents, history } = data;
-
-  const sortedEvents = useMemo(() => {
-    if (!history) return [];
-    return [...history].sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
-  }, [history]);
-
-  const vehicleStats = useMemo(() => {
-    const anchoredEvents = sortedEvents.filter(e => !!e.blockchainTxId).length;
-    const earliestEvent = sortedEvents.length > 0
-      ? sortedEvents.reduce((earliest, event) =>
-          new Date(event.date) < new Date(earliest.date) ? event : earliest
-        )
-      : null;
-
-    return {
-      totalEvents: sortedEvents.length,
-      anchoredEvents,
-      photosCount: photos.length,
-      documentsCount: documents?.length || 0,
-      earliestEventDate: earliestEvent?.date,
-      hasVerifiedEvents: anchoredEvents > 0,
-    };
-  }, [sortedEvents, photos, documents]);
+  const { vehicle } = data;
 
   const isCertified = (event: Event) => !!event.entityId;
 
