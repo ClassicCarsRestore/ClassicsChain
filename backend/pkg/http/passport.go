@@ -42,14 +42,17 @@ func (a apiServer) GetVehiclePassport(ctx context.Context, request GetVehiclePas
 		httpPhotos = &photos
 	}
 
-	// Fetch events + images
+	// Fetch events + images (only certified events for public view)
 	dbEvents, _, err := a.eventService.GetByVehicle(ctx, request.VehicleId, 100, 0)
 	var httpEvents *[]Event
 	if err == nil {
-		events := make([]Event, len(dbEvents))
-		for i, e := range dbEvents {
+		events := make([]Event, 0, len(dbEvents))
+		for _, e := range dbEvents {
+			if e.EntityID == nil {
+				continue
+			}
 			images, _ := a.eventImageService.ListByEvent(ctx, e.ID)
-			events[i] = domainToHTTPEvent(e, images)
+			events = append(events, domainToHTTPEvent(e, images))
 		}
 		httpEvents = &events
 	}
