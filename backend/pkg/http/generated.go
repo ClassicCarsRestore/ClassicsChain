@@ -943,34 +943,6 @@ type VehicleListResponse struct {
 	Meta PaginationMeta `json:"meta"`
 }
 
-// VehicleVerificationResponse defines model for VehicleVerificationResponse.
-type VehicleVerificationResponse struct {
-	AlgorandNetwork   string              `json:"algorandNetwork"`
-	AnchoredEvents    int                 `json:"anchoredEvents"`
-	BlockchainAssetId *string             `json:"blockchainAssetId,omitempty"`
-	CertifiedEvents   int                 `json:"certifiedEvents"`
-	Events            []VerificationEvent `json:"events"`
-	IsAnchored        bool                `json:"isAnchored"`
-	Make              string              `json:"make"`
-	Model             string              `json:"model"`
-	TotalEvents       int                 `json:"totalEvents"`
-	VehicleCid        *string             `json:"vehicleCid,omitempty"`
-	VehicleId         openapi_types.UUID  `json:"vehicleId"`
-	Year              int                 `json:"year"`
-}
-
-// VerificationEvent defines model for VerificationEvent.
-type VerificationEvent struct {
-	BlockchainTxId *string            `json:"blockchainTxId,omitempty"`
-	Cid            *string            `json:"cid,omitempty"`
-	Date           openapi_types.Date `json:"date"`
-	EntityName     *string            `json:"entityName,omitempty"`
-	Id             openapi_types.UUID `json:"id"`
-	IsAnchored     bool               `json:"isAnchored"`
-	Title          string             `json:"title"`
-	Type           string             `json:"type"`
-}
-
 // ClientIdParam defines model for ClientIdParam.
 type ClientIdParam = string
 
@@ -1071,12 +1043,6 @@ type GetPublicEntitiesParams struct {
 
 	// Type Filter by entity type
 	Type *EntityType `form:"type,omitempty" json:"type,omitempty"`
-}
-
-// LookupVehicleVerificationParams defines parameters for LookupVehicleVerification.
-type LookupVehicleVerificationParams struct {
-	// ChassisNumber Vehicle chassis number
-	ChassisNumber string `form:"chassisNumber" json:"chassisNumber"`
 }
 
 // GetVehiclesParams defines parameters for GetVehicles.
@@ -1264,12 +1230,9 @@ type ServerInterface interface {
 	// List public entities
 	// (GET /public/entities)
 	GetPublicEntities(w http.ResponseWriter, r *http.Request, params GetPublicEntitiesParams)
-	// Lookup vehicle by chassis number
-	// (GET /public/verify/lookup)
-	LookupVehicleVerification(w http.ResponseWriter, r *http.Request, params LookupVehicleVerificationParams)
-	// Get vehicle verification data
-	// (GET /public/verify/{vehicleId})
-	GetVehicleVerification(w http.ResponseWriter, r *http.Request, vehicleId VehicleIdParam)
+	// Get public vehicle passport
+	// (GET /public/passport/{vehicleId})
+	GetVehiclePassport(w http.ResponseWriter, r *http.Request, vehicleId VehicleIdParam)
 	// Access shared vehicle data
 	// (GET /shared/vehicles/{token})
 	GetSharedVehicle(w http.ResponseWriter, r *http.Request, token ShareTokenParam)
@@ -2415,42 +2378,8 @@ func (siw *ServerInterfaceWrapper) GetPublicEntities(w http.ResponseWriter, r *h
 	handler.ServeHTTP(w, r)
 }
 
-// LookupVehicleVerification operation middleware
-func (siw *ServerInterfaceWrapper) LookupVehicleVerification(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params LookupVehicleVerificationParams
-
-	// ------------- Required query parameter "chassisNumber" -------------
-
-	if paramValue := r.URL.Query().Get("chassisNumber"); paramValue != "" {
-
-	} else {
-		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "chassisNumber"})
-		return
-	}
-
-	err = runtime.BindQueryParameter("form", true, true, "chassisNumber", r.URL.Query(), &params.ChassisNumber)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "chassisNumber", Err: err})
-		return
-	}
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.LookupVehicleVerification(w, r, params)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// GetVehicleVerification operation middleware
-func (siw *ServerInterfaceWrapper) GetVehicleVerification(w http.ResponseWriter, r *http.Request) {
+// GetVehiclePassport operation middleware
+func (siw *ServerInterfaceWrapper) GetVehiclePassport(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 
@@ -2464,7 +2393,7 @@ func (siw *ServerInterfaceWrapper) GetVehicleVerification(w http.ResponseWriter,
 	}
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetVehicleVerification(w, r, vehicleId)
+		siw.Handler.GetVehiclePassport(w, r, vehicleId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -3283,8 +3212,7 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("GET "+options.BaseURL+"/invitations/validate", wrapper.ValidateInvitation)
 	m.HandleFunc("GET "+options.BaseURL+"/me", wrapper.GetMe)
 	m.HandleFunc("GET "+options.BaseURL+"/public/entities", wrapper.GetPublicEntities)
-	m.HandleFunc("GET "+options.BaseURL+"/public/verify/lookup", wrapper.LookupVehicleVerification)
-	m.HandleFunc("GET "+options.BaseURL+"/public/verify/{vehicleId}", wrapper.GetVehicleVerification)
+	m.HandleFunc("GET "+options.BaseURL+"/public/passport/{vehicleId}", wrapper.GetVehiclePassport)
 	m.HandleFunc("GET "+options.BaseURL+"/shared/vehicles/{token}", wrapper.GetSharedVehicle)
 	m.HandleFunc("GET "+options.BaseURL+"/vehicles", wrapper.GetVehicles)
 	m.HandleFunc("POST "+options.BaseURL+"/vehicles", wrapper.CreateVehicle)
@@ -4709,61 +4637,26 @@ func (response GetPublicEntities200JSONResponse) VisitGetPublicEntitiesResponse(
 	return json.NewEncoder(w).Encode(response)
 }
 
-type LookupVehicleVerificationRequestObject struct {
-	Params LookupVehicleVerificationParams
-}
-
-type LookupVehicleVerificationResponseObject interface {
-	VisitLookupVehicleVerificationResponse(w http.ResponseWriter) error
-}
-
-type LookupVehicleVerification200JSONResponse VehicleVerificationResponse
-
-func (response LookupVehicleVerification200JSONResponse) VisitLookupVehicleVerificationResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type LookupVehicleVerification400JSONResponse struct{ BadRequestJSONResponse }
-
-func (response LookupVehicleVerification400JSONResponse) VisitLookupVehicleVerificationResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(400)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type LookupVehicleVerification404JSONResponse struct{ NotFoundJSONResponse }
-
-func (response LookupVehicleVerification404JSONResponse) VisitLookupVehicleVerificationResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(404)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GetVehicleVerificationRequestObject struct {
+type GetVehiclePassportRequestObject struct {
 	VehicleId VehicleIdParam `json:"vehicleId"`
 }
 
-type GetVehicleVerificationResponseObject interface {
-	VisitGetVehicleVerificationResponse(w http.ResponseWriter) error
+type GetVehiclePassportResponseObject interface {
+	VisitGetVehiclePassportResponse(w http.ResponseWriter) error
 }
 
-type GetVehicleVerification200JSONResponse VehicleVerificationResponse
+type GetVehiclePassport200JSONResponse SharedVehicleResponse
 
-func (response GetVehicleVerification200JSONResponse) VisitGetVehicleVerificationResponse(w http.ResponseWriter) error {
+func (response GetVehiclePassport200JSONResponse) VisitGetVehiclePassportResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type GetVehicleVerification404JSONResponse struct{ NotFoundJSONResponse }
+type GetVehiclePassport404JSONResponse struct{ NotFoundJSONResponse }
 
-func (response GetVehicleVerification404JSONResponse) VisitGetVehicleVerificationResponse(w http.ResponseWriter) error {
+func (response GetVehiclePassport404JSONResponse) VisitGetVehiclePassportResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(404)
 
@@ -5803,12 +5696,9 @@ type StrictServerInterface interface {
 	// List public entities
 	// (GET /public/entities)
 	GetPublicEntities(ctx context.Context, request GetPublicEntitiesRequestObject) (GetPublicEntitiesResponseObject, error)
-	// Lookup vehicle by chassis number
-	// (GET /public/verify/lookup)
-	LookupVehicleVerification(ctx context.Context, request LookupVehicleVerificationRequestObject) (LookupVehicleVerificationResponseObject, error)
-	// Get vehicle verification data
-	// (GET /public/verify/{vehicleId})
-	GetVehicleVerification(ctx context.Context, request GetVehicleVerificationRequestObject) (GetVehicleVerificationResponseObject, error)
+	// Get public vehicle passport
+	// (GET /public/passport/{vehicleId})
+	GetVehiclePassport(ctx context.Context, request GetVehiclePassportRequestObject) (GetVehiclePassportResponseObject, error)
 	// Access shared vehicle data
 	// (GET /shared/vehicles/{token})
 	GetSharedVehicle(ctx context.Context, request GetSharedVehicleRequestObject) (GetSharedVehicleResponseObject, error)
@@ -6880,51 +6770,25 @@ func (sh *strictHandler) GetPublicEntities(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-// LookupVehicleVerification operation middleware
-func (sh *strictHandler) LookupVehicleVerification(w http.ResponseWriter, r *http.Request, params LookupVehicleVerificationParams) {
-	var request LookupVehicleVerificationRequestObject
-
-	request.Params = params
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.LookupVehicleVerification(ctx, request.(LookupVehicleVerificationRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "LookupVehicleVerification")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(LookupVehicleVerificationResponseObject); ok {
-		if err := validResponse.VisitLookupVehicleVerificationResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// GetVehicleVerification operation middleware
-func (sh *strictHandler) GetVehicleVerification(w http.ResponseWriter, r *http.Request, vehicleId VehicleIdParam) {
-	var request GetVehicleVerificationRequestObject
+// GetVehiclePassport operation middleware
+func (sh *strictHandler) GetVehiclePassport(w http.ResponseWriter, r *http.Request, vehicleId VehicleIdParam) {
+	var request GetVehiclePassportRequestObject
 
 	request.VehicleId = vehicleId
 
 	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetVehicleVerification(ctx, request.(GetVehicleVerificationRequestObject))
+		return sh.ssi.GetVehiclePassport(ctx, request.(GetVehiclePassportRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetVehicleVerification")
+		handler = middleware(handler, "GetVehiclePassport")
 	}
 
 	response, err := handler(r.Context(), w, r, request)
 
 	if err != nil {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetVehicleVerificationResponseObject); ok {
-		if err := validResponse.VisitGetVehicleVerificationResponse(w); err != nil {
+	} else if validResponse, ok := response.(GetVehiclePassportResponseObject); ok {
+		if err := validResponse.VisitGetVehiclePassportResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

@@ -263,55 +263,6 @@ func (q *Queries) ListEventsByVehicleWithEntity(ctx context.Context, vehicleID u
 	return items, nil
 }
 
-const listEventsForVerification = `-- name: ListEventsForVerification :many
-SELECT
-    e.id, e.event_type, e.title, e.event_date,
-    e.blockchain_tx_id, e.cid,
-    ent.name AS entity_name
-FROM events e
-LEFT JOIN entities ent ON e.entity_id = ent.id
-WHERE e.vehicle_id = $1
-ORDER BY e.event_date DESC
-`
-
-type ListEventsForVerificationRow struct {
-	ID             uuid.UUID
-	EventType      string
-	Title          string
-	EventDate      time.Time
-	BlockchainTxID string
-	Cid            *string
-	EntityName     *string
-}
-
-func (q *Queries) ListEventsForVerification(ctx context.Context, vehicleID uuid.UUID) ([]ListEventsForVerificationRow, error) {
-	rows, err := q.db.Query(ctx, listEventsForVerification, vehicleID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []ListEventsForVerificationRow{}
-	for rows.Next() {
-		var i ListEventsForVerificationRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.EventType,
-			&i.Title,
-			&i.EventDate,
-			&i.BlockchainTxID,
-			&i.Cid,
-			&i.EntityName,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const updateEvent = `-- name: UpdateEvent :one
 UPDATE events
 SET title = $2,

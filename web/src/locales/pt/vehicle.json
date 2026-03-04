@@ -219,7 +219,14 @@
     "timeline": "Histórico",
     "anchored": "Ancorado na blockchain",
     "previewButton": "Pré-visualizar Passaporte",
-    "closePreview": "Fechar Pré-visualização"
+    "closePreview": "Fechar Pré-visualização",
+    "qrCode": "Código QR",
+    "qrCodeTitle": "Código QR do Veículo",
+    "qrCodeDescription": "Digitalize este código QR para ver o passaporte público deste veículo.",
+    "downloadQrCode": "Descarregar Código QR",
+    "backHome": "Voltar ao início",
+    "notFound": "Veículo não encontrado",
+    "notFoundDescription": "O veículo que procura não existe ou foi removido."
   },
   "eventImages": {
     "title": "Imagens do Evento",
@@ -233,41 +240,5 @@
       "maxImagesExceeded": "Número máximo de imagens atingido (10)",
       "someFilesSkipped": "Apenas {{count}} ficheiro(s) carregado(s) (máx. 10 no total)"
     }
-  },
-  "publicVerification": {
-    "title": "Verificação de Veículo",
-    "loading": "A carregar dados de verificação...",
-    "notFound": "Veículo não encontrado",
-    "notFoundDescription": "O veículo que procura não existe ou foi removido.",
-    "errorLoading": "Falha ao carregar dados de verificação",
-    "blockchainVerified": "Verificado na Blockchain",
-    "notVerified": "Não Verificado",
-    "blockchainAssetId": "ID do Ativo na Blockchain",
-    "vehicleCid": "CID do Veículo",
-    "viewOnExplorer": "Ver no Explorer",
-    "inspectCid": "Inspecionar CID",
-    "eventsSection": "Eventos do Histórico",
-    "noEvents": "Ainda não há eventos registados",
-    "anchored": "Ancorado",
-    "notAnchored": "Não ancorado",
-    "certified": "Certificado",
-    "viewTransaction": "Ver TX",
-    "totalEvents": "Total de Eventos",
-    "anchoredEvents": "Ancorados",
-    "certifiedEvents": "Certificados",
-    "lookupTitle": "Pesquisar um veículo",
-    "lookupDescription": "Introduza o número de chassis para verificar a autenticidade de um veículo",
-    "chassisNumberPlaceholder": "Introduza o número de chassis...",
-    "lookupButton": "Pesquisar",
-    "lookupSearching": "A pesquisar...",
-    "lookupNotFound": "Nenhum veículo encontrado com este número de chassis",
-    "howToVerify": "Como verificar independentemente",
-    "howToVerifyDescription": "Saiba mais sobre os conceitos por trás da verificação de veículos baseada em blockchain.",
-    "learnMore": "Saber mais",
-    "backHome": "Voltar ao início",
-    "qrCode": "Código QR",
-    "qrCodeTitle": "Código QR do Veículo",
-    "qrCodeDescription": "Digitalize este código QR para verificar a autenticidade deste veículo na blockchain.",
-    "downloadQrCode": "Descarregar Código QR"
   }
 }

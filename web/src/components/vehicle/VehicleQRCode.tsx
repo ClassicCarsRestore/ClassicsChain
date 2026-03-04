@@ -14,7 +14,7 @@ export function VehicleQRCode({ vehicleId, vehicleName, isOpen, onClose }: Vehic
   const { t } = useTranslation('vehicle');
   const canvasRef = useRef<HTMLDivElement>(null);
 
-  const verificationUrl = `${window.location.origin}/verify/${vehicleId}`;
+  const verificationUrl = `${window.location.origin}/p/${vehicleId}`;
 
   const handleDownload = useCallback(() => {
     const canvas = canvasRef.current?.querySelector('canvas');
@@ -47,10 +47,10 @@ export function VehicleQRCode({ vehicleId, vehicleName, isOpen, onClose }: Vehic
         </button>
 
         <h3 className="text-lg font-semibold text-foreground mb-1">
-          {t('publicVerification.qrCodeTitle')}
+          {t('passport.qrCodeTitle')}
         </h3>
         <p className="text-sm text-muted-foreground mb-6">
-          {t('publicVerification.qrCodeDescription')}
+          {t('passport.qrCodeDescription')}
         </p>
 
         <div ref={canvasRef} className="flex justify-center mb-6">
@@ -67,7 +67,7 @@ export function VehicleQRCode({ vehicleId, vehicleName, isOpen, onClose }: Vehic
           className="w-full flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 cursor-pointer"
         >
           <Download className="h-4 w-4" />
-          {t('publicVerification.downloadQrCode')}
+          {t('passport.downloadQrCode')}
         </button>
       </div>
     </div>
