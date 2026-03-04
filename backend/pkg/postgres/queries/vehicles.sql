@@ -114,44 +114,6 @@ LEFT JOIN (
 ORDER BY v.created_at DESC
 LIMIT $1 OFFSET $2;
 
--- name: GetVehicleForVerification :one
-SELECT
-    v.id, v.make, v.model, v.year, v.chassis_number,
-    v.blockchain_asset_id, v.cid,
-    COALESCE(stats.total_events, 0)::bigint AS total_events,
-    COALESCE(stats.anchored_events, 0)::bigint AS anchored_events,
-    COALESCE(stats.certified_events, 0)::bigint AS certified_events
-FROM vehicles v
-LEFT JOIN (
-    SELECT
-        e.vehicle_id,
-        COUNT(*) AS total_events,
-        COUNT(*) FILTER (WHERE e.blockchain_tx_id != '') AS anchored_events,
-        COUNT(*) FILTER (WHERE e.entity_id IS NOT NULL) AS certified_events
-    FROM events e
-    GROUP BY e.vehicle_id
-) stats ON v.id = stats.vehicle_id
-WHERE v.id = $1 LIMIT 1;
-
--- name: GetVehicleForVerificationByChassisNumber :one
-SELECT
-    v.id, v.make, v.model, v.year, v.chassis_number,
-    v.blockchain_asset_id, v.cid,
-    COALESCE(stats.total_events, 0)::bigint AS total_events,
-    COALESCE(stats.anchored_events, 0)::bigint AS anchored_events,
-    COALESCE(stats.certified_events, 0)::bigint AS certified_events
-FROM vehicles v
-LEFT JOIN (
-    SELECT
-        e.vehicle_id,
-        COUNT(*) AS total_events,
-        COUNT(*) FILTER (WHERE e.blockchain_tx_id != '') AS anchored_events,
-        COUNT(*) FILTER (WHERE e.entity_id IS NOT NULL) AS certified_events
-    FROM events e
-    GROUP BY e.vehicle_id
-) stats ON v.id = stats.vehicle_id
-WHERE v.chassis_number = $1 AND v.chassis_number != '' LIMIT 1;
-
 -- name: ListVehiclesByOwnerWithStats :many
 SELECT
     v.*,

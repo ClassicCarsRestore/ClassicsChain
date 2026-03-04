@@ -219,7 +219,14 @@
     "timeline": "History",
     "anchored": "Anchored on blockchain",
     "previewButton": "Preview Passport",
-    "closePreview": "Close Preview"
+    "closePreview": "Close Preview",
+    "qrCode": "QR Code",
+    "qrCodeTitle": "Vehicle QR Code",
+    "qrCodeDescription": "Scan this QR code to view this vehicle's public passport.",
+    "downloadQrCode": "Download QR Code",
+    "backHome": "Back to home",
+    "notFound": "Vehicle not found",
+    "notFoundDescription": "The vehicle you're looking for doesn't exist or has been removed."
   },
   "eventImages": {
     "title": "Event Images",
@@ -233,41 +240,5 @@
       "maxImagesExceeded": "Maximum number of images reached (10)",
       "someFilesSkipped": "Only {{count}} file(s) uploaded (max 10 total)"
     }
-  },
-  "publicVerification": {
-    "title": "Vehicle Verification",
-    "loading": "Loading verification data...",
-    "notFound": "Vehicle not found",
-    "notFoundDescription": "The vehicle you're looking for doesn't exist or has been removed.",
-    "errorLoading": "Failed to load verification data",
-    "blockchainVerified": "Blockchain Verified",
-    "notVerified": "Not Verified",
-    "blockchainAssetId": "Blockchain Asset ID",
-    "vehicleCid": "Vehicle CID",
-    "viewOnExplorer": "View on Explorer",
-    "inspectCid": "Inspect CID",
-    "eventsSection": "History Events",
-    "noEvents": "No events recorded yet",
-    "anchored": "Anchored",
-    "notAnchored": "Not anchored",
-    "certified": "Certified",
-    "viewTransaction": "View TX",
-    "totalEvents": "Total Events",
-    "anchoredEvents": "Anchored",
-    "certifiedEvents": "Certified",
-    "lookupTitle": "Look up a vehicle",
-    "lookupDescription": "Enter a chassis number to verify a vehicle's authenticity",
-    "chassisNumberPlaceholder": "Enter chassis number...",
-    "lookupButton": "Look up",
-    "lookupSearching": "Searching...",
-    "lookupNotFound": "No vehicle found with this chassis number",
-    "howToVerify": "How to verify independently",
-    "howToVerifyDescription": "Learn about the concepts behind blockchain-based vehicle verification.",
-    "learnMore": "Learn more",
-    "backHome": "Back to home",
-    "qrCode": "QR Code",
-    "qrCodeTitle": "Vehicle QR Code",
-    "qrCodeDescription": "Scan this QR code to verify this vehicle's blockchain-backed authenticity.",
-    "downloadQrCode": "Download QR Code"
   }
 }
