@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import {
   Calendar,
   MapPin,
@@ -289,6 +290,24 @@ export function EventCard({ event, isCertified, entityName }: EventCardProps) {
 
                   {showBlockchainDetails && (
                     <div className="mt-3 space-y-2">
+                      <p className="text-xs text-muted-foreground">
+                        {t('verification:blockchainSection.description')}{' '}
+                        <Link to="/concepts" className="text-primary hover:text-primary/80 underline underline-offset-2">
+                          {t('verification:blockchainSection.learnMore')}
+                        </Link>
+                      </p>
+
+                      {canVerify && (
+                        <button
+                          type="button"
+                          onClick={() => setShowVerificationModal(true)}
+                          className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-xs font-medium text-primary hover:bg-primary/10 transition-colors"
+                        >
+                          <Search className="h-3.5 w-3.5" />
+                          {t('verification:button')}
+                        </button>
+                      )}
+
                       {event.blockchainTxId && (
                         <BlockchainDataField
                           label="Blockchain Transaction"
@@ -319,17 +338,6 @@ export function EventCard({ event, isCertified, entityName }: EventCardProps) {
                           value={event.cidSourceCBOR}
                           fieldId="cid-cbor"
                         />
-                      )}
-
-                      {canVerify && (
-                        <button
-                          type="button"
-                          onClick={() => setShowVerificationModal(true)}
-                          className="mt-3 flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-xs font-medium text-primary hover:bg-primary/10 transition-colors"
-                        >
-                          <Search className="h-3.5 w-3.5" />
-                          {t('verification:button')}
-                        </button>
                       )}
                     </div>
                   )}

@@ -77,5 +77,9 @@
     "learnMoreDescription": "Read about how blockchain anchoring works",
     "doneButton": "Done"
   },
-  "button": "Walk Me Through Verification"
+  "button": "Walk Me Through Verification",
+  "blockchainSection": {
+    "description": "These fields are the cryptographic proof that this event's data is authentic and unmodified.",
+    "learnMore": "Learn how it works"
+  }
 }
