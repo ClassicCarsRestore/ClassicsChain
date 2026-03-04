@@ -222,7 +222,7 @@ func (a apiServer) UpdateVehicle(ctx context.Context, request UpdateVehicleReque
 			return nil, err
 		}
 	} else if !auth.IsAdmin(ctx) {
-		return nil, fmt.Errorf("forbidden: cannot update orphaned vehicle")
+		return nil, fmt.Errorf("forbidden: cannot update unclaimed vehicle")
 	}
 
 	params := vehicles.UpdateVehicleParams{
@@ -465,7 +465,7 @@ func (a apiServer) ClaimVehicle(ctx context.Context, request ClaimVehicleRequest
 		}, nil
 	}
 
-	// Vehicle must be orphaned to claim
+	// Vehicle must be unclaimed to claim
 	if vehicle.OwnerID != nil {
 		return ClaimVehicle403JSONResponse{
 			ForbiddenJSONResponse: ForbiddenJSONResponse{

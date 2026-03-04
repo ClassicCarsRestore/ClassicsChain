@@ -190,7 +190,7 @@ func (s *Service) ClaimVehicleOwnership(ctx context.Context, claimerID uuid.UUID
 }
 
 // FindOrCreateVehicle searches for a vehicle by chassis number (priority) or license plate
-// If not found, creates a new orphaned vehicle with minimal information
+// If not found, creates a new unclaimed vehicle with minimal information
 // Prioritizes chassis number if both are provided and match different vehicles
 func (s *Service) FindOrCreateVehicle(ctx context.Context, chassisNumber, licensePlate *string) (*Vehicle, error) {
 	// Try to find by chassis number first (has priority)
@@ -215,7 +215,7 @@ func (s *Service) FindOrCreateVehicle(ctx context.Context, chassisNumber, licens
 		}
 	}
 
-	// Vehicle not found, create a new orphaned vehicle with minimal information
+	// Vehicle not found, create a new unclaimed vehicle with minimal information
 	newVehicle := &Vehicle{
 		ID:            uuid.New(),
 		LicensePlate:  licensePlate,
@@ -223,7 +223,7 @@ func (s *Service) FindOrCreateVehicle(ctx context.Context, chassisNumber, licens
 		Make:          "Unknown",
 		Model:         "Unknown",
 		Year:          0,
-		OwnerID:       nil, // Orphaned
+		OwnerID:       nil, // Unclaimed
 		CreatedAt:     time.Now(),
 		UpdatedAt:     time.Now(),
 	}

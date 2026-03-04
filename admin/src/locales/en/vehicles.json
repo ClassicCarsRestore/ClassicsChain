@@ -103,7 +103,7 @@
       "identification": "Identification",
       "basicInfo": "Basic Information",
       "technical": "Technical Specifications",
-      "confirmation": "Please review the vehicle information below. Once created, this vehicle will be in orphaned state and available for users to claim.",
+      "confirmation": "Please review the vehicle information below. Once created, this vehicle will be in unclaimed state and available for users to claim.",
       "confirmationWithOwner": "Please review the vehicle information. After creation, an invitation email will be sent to the specified owner."
     },
     "actions": {
@@ -118,7 +118,7 @@
     "filters": {
       "label": "Filter",
       "all": "All Vehicles",
-      "orphaned": "Orphaned Only",
+      "unclaimed": "Unclaimed Only",
       "owned": "Owned Only"
     },
     "resultsCount": "Showing {{count}} vehicle(s)",
@@ -145,7 +145,7 @@
     },
     "status": {
       "owned": "Owned",
-      "orphaned": "Orphaned"
+      "unclaimed": "Unclaimed"
     },
     "actions": {
       "view": "View Details"
@@ -271,13 +271,13 @@
     "infoTitle": "How owner assignment works:",
     "infoExisting": "If the email matches an existing user, ownership is assigned immediately",
     "infoNew": "If the email is new, an invitation will be sent to claim the vehicle",
-    "infoEmpty": "Leave empty to create an orphaned vehicle that anyone can claim",
+    "infoEmpty": "Leave empty to create an unclaimed vehicle that anyone can claim",
     "owned": "Vehicle has an owner",
     "ownedDescription": "This vehicle is already assigned to a user and cannot be reassigned through this form.",
     "invitationWillBeSent": "Invitation will be sent",
     "invitationDescription": "An ownership invitation will be sent to:",
-    "orphaned": "Orphaned Vehicle",
-    "orphanedDescription": "No owner email provided. This vehicle will be created in orphaned state and can be claimed by any user with matching identifiers."
+    "unclaimed": "Unclaimed Vehicle",
+    "unclaimedDescription": "No owner email provided. This vehicle will be created in unclaimed state and can be claimed by any user with matching identifiers."
   },
   "ownerManagement": {
     "title": "Owner Management",
@@ -290,8 +290,8 @@
     "invitationSent": "Invitation sent successfully",
     "enterEmail": "Enter owner email address",
     "cannotInviteWhilePending": "Cannot send new invitation while one is pending",
-    "orphanedNoInvite": "Orphaned - No Invitation",
-    "orphanedDescription": "This vehicle has no owner. You can send an invitation to assign ownership.",
+    "unclaimedNoInvite": "Unclaimed - No Invitation",
+    "unclaimedDescription": "This vehicle has no owner. You can send an invitation to assign ownership.",
     "ownedDescription": "This vehicle is owned by a registered user."
   },
   "eventImages": {

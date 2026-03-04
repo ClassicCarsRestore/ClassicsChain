@@ -43,7 +43,7 @@ export function useVehicles(page: number = 1, limit: number = 20, refreshTrigger
 }
 
 /**
- * Create a new vehicle (orphaned or with owner email)
+ * Create a new vehicle (unclaimed or with owner email)
  */
 export function useCreateVehicles() {
   const queryClient = useQueryClient();
@@ -228,7 +228,7 @@ export function useVehicleInvitation(vehicleId: string | undefined) {
 }
 
 /**
- * Send invitation to an orphaned vehicle
+ * Send invitation to an unclaimed vehicle
  */
 export function useSendVehicleInvitation() {
   const queryClient = useQueryClient();

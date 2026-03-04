@@ -70,7 +70,7 @@ export function OwnerAssignmentStep({
             <ul className="list-disc list-inside space-y-1 text-blue-600 dark:text-blue-500">
               <li>{t('ownerAssignment.infoExisting', 'If the email matches an existing user, ownership is assigned immediately')}</li>
               <li>{t('ownerAssignment.infoNew', 'If the email is new, an invitation will be sent to claim the vehicle')}</li>
-              <li>{t('ownerAssignment.infoEmpty', 'Leave empty to create an orphaned vehicle that anyone can claim')}</li>
+              <li>{t('ownerAssignment.infoEmpty', 'Leave empty to create an unclaimed vehicle that anyone can claim')}</li>
             </ul>
           </div>
         </div>

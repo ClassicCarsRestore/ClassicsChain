@@ -94,7 +94,7 @@
       "identification": "Identificação",
       "basicInfo": "Informações Básicas",
       "technical": "Especificações Técnicas",
-      "confirmation": "Por favor, revise as informações do veículo abaixo. Uma vez criado, este veículo estará em estado órfão e disponível para os usuários reivindicarem."
+      "confirmation": "Por favor, reveja as informações do veículo abaixo. Uma vez criado, este veículo ficará não atribuído e disponível para os utilizadores reivindicarem."
     },
     "actions": {
       "next": "Próximo",
@@ -108,7 +108,7 @@
     "filters": {
       "label": "Filtro",
       "all": "Todos os Veículos",
-      "orphaned": "Apenas Órfãos",
+      "unclaimed": "Apenas Não Atribuídos",
       "owned": "Apenas Possuídos"
     },
     "resultsCount": "Exibindo {{count}} veículo(s)",
@@ -135,7 +135,7 @@
     },
     "status": {
       "owned": "Possuído",
-      "orphaned": "Órfão"
+      "unclaimed": "Não Atribuído"
     },
     "actions": {
       "view": "Ver Detalhes"

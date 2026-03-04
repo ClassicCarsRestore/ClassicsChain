@@ -155,7 +155,7 @@ func (a apiServer) DeleteVehiclePhoto(ctx context.Context, request DeleteVehicle
 	if !isVehicleOwner(ctx, vehicle) {
 		return DeleteVehiclePhoto403JSONResponse{
 			ForbiddenJSONResponse: ForbiddenJSONResponse{
-				Error: "Forbidden: Cannot delete photos for orphaned vehicle",
+				Error: "Forbidden: Cannot delete photos for unclaimed vehicle",
 			},
 		}, nil
 	}

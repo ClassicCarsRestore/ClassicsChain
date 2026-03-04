@@ -195,7 +195,7 @@ type ClaimInvitationsResponse struct {
 	Count int `json:"count"`
 }
 
-// ClaimVehicleRequest Request to claim ownership of an orphaned vehicle
+// ClaimVehicleRequest Request to claim ownership of an unclaimed vehicle
 type ClaimVehicleRequest struct {
 	// ChassisNumber Chassis number (optional, used for matching)
 	ChassisNumber *string `json:"chassisNumber,omitempty"`
@@ -213,7 +213,7 @@ type CreateAdminUserRequest struct {
 	Name *string `json:"name,omitempty"`
 }
 
-// CreateCertifierVehicleRequest Request to create an orphaned vehicle for certification with optional owner assignment
+// CreateCertifierVehicleRequest Request to create an unclaimed vehicle for certification with optional owner assignment
 type CreateCertifierVehicleRequest struct {
 	BodyType      *string `json:"bodyType,omitempty"`
 	ChassisNumber *string `json:"chassisNumber,omitempty"`
@@ -747,7 +747,7 @@ type SharedVehicleResponse struct {
 	Vehicle   Vehicle     `json:"vehicle"`
 }
 
-// UpdateCertifierVehicleRequest Request to update an orphaned vehicle for certification with optional owner assignment
+// UpdateCertifierVehicleRequest Request to update an unclaimed vehicle for certification with optional owner assignment
 type UpdateCertifierVehicleRequest struct {
 	BodyType      *string `json:"bodyType,omitempty"`
 	ChassisNumber *string `json:"chassisNumber,omitempty"`
@@ -769,7 +769,7 @@ type UpdateCertifierVehicleRequest struct {
 	GearType     *string `json:"gearType,omitempty"`
 	LicensePlate *string `json:"licensePlate,omitempty"`
 
-	// OwnerEmail Optional email to assign ownership. Only allowed for orphaned vehicles. If user exists, assigns directly. If not, sends invitation.
+	// OwnerEmail Optional email to assign ownership. Only allowed for unclaimed vehicles. If user exists, assigns directly. If not, sends invitation.
 	OwnerEmail         *openapi_types.Email `json:"ownerEmail,omitempty"`
 	SuspensionType     *string              `json:"suspensionType,omitempty"`
 	TransmissionNumber *string              `json:"transmissionNumber,omitempty"`
@@ -1137,7 +1137,7 @@ type ServerInterface interface {
 	// Invite a new admin user
 	// (POST /admin/users)
 	CreateAdminUser(w http.ResponseWriter, r *http.Request)
-	// Create vehicle for certification (orphaned)
+	// Create vehicle for certification (unclaimed)
 	// (POST /certifiers/vehicles)
 	CreateCertifierVehicle(w http.ResponseWriter, r *http.Request)
 	// Update vehicle for certification
@@ -1248,7 +1248,7 @@ type ServerInterface interface {
 	// Update vehicle
 	// (PUT /vehicles/{vehicleId})
 	UpdateVehicle(w http.ResponseWriter, r *http.Request, vehicleId VehicleIdParam)
-	// Claim ownership of an orphaned vehicle
+	// Claim ownership of an unclaimed vehicle
 	// (POST /vehicles/{vehicleId}/claim)
 	ClaimVehicle(w http.ResponseWriter, r *http.Request, vehicleId VehicleIdParam)
 	// Get vehicle documents
@@ -5603,7 +5603,7 @@ type StrictServerInterface interface {
 	// Invite a new admin user
 	// (POST /admin/users)
 	CreateAdminUser(ctx context.Context, request CreateAdminUserRequestObject) (CreateAdminUserResponseObject, error)
-	// Create vehicle for certification (orphaned)
+	// Create vehicle for certification (unclaimed)
 	// (POST /certifiers/vehicles)
 	CreateCertifierVehicle(ctx context.Context, request CreateCertifierVehicleRequestObject) (CreateCertifierVehicleResponseObject, error)
 	// Update vehicle for certification
@@ -5714,7 +5714,7 @@ type StrictServerInterface interface {
 	// Update vehicle
 	// (PUT /vehicles/{vehicleId})
 	UpdateVehicle(ctx context.Context, request UpdateVehicleRequestObject) (UpdateVehicleResponseObject, error)
-	// Claim ownership of an orphaned vehicle
+	// Claim ownership of an unclaimed vehicle
 	// (POST /vehicles/{vehicleId}/claim)
 	ClaimVehicle(ctx context.Context, request ClaimVehicleRequestObject) (ClaimVehicleResponseObject, error)
 	// Get vehicle documents

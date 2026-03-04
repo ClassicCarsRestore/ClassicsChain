@@ -95,10 +95,10 @@ export function VehicleSummaryStep({
           <div className="p-4 bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 rounded-lg">
             <div className="flex items-center gap-2 text-yellow-700 dark:text-yellow-400 mb-2">
               <UserPlus className="h-4 w-4" />
-              <span className="font-medium">{t('ownerAssignment.orphaned', 'Orphaned Vehicle')}</span>
+              <span className="font-medium">{t('ownerAssignment.unclaimed', 'Unclaimed Vehicle')}</span>
             </div>
             <p className="text-sm text-yellow-600 dark:text-yellow-500">
-              {t('ownerAssignment.orphanedDescription', 'No owner email provided. This vehicle will be created in orphaned state and can be claimed by any user with matching identifiers.')}
+              {t('ownerAssignment.unclaimedDescription', 'No owner email provided. This vehicle will be created in unclaimed state and can be claimed by any user with matching identifiers.')}
             </p>
           </div>
         )}

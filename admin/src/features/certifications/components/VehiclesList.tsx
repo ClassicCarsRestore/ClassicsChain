@@ -29,7 +29,7 @@ type DetailTab = 'details' | 'certifications';
 export function VehiclesList({ entities, refreshTrigger, onNavigateToCreate }: VehiclesListProps) {
   const { t } = useTranslation('vehicles');
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterType, setFilterType] = useState<'all' | 'orphaned' | 'owned'>(
+  const [filterType, setFilterType] = useState<'all' | 'unclaimed' | 'owned'>(
     'all'
   );
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
@@ -79,7 +79,7 @@ export function VehiclesList({ entities, refreshTrigger, onNavigateToCreate }: V
     }
 
     // Filter by ownership status
-    if (filterType === 'orphaned') {
+    if (filterType === 'unclaimed') {
       result = result.filter((v) => !v.ownerId);
     } else if (filterType === 'owned') {
       result = result.filter((v) => v.ownerId);
@@ -173,14 +173,14 @@ export function VehiclesList({ entities, refreshTrigger, onNavigateToCreate }: V
                   {t('browse.filters.all')}
                 </button>
                 <button
-                  onClick={() => { setFilterType('orphaned'); setFilterOpen(false); }}
+                  onClick={() => { setFilterType('unclaimed'); setFilterOpen(false); }}
                   className={`block w-full text-left px-4 py-2 text-sm hover:bg-muted cursor-pointer ${
-                    filterType === 'orphaned'
+                    filterType === 'unclaimed'
                       ? 'bg-muted text-primary'
                       : 'text-foreground'
                   }`}
                 >
-                  {t('browse.filters.orphaned')}
+                  {t('browse.filters.unclaimed')}
                 </button>
                 <button
                   onClick={() => { setFilterType('owned'); setFilterOpen(false); }}
@@ -390,7 +390,7 @@ export function VehiclesList({ entities, refreshTrigger, onNavigateToCreate }: V
                         </span>
                       ) : (
                         <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                          {t('browse.status.orphaned')}
+                          {t('browse.status.unclaimed')}
                         </span>
                       )}
                     </td>
