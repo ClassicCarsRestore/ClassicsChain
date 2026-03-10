@@ -1,5 +1,7 @@
-{{- if .Identity.metadata_public.isInvitation -}}
+{{- with .Identity.metadata_public }}{{- if .isInvitation -}}
 You've been invited to join Classics Chain
 {{- else -}}
+Reset your Classics Chain password
+{{- end -}}{{- else -}}
 Reset your Classics Chain password
 {{- end -}}

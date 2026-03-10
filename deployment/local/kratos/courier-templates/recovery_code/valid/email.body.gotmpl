@@ -16,16 +16,16 @@
 </head>
 <body>
     <div class="container">
-        {{- if .Identity.metadata_public.isInvitation }}
+        {{- with .Identity.metadata_public }}{{- if .isInvitation }}
         <div class="header">
             <h2>Welcome to Classics Chain!</h2>
             <p>You've been invited to join our platform to manage your classic vehicles.</p>
         </div>
 
         <div class="content">
-            {{- if .Identity.metadata_public.invitationUrl }}
+            {{- if .invitationUrl }}
             <p style="margin-bottom: 20px;">
-                <a href="{{ .Identity.metadata_public.invitationUrl }}" style="display: inline-block; padding: 10px 20px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 4px; font-weight: 500;">
+                <a href="{{ .invitationUrl }}" style="display: inline-block; padding: 10px 20px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 4px; font-weight: 500;">
                     Complete Your Signup
                 </a>
             </p>
@@ -35,13 +35,13 @@
             {{- end }}
 
             <div class="code-box">
-                <div class="code">{{ .RecoveryCode }}</div>
+                <div class="code">{{ $.RecoveryCode }}</div>
             </div>
 
-            {{- if .Identity.metadata_public.vehicles }}
+            {{- if .vehicles }}
             <div class="vehicle-list">
                 <p><strong>You've been invited to manage:</strong></p>
-                {{- range .Identity.metadata_public.vehicles }}
+                {{- range .vehicles }}
                 <div class="vehicle-item">
                     • {{ .year }} {{ .make }} {{ .model }}{{ if .licensePlate }} ({{ .licensePlate }}){{ end }}
                 </div>
@@ -52,6 +52,21 @@
             <p>Once you enter this code, you'll be able to set up your password and access your account.</p>
         </div>
         {{- else }}
+        <div class="header">
+            <h2>Password Reset Request</h2>
+            <p>We received a request to reset your Classics Chain password.</p>
+        </div>
+
+        <div class="content">
+            <p>To reset your password, please enter the following code:</p>
+
+            <div class="code-box">
+                <div class="code">{{ $.RecoveryCode }}</div>
+            </div>
+
+            <p>If you didn't request this password reset, you can safely ignore this email.</p>
+        </div>
+        {{- end }}{{- else }}
         <div class="header">
             <h2>Password Reset Request</h2>
             <p>We received a request to reset your Classics Chain password.</p>
