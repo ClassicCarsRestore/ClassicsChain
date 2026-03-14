@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createEvent = `-- name: CreateEvent :one
@@ -221,7 +222,7 @@ type ListEventsByVehicleWithEntityRow struct {
 	CidSourceJson       *string
 	CidSourceCborB64    *string
 	BlockchainTxID      string
-	CreatedAt           time.Time
+	CreatedAt           pgtype.Timestamp
 	EntityName          *string
 	EntityLogoObjectKey *string
 }

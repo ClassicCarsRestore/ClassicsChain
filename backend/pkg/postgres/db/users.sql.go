@@ -7,9 +7,9 @@ package db
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const addUserToEntity = `-- name: AddUserToEntity :one
@@ -110,7 +110,7 @@ type GetEntityMembersRow struct {
 	UserID   uuid.UUID
 	EntityID uuid.UUID
 	Role     string
-	AddedAt  time.Time
+	AddedAt  pgtype.Timestamp
 	IsAdmin  bool
 }
 
@@ -169,7 +169,7 @@ type GetUserEntityMembershipsRow struct {
 	UserID     uuid.UUID
 	EntityID   uuid.UUID
 	Role       string
-	AddedAt    time.Time
+	AddedAt    pgtype.Timestamp
 	EntityName string
 	EntityType string
 }

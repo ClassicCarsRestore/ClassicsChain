@@ -45,7 +45,7 @@ func (r *ShareLinkRepository) Create(ctx context.Context, params share_links.Cre
 		CanViewDocuments: params.CanViewDocuments,
 		CanViewHistory:   params.CanViewHistory,
 		RecipientEmail:   params.RecipientEmail,
-		ExpiresAt:        pgtype.Timestamptz{Time: expiresAt, Valid: true},
+		ExpiresAt:        pgtype.Timestamp{Time: expiresAt, Valid: true},
 	})
 	if err != nil {
 		return nil, postgres.WrapError(err, "create share link")

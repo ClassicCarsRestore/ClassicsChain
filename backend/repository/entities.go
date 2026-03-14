@@ -166,7 +166,7 @@ func toEntityDomain(e db.Entity) entity.Entity {
 		Address:       addr,
 		CertifiedBy:   e.CertifiedBy,
 		LogoObjectKey: e.LogoObjectKey,
-		CreatedAt:     e.CreatedAt,
-		UpdatedAt:     e.UpdatedAt,
+		CreatedAt:     e.CreatedAt.Time,
+		UpdatedAt:     e.UpdatedAt.Time,
 	}
 }

@@ -258,8 +258,8 @@ func toVehicleDomain(v db.Vehicle) vehicles.Vehicle {
 		CID:                v.Cid,
 		CIDSourceJSON:      v.CidSourceJson,
 		CIDSourceCBOR:      v.CidSourceCborB64,
-		CreatedAt:          v.CreatedAt,
-		UpdatedAt:          v.UpdatedAt,
+		CreatedAt:          v.CreatedAt.Time,
+		UpdatedAt:          v.UpdatedAt.Time,
 	}
 }
 
@@ -288,8 +288,8 @@ func toVehicleWithStatsDomainFromRow(v db.ListVehiclesWithStatsRow) vehicles.Veh
 			CID:                v.Cid,
 			CIDSourceJSON:      v.CidSourceJson,
 			CIDSourceCBOR:      v.CidSourceCborB64,
-			CreatedAt:          v.CreatedAt,
-			UpdatedAt:          v.UpdatedAt,
+			CreatedAt:          v.CreatedAt.Time,
+			UpdatedAt:          v.UpdatedAt.Time,
 		},
 		CertifiedEventsCount:      int(v.CertifiedEventsCount),
 		OwnerEventsCount:          int(v.OwnerEventsCount),
@@ -322,8 +322,8 @@ func toVehicleWithStatsDomain(v db.ListVehiclesByOwnerWithStatsRow) vehicles.Veh
 			CID:                v.Cid,
 			CIDSourceJSON:      v.CidSourceJson,
 			CIDSourceCBOR:      v.CidSourceCborB64,
-			CreatedAt:          v.CreatedAt,
-			UpdatedAt:          v.UpdatedAt,
+			CreatedAt:          v.CreatedAt.Time,
+			UpdatedAt:          v.UpdatedAt.Time,
 		},
 		CertifiedEventsCount:      int(v.CertifiedEventsCount),
 		OwnerEventsCount:          int(v.OwnerEventsCount),

@@ -136,7 +136,7 @@ func toEventDomain(e db.Event) event.Event {
 		CID:            e.Cid,
 		CIDSourceJSON:  e.CidSourceJson,
 		CIDSourceCBOR:  e.CidSourceCborB64,
-		CreatedAt:      e.CreatedAt,
+		CreatedAt:      e.CreatedAt.Time,
 	}
 }
 
@@ -162,6 +162,6 @@ func toEventDomainWithEntity(e db.ListEventsByVehicleWithEntityRow) event.Event 
 		CID:                 e.Cid,
 		CIDSourceJSON:       e.CidSourceJson,
 		CIDSourceCBOR:       e.CidSourceCborB64,
-		CreatedAt:           e.CreatedAt,
+		CreatedAt:           e.CreatedAt.Time,
 	}
 }

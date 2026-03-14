@@ -128,8 +128,8 @@ func toUserDomain(u db.User) user.User {
 	return user.User{
 		ID:        u.ID,
 		IsAdmin:   u.IsAdmin,
-		CreatedAt: u.CreatedAt,
-		UpdatedAt: u.UpdatedAt,
+		CreatedAt: u.CreatedAt.Time,
+		UpdatedAt: u.UpdatedAt.Time,
 	}
 }
 

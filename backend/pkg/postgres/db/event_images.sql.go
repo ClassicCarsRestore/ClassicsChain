@@ -112,7 +112,7 @@ DELETE FROM event_images
 WHERE event_id IS NULL AND created_at < $1
 `
 
-func (q *Queries) DeleteOrphanedEventImages(ctx context.Context, createdAt pgtype.Timestamptz) error {
+func (q *Queries) DeleteOrphanedEventImages(ctx context.Context, createdAt pgtype.Timestamp) error {
 	_, err := q.db.Exec(ctx, deleteOrphanedEventImages, createdAt)
 	return err
 }
@@ -211,7 +211,7 @@ WHERE event_id IS NULL AND created_at < $1
 ORDER BY created_at ASC
 `
 
-func (q *Queries) ListOrphanedEventImages(ctx context.Context, createdAt pgtype.Timestamptz) ([]EventImage, error) {
+func (q *Queries) ListOrphanedEventImages(ctx context.Context, createdAt pgtype.Timestamp) ([]EventImage, error) {
 	rows, err := q.db.Query(ctx, listOrphanedEventImages, createdAt)
 	if err != nil {
 		return nil, err

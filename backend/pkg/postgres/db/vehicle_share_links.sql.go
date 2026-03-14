@@ -35,7 +35,7 @@ type CreateShareLinkParams struct {
 	CanViewDocuments bool
 	CanViewHistory   bool
 	RecipientEmail   *string
-	ExpiresAt        pgtype.Timestamptz
+	ExpiresAt        pgtype.Timestamp
 }
 
 func (q *Queries) CreateShareLink(ctx context.Context, arg CreateShareLinkParams) (VehicleShareLink, error) {

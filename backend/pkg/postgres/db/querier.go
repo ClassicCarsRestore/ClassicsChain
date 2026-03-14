@@ -45,7 +45,7 @@ type Querier interface {
 	DeleteEventImage(ctx context.Context, id uuid.UUID) error
 	DeleteExpiredShareLinks(ctx context.Context) error
 	DeleteInvitation(ctx context.Context, id uuid.UUID) error
-	DeleteOrphanedEventImages(ctx context.Context, createdAt pgtype.Timestamptz) error
+	DeleteOrphanedEventImages(ctx context.Context, createdAt pgtype.Timestamp) error
 	DeletePhoto(ctx context.Context, id uuid.UUID) error
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 	DeleteUserInvitation(ctx context.Context, id uuid.UUID) error
@@ -84,7 +84,7 @@ type Querier interface {
 	ListEventsByEntity(ctx context.Context, entityID *uuid.UUID) ([]Event, error)
 	ListEventsByVehicle(ctx context.Context, vehicleID uuid.UUID) ([]Event, error)
 	ListEventsByVehicleWithEntity(ctx context.Context, vehicleID uuid.UUID) ([]ListEventsByVehicleWithEntityRow, error)
-	ListOrphanedEventImages(ctx context.Context, createdAt pgtype.Timestamptz) ([]EventImage, error)
+	ListOrphanedEventImages(ctx context.Context, createdAt pgtype.Timestamp) ([]EventImage, error)
 	ListPhotosByVehicle(ctx context.Context, vehicleID uuid.UUID) ([]VehiclePhoto, error)
 	ListShareLinksByVehicle(ctx context.Context, vehicleID uuid.UUID) ([]VehicleShareLink, error)
 	ListUsers(ctx context.Context, arg ListUsersParams) ([]User, error)

@@ -20,8 +20,8 @@ type Entity struct {
 	Website       string
 	Address       []byte
 	CertifiedBy   *uuid.UUID
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
+	CreatedAt     pgtype.Timestamp
+	UpdatedAt     pgtype.Timestamp
 	LogoObjectKey *string
 }
 
@@ -39,7 +39,7 @@ type Event struct {
 	CidSourceJson    *string
 	CidSourceCborB64 *string
 	BlockchainTxID   string
-	CreatedAt        time.Time
+	CreatedAt        pgtype.Timestamp
 }
 
 type EventImage struct {
@@ -49,21 +49,21 @@ type EventImage struct {
 	ObjectKey       string
 	Cid             *string
 	UploadUrl       *string
-	CreatedAt       pgtype.Timestamptz
+	CreatedAt       pgtype.Timestamp
 }
 
 type User struct {
 	ID        uuid.UUID
 	IsAdmin   bool
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	CreatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamp
 }
 
 type UserEntity struct {
 	UserID   uuid.UUID
 	EntityID uuid.UUID
 	Role     string
-	AddedAt  time.Time
+	AddedAt  pgtype.Timestamp
 }
 
 type UserInvitation struct {
@@ -98,8 +98,8 @@ type Vehicle struct {
 	CidSourceJson      *string
 	CidSourceCborB64   *string
 	BlockchainAssetID  string
-	CreatedAt          time.Time
-	UpdatedAt          time.Time
+	CreatedAt          pgtype.Timestamp
+	UpdatedAt          pgtype.Timestamp
 	Fuel               string
 	EngineCc           *int32
 	EngineCylinders    *int32
@@ -112,7 +112,7 @@ type VehicleDocument struct {
 	ObjectKey string
 	Filename  string
 	UploadUrl *string
-	CreatedAt pgtype.Timestamptz
+	CreatedAt pgtype.Timestamp
 }
 
 type VehicleInvitation struct {
@@ -130,7 +130,7 @@ type VehiclePhoto struct {
 	VehicleID uuid.UUID
 	ObjectKey string
 	UploadUrl *string
-	CreatedAt pgtype.Timestamptz
+	CreatedAt pgtype.Timestamp
 }
 
 type VehicleShareLink struct {
@@ -142,9 +142,9 @@ type VehicleShareLink struct {
 	CanViewDocuments bool
 	CanViewHistory   bool
 	RecipientEmail   *string
-	ExpiresAt        pgtype.Timestamptz
-	CreatedAt        pgtype.Timestamptz
+	ExpiresAt        pgtype.Timestamp
+	CreatedAt        pgtype.Timestamp
 	AccessedCount    int32
-	LastAccessedAt   pgtype.Timestamptz
-	RevokedAt        pgtype.Timestamptz
+	LastAccessedAt   pgtype.Timestamp
+	RevokedAt        pgtype.Timestamp
 }

@@ -7,9 +7,9 @@ package db
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const countVehicles = `-- name: CountVehicles :one
@@ -433,8 +433,8 @@ type ListVehiclesByOwnerWithStatsRow struct {
 	CidSourceJson             *string
 	CidSourceCborB64          *string
 	BlockchainAssetID         string
-	CreatedAt                 time.Time
-	UpdatedAt                 time.Time
+	CreatedAt                 pgtype.Timestamp
+	UpdatedAt                 pgtype.Timestamp
 	Fuel                      string
 	EngineCc                  *int32
 	EngineCylinders           *int32
@@ -542,8 +542,8 @@ type ListVehiclesWithStatsRow struct {
 	CidSourceJson             *string
 	CidSourceCborB64          *string
 	BlockchainAssetID         string
-	CreatedAt                 time.Time
-	UpdatedAt                 time.Time
+	CreatedAt                 pgtype.Timestamp
+	UpdatedAt                 pgtype.Timestamp
 	Fuel                      string
 	EngineCc                  *int32
 	EngineCylinders           *int32
