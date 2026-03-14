@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/ClassicCarsRestore/ClassicsChain/internal/eventimages"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/event_images"
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/postgres"
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/postgres/db"
 )
@@ -18,7 +18,7 @@ func NewEventImageRepository(queries db.Querier) *EventImageRepository {
 	return &EventImageRepository{queries: queries}
 }
 
-func (r *EventImageRepository) Create(ctx context.Context, params eventimages.CreateEventImageParams) (*eventimages.EventImage, error) {
+func (r *EventImageRepository) Create(ctx context.Context, params event_images.CreateEventImageParams) (*event_images.EventImage, error) {
 	created, err := r.queries.CreateEventImage(ctx, db.CreateEventImageParams{
 		UploadSessionID: params.UploadSessionID,
 		ObjectKey:       params.ObjectKey,
@@ -32,11 +32,11 @@ func (r *EventImageRepository) Create(ctx context.Context, params eventimages.Cr
 	return &result, nil
 }
 
-func (r *EventImageRepository) Get(ctx context.Context, id uuid.UUID) (*eventimages.EventImage, error) {
+func (r *EventImageRepository) Get(ctx context.Context, id uuid.UUID) (*event_images.EventImage, error) {
 	img, err := r.queries.GetEventImage(ctx, id)
 	if err != nil {
 		if postgres.IsNotFoundError(err) {
-			return nil, eventimages.ErrEventImageNotFound
+			return nil, event_images.ErrEventImageNotFound
 		}
 		return nil, postgres.WrapError(err, "get event image")
 	}
@@ -45,13 +45,13 @@ func (r *EventImageRepository) Get(ctx context.Context, id uuid.UUID) (*eventima
 	return &result, nil
 }
 
-func (r *EventImageRepository) ListBySession(ctx context.Context, sessionID uuid.UUID) ([]eventimages.EventImage, error) {
+func (r *EventImageRepository) ListBySession(ctx context.Context, sessionID uuid.UUID) ([]event_images.EventImage, error) {
 	dbImages, err := r.queries.ListEventImagesBySession(ctx, sessionID)
 	if err != nil {
 		return nil, postgres.WrapError(err, "list event images by session")
 	}
 
-	result := make([]eventimages.EventImage, len(dbImages))
+	result := make([]event_images.EventImage, len(dbImages))
 	for i, img := range dbImages {
 		result[i] = toEventImageDomain(img)
 	}
@@ -59,13 +59,13 @@ func (r *EventImageRepository) ListBySession(ctx context.Context, sessionID uuid
 	return result, nil
 }
 
-func (r *EventImageRepository) ListByEvent(ctx context.Context, eventID uuid.UUID) ([]eventimages.EventImage, error) {
+func (r *EventImageRepository) ListByEvent(ctx context.Context, eventID uuid.UUID) ([]event_images.EventImage, error) {
 	dbImages, err := r.queries.ListEventImagesByEvent(ctx, &eventID)
 	if err != nil {
 		return nil, postgres.WrapError(err, "list event images by event")
 	}
 
-	result := make([]eventimages.EventImage, len(dbImages))
+	result := make([]event_images.EventImage, len(dbImages))
 	for i, img := range dbImages {
 		result[i] = toEventImageDomain(img)
 	}
@@ -73,14 +73,14 @@ func (r *EventImageRepository) ListByEvent(ctx context.Context, eventID uuid.UUI
 	return result, nil
 }
 
-func (r *EventImageRepository) ConfirmUpload(ctx context.Context, id uuid.UUID, cid string) (*eventimages.EventImage, error) {
+func (r *EventImageRepository) ConfirmUpload(ctx context.Context, id uuid.UUID, cid string) (*event_images.EventImage, error) {
 	confirmed, err := r.queries.ConfirmEventImageUpload(ctx, db.ConfirmEventImageUploadParams{
 		ID:  id,
 		Cid: &cid,
 	})
 	if err != nil {
 		if postgres.IsNotFoundError(err) {
-			return nil, eventimages.ErrEventImageNotFound
+			return nil, event_images.ErrEventImageNotFound
 		}
 		return nil, postgres.WrapError(err, "confirm event image upload")
 	}
@@ -108,8 +108,8 @@ func (r *EventImageRepository) CountBySession(ctx context.Context, sessionID uui
 	return int(count), nil
 }
 
-func toEventImageDomain(img db.EventImage) eventimages.EventImage {
-	return eventimages.EventImage{
+func toEventImageDomain(img db.EventImage) event_images.EventImage {
+	return event_images.EventImage{
 		ID:              img.ID,
 		EventID:         img.EventID,
 		UploadSessionID: img.UploadSessionID,

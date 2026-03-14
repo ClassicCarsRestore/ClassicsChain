@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/ClassicCarsRestore/ClassicsChain/internal/vehicleshare"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/share_links"
 )
 
 func (a apiServer) GetVehicleShareLinks(ctx context.Context, request GetVehicleShareLinksRequestObject) (GetVehicleShareLinksResponseObject, error) {
@@ -81,7 +81,7 @@ func (a apiServer) CreateShareLink(ctx context.Context, request CreateShareLinkR
 		recipientEmail = &email
 	}
 
-	shareLink, err := a.shareLinksService.CreateShareLink(ctx, vehicleshare.CreateShareLinkParams{
+	shareLink, err := a.shareLinksService.CreateShareLink(ctx, share_links.CreateShareLinkParams{
 		VehicleID:        vehicle.ID,
 		CanViewDetails:   request.Body.CanViewDetails,
 		CanViewPhotos:    request.Body.CanViewPhotos,
@@ -91,7 +91,7 @@ func (a apiServer) CreateShareLink(ctx context.Context, request CreateShareLinkR
 		Duration:         string(request.Body.Duration),
 	})
 	if err != nil {
-		if errors.Is(err, vehicleshare.ErrInvalidDuration) {
+		if errors.Is(err, share_links.ErrInvalidDuration) {
 			return CreateShareLink400JSONResponse{
 				BadRequestJSONResponse: BadRequestJSONResponse{
 					Error: "Invalid duration. Must be one of: 1h, 24h, 7d, 30d",
@@ -142,7 +142,7 @@ func (a apiServer) RevokeShareLink(ctx context.Context, request RevokeShareLinkR
 
 	_, err = a.shareLinksService.RevokeShareLink(ctx, request.ShareLinkId)
 	if err != nil {
-		if errors.Is(err, vehicleshare.ErrShareLinkNotFound) {
+		if errors.Is(err, share_links.ErrShareLinkNotFound) {
 			return RevokeShareLink404JSONResponse{
 				NotFoundJSONResponse: NotFoundJSONResponse{
 					Error: "Share link not found",
@@ -158,13 +158,13 @@ func (a apiServer) RevokeShareLink(ctx context.Context, request RevokeShareLinkR
 func (a apiServer) GetSharedVehicle(ctx context.Context, request GetSharedVehicleRequestObject) (GetSharedVehicleResponseObject, error) {
 	shareLink, err := a.shareLinksService.GetSharedVehicleData(ctx, request.Token)
 	if err != nil {
-		if errors.Is(err, vehicleshare.ErrShareLinkExpired) || errors.Is(err, vehicleshare.ErrShareLinkRevoked) {
+		if errors.Is(err, share_links.ErrShareLinkExpired) || errors.Is(err, share_links.ErrShareLinkRevoked) {
 			return GetSharedVehicle410JSONResponse{
 				Error: "Share link has expired or been revoked",
 				Code:  "SHARE_LINK_EXPIRED_OR_REVOKED",
 			}, nil
 		}
-		if errors.Is(err, vehicleshare.ErrShareLinkNotFound) {
+		if errors.Is(err, share_links.ErrShareLinkNotFound) {
 			return GetSharedVehicle404JSONResponse{
 				NotFoundJSONResponse: NotFoundJSONResponse{
 					Error: "Share link not found",
@@ -233,7 +233,7 @@ func (a apiServer) GetSharedVehicle(ctx context.Context, request GetSharedVehicl
 	}, nil
 }
 
-func domainShareLinkToHTTP(sl vehicleshare.ShareLink) ShareLink {
+func domainShareLinkToHTTP(sl share_links.ShareLink) ShareLink {
 	var accessedCount *int
 	if sl.AccessedCount > 0 {
 		count := sl.AccessedCount

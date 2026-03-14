@@ -9,13 +9,13 @@ import (
 	"github.com/ClassicCarsRestore/ClassicsChain/internal/documents"
 	"github.com/ClassicCarsRestore/ClassicsChain/internal/entity"
 	"github.com/ClassicCarsRestore/ClassicsChain/internal/event"
-	"github.com/ClassicCarsRestore/ClassicsChain/internal/eventimages"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/event_images"
 	"github.com/ClassicCarsRestore/ClassicsChain/internal/invitation"
 	"github.com/ClassicCarsRestore/ClassicsChain/internal/photos"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/share_links"
 	"github.com/ClassicCarsRestore/ClassicsChain/internal/user"
 	"github.com/ClassicCarsRestore/ClassicsChain/internal/user_invitation"
 	"github.com/ClassicCarsRestore/ClassicsChain/internal/vehicles"
-	"github.com/ClassicCarsRestore/ClassicsChain/internal/vehicleshare"
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/algorand"
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/anchorer"
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/http"
@@ -202,9 +202,9 @@ func main() {
 	vehicleService := vehicles.NewService(vehicleRepo, anchorerService)
 	photoService := photos.NewService(photoRepo, photoStorage)
 	documentService := documents.NewService(documentRepo, photoStorage)
-	shareLinksService := vehicleshare.NewService(shareLinkRepo)
+	shareLinksService := share_links.NewService(shareLinkRepo)
 	invitationService := invitation.NewService(invitationRepo, vehicleService, mailerClient)
-	eventImageService := eventimages.NewService(eventImageRepo, photoStorage, cidGenerator)
+	eventImageService := event_images.NewService(eventImageRepo, photoStorage, cidGenerator)
 	eventService := event.NewService(eventRepo, anchorerService)
 	eventService.SetEventImageService(eventImageService)
 

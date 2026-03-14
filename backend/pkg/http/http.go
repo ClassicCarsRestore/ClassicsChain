@@ -13,14 +13,14 @@ import (
 	"github.com/ClassicCarsRestore/ClassicsChain/internal/documents"
 	"github.com/ClassicCarsRestore/ClassicsChain/internal/entity"
 	"github.com/ClassicCarsRestore/ClassicsChain/internal/event"
-	"github.com/ClassicCarsRestore/ClassicsChain/internal/eventimages"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/event_images"
 	"github.com/ClassicCarsRestore/ClassicsChain/internal/invitation"
 	"github.com/ClassicCarsRestore/ClassicsChain/internal/photos"
-	"github.com/ClassicCarsRestore/ClassicsChain/pkg/kratos"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/share_links"
 	"github.com/ClassicCarsRestore/ClassicsChain/internal/user"
 	"github.com/ClassicCarsRestore/ClassicsChain/internal/user_invitation"
 	"github.com/ClassicCarsRestore/ClassicsChain/internal/vehicles"
-	"github.com/ClassicCarsRestore/ClassicsChain/internal/vehicleshare"
+	"github.com/ClassicCarsRestore/ClassicsChain/pkg/kratos"
 	"github.com/google/uuid"
 	"github.com/rs/cors"
 )
@@ -65,7 +65,7 @@ func createResponseErrorHandler() func(w http.ResponseWriter, r *http.Request, e
 }
 
 // New creates a new HTTP server with the API server as its handler.
-func New(cfg Config, entityService *entity.Service, eventService *event.Service, vehicleService *vehicles.Service, photoService *photos.Service, documentService *documents.Service, shareLinksService *vehicleshare.Service, userService *user.Service, invitationService *invitation.Service, userInvitationService *user_invitation.Service, eventImageService *eventimages.Service, kratosClient *kratos.Client, authMiddleware *auth.Middleware, authorizer *auth.Authorizer) *http.Server {
+func New(cfg Config, entityService *entity.Service, eventService *event.Service, vehicleService *vehicles.Service, photoService *photos.Service, documentService *documents.Service, shareLinksService *share_links.Service, userService *user.Service, invitationService *invitation.Service, userInvitationService *user_invitation.Service, eventImageService *event_images.Service, kratosClient *kratos.Client, authMiddleware *auth.Middleware, authorizer *auth.Authorizer) *http.Server {
 	server := &apiServer{
 		entityService:         entityService,
 		eventService:          eventService,
@@ -132,11 +132,11 @@ type apiServer struct {
 	vehicleService        *vehicles.Service
 	photoService          *photos.Service
 	documentService       *documents.Service
-	shareLinksService     *vehicleshare.Service
+	shareLinksService     *share_links.Service
 	userService           *user.Service
 	invitationService     *invitation.Service
 	userInvitationService *user_invitation.Service
-	eventImageService     *eventimages.Service
+	eventImageService     *event_images.Service
 	kratosClient          *kratos.Client
 	authorizer            *auth.Authorizer
 }

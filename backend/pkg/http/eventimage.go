@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/ClassicCarsRestore/ClassicsChain/internal/eventimages"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/event_images"
 )
 
 func (a apiServer) CreateEventImageUploadSession(ctx context.Context, _ CreateEventImageUploadSessionRequestObject) (CreateEventImageUploadSessionResponseObject, error) {
@@ -40,15 +40,15 @@ func (a apiServer) GenerateEventImageUploadUrl(ctx context.Context, request Gene
 		}, nil
 	}
 
-	fileExtension := eventimages.GetFileExtension(request.Body.Filename)
+	fileExtension := event_images.GetFileExtension(request.Body.Filename)
 
-	image, err := a.eventImageService.GenerateUploadURL(ctx, eventimages.GenerateUploadParams{
+	image, err := a.eventImageService.GenerateUploadURL(ctx, event_images.GenerateUploadParams{
 		SessionID:     request.SessionId,
 		Filename:      request.Body.Filename,
 		FileExtension: fileExtension,
 	})
 	if err != nil {
-		if errors.Is(err, eventimages.ErrMaxImagesExceeded) {
+		if errors.Is(err, event_images.ErrMaxImagesExceeded) {
 			return GenerateEventImageUploadUrl400JSONResponse{
 				BadRequestJSONResponse: BadRequestJSONResponse{
 					Error: "Session has reached maximum number of images (10)",
@@ -83,7 +83,7 @@ func (a apiServer) ConfirmEventImageUpload(ctx context.Context, request ConfirmE
 
 	image, err := a.eventImageService.ConfirmUpload(ctx, request.ImageId)
 	if err != nil {
-		if errors.Is(err, eventimages.ErrEventImageNotFound) {
+		if errors.Is(err, event_images.ErrEventImageNotFound) {
 			return ConfirmEventImageUpload404JSONResponse{
 				NotFoundJSONResponse: NotFoundJSONResponse{
 					Error: "Image not found",
@@ -159,14 +159,14 @@ func (a apiServer) DeleteEventImage(ctx context.Context, request DeleteEventImag
 
 	err := a.eventImageService.Delete(ctx, request.ImageId)
 	if err != nil {
-		if errors.Is(err, eventimages.ErrEventImageNotFound) {
+		if errors.Is(err, event_images.ErrEventImageNotFound) {
 			return DeleteEventImage404JSONResponse{
 				NotFoundJSONResponse: NotFoundJSONResponse{
 					Error: "Image not found",
 				},
 			}, nil
 		}
-		if errors.Is(err, eventimages.ErrImageAlreadyAttached) {
+		if errors.Is(err, event_images.ErrImageAlreadyAttached) {
 			return DeleteEventImage400JSONResponse{
 				BadRequestJSONResponse: BadRequestJSONResponse{
 					Error: "Cannot delete image already attached to an event",
@@ -179,7 +179,7 @@ func (a apiServer) DeleteEventImage(ctx context.Context, request DeleteEventImag
 	return DeleteEventImage204Response{}, nil
 }
 
-func domainToHTTPEventImage(img eventimages.EventImage) EventImage {
+func domainToHTTPEventImage(img event_images.EventImage) EventImage {
 	result := EventImage{
 		Id:              img.ID,
 		UploadSessionId: img.UploadSessionID,

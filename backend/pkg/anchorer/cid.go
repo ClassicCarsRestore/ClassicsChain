@@ -89,7 +89,7 @@ func GenerateFileCID(content []byte) (string, error) {
 // CIDGenerator provides a method to generate CIDs for file content
 type CIDGenerator struct{}
 
-// GenerateFileCID implements the CIDGenerator interface for eventimages.Service
+// GenerateFileCID implements the CIDGenerator interface for event_images.Service
 func (g *CIDGenerator) GenerateFileCID(content []byte) (string, error) {
 	return GenerateFileCID(content)
 }

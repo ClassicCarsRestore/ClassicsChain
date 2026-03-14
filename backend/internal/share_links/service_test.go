@@ -1,4 +1,4 @@
-package vehicleshare
+package share_links
 
 import (
 	"context"
@@ -13,11 +13,11 @@ import (
 // --- Mocks ---
 
 type mockRepo struct {
-	createFunc             func(ctx context.Context, params CreateShareLinkParams) (*ShareLink, error)
-	getByTokenFunc         func(ctx context.Context, token string) (*ShareLink, error)
-	incrementAccessFunc    func(ctx context.Context, id uuid.UUID) error
-	listByVehicleFunc      func(ctx context.Context, vehicleID uuid.UUID) ([]ShareLink, error)
-	revokeFunc             func(ctx context.Context, id uuid.UUID) (*ShareLink, error)
+	createFunc          func(ctx context.Context, params CreateShareLinkParams) (*ShareLink, error)
+	getByTokenFunc      func(ctx context.Context, token string) (*ShareLink, error)
+	incrementAccessFunc func(ctx context.Context, id uuid.UUID) error
+	listByVehicleFunc   func(ctx context.Context, vehicleID uuid.UUID) ([]ShareLink, error)
+	revokeFunc          func(ctx context.Context, id uuid.UUID) (*ShareLink, error)
 }
 
 func (m *mockRepo) Create(ctx context.Context, params CreateShareLinkParams) (*ShareLink, error) {

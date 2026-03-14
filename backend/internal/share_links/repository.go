@@ -1,4 +1,4 @@
-package vehicleshare
+package share_links
 
 import (
 	"context"

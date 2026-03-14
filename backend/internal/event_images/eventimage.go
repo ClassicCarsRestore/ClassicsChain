@@ -1,4 +1,4 @@
-package eventimages
+package event_images
 
 import (
 	"context"

@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/share_links"
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/postgres"
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/postgres/db"
-	"github.com/ClassicCarsRestore/ClassicsChain/internal/vehicleshare"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -15,11 +15,11 @@ type ShareLinkRepository struct {
 	queries db.Querier
 }
 
-func NewShareLinkRepository(queries db.Querier) vehicleshare.Repository {
+func NewShareLinkRepository(queries db.Querier) share_links.Repository {
 	return &ShareLinkRepository{queries: queries}
 }
 
-func (r *ShareLinkRepository) Create(ctx context.Context, params vehicleshare.CreateShareLinkParams) (*vehicleshare.ShareLink, error) {
+func (r *ShareLinkRepository) Create(ctx context.Context, params share_links.CreateShareLinkParams) (*share_links.ShareLink, error) {
 	expiresAt := time.Now()
 	switch params.Duration {
 	case "1h":
@@ -32,7 +32,7 @@ func (r *ShareLinkRepository) Create(ctx context.Context, params vehicleshare.Cr
 		expiresAt = expiresAt.Add(30 * 24 * time.Hour)
 	}
 
-	token, err := vehicleshare.GenerateShareToken()
+	token, err := share_links.GenerateShareToken()
 	if err != nil {
 		return nil, err
 	}
@@ -54,11 +54,11 @@ func (r *ShareLinkRepository) Create(ctx context.Context, params vehicleshare.Cr
 	return toShareLinkDomain(dbShareLink), nil
 }
 
-func (r *ShareLinkRepository) GetByToken(ctx context.Context, token string) (*vehicleshare.ShareLink, error) {
+func (r *ShareLinkRepository) GetByToken(ctx context.Context, token string) (*share_links.ShareLink, error) {
 	dbShareLink, err := r.queries.GetShareLinkByToken(ctx, token)
 	if err != nil {
 		if postgres.IsNotFoundError(err) {
-			return nil, vehicleshare.ErrShareLinkNotFound
+			return nil, share_links.ErrShareLinkNotFound
 		}
 		return nil, postgres.WrapError(err, "get share link by token")
 	}
@@ -66,11 +66,11 @@ func (r *ShareLinkRepository) GetByToken(ctx context.Context, token string) (*ve
 	return toShareLinkDomain(dbShareLink), nil
 }
 
-func (r *ShareLinkRepository) GetByID(ctx context.Context, id uuid.UUID) (*vehicleshare.ShareLink, error) {
+func (r *ShareLinkRepository) GetByID(ctx context.Context, id uuid.UUID) (*share_links.ShareLink, error) {
 	dbShareLink, err := r.queries.GetShareLinkByID(ctx, id)
 	if err != nil {
 		if postgres.IsNotFoundError(err) {
-			return nil, vehicleshare.ErrShareLinkNotFound
+			return nil, share_links.ErrShareLinkNotFound
 		}
 		return nil, postgres.WrapError(err, "get share link by id")
 	}
@@ -78,13 +78,13 @@ func (r *ShareLinkRepository) GetByID(ctx context.Context, id uuid.UUID) (*vehic
 	return toShareLinkDomain(dbShareLink), nil
 }
 
-func (r *ShareLinkRepository) ListByVehicle(ctx context.Context, vehicleID uuid.UUID) ([]vehicleshare.ShareLink, error) {
+func (r *ShareLinkRepository) ListByVehicle(ctx context.Context, vehicleID uuid.UUID) ([]share_links.ShareLink, error) {
 	dbShareLinks, err := r.queries.ListShareLinksByVehicle(ctx, vehicleID)
 	if err != nil {
 		return nil, postgres.WrapError(err, "list share links by vehicle")
 	}
 
-	result := make([]vehicleshare.ShareLink, len(dbShareLinks))
+	result := make([]share_links.ShareLink, len(dbShareLinks))
 	for i, dbShareLink := range dbShareLinks {
 		result[i] = *toShareLinkDomain(dbShareLink)
 	}
@@ -97,7 +97,7 @@ func (r *ShareLinkRepository) IncrementAccessCount(ctx context.Context, id uuid.
 	return postgres.WrapError(err, "increment share link access count")
 }
 
-func (r *ShareLinkRepository) Revoke(ctx context.Context, id uuid.UUID) (*vehicleshare.ShareLink, error) {
+func (r *ShareLinkRepository) Revoke(ctx context.Context, id uuid.UUID) (*share_links.ShareLink, error) {
 	dbShareLink, err := r.queries.RevokeShareLink(ctx, id)
 	if err != nil {
 		return nil, postgres.WrapError(err, "revoke share link")
@@ -106,8 +106,8 @@ func (r *ShareLinkRepository) Revoke(ctx context.Context, id uuid.UUID) (*vehicl
 	return toShareLinkDomain(dbShareLink), nil
 }
 
-func toShareLinkDomain(dbShareLink db.VehicleShareLink) *vehicleshare.ShareLink {
-	return &vehicleshare.ShareLink{
+func toShareLinkDomain(dbShareLink db.VehicleShareLink) *share_links.ShareLink {
+	return &share_links.ShareLink{
 		ID:               dbShareLink.ID,
 		VehicleID:        dbShareLink.VehicleID,
 		Token:            dbShareLink.Token,

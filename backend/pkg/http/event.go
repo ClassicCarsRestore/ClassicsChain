@@ -6,7 +6,7 @@ import (
 
 	"github.com/ClassicCarsRestore/ClassicsChain/auth"
 	"github.com/ClassicCarsRestore/ClassicsChain/internal/event"
-	"github.com/ClassicCarsRestore/ClassicsChain/internal/eventimages"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/event_images"
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
@@ -210,7 +210,7 @@ func (a apiServer) GetEvent(ctx context.Context, request GetEventRequestObject) 
 	return GetEvent200JSONResponse(httpEvent), nil
 }
 
-func domainToHTTPEvent(domainEvent event.Event, images []eventimages.EventImage) Event {
+func domainToHTTPEvent(domainEvent event.Event, images []event_images.EventImage) Event {
 	var httpImages *[]EventImage
 	if len(images) > 0 {
 		imgs := make([]EventImage, len(images))
