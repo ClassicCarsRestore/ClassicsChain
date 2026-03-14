@@ -5,9 +5,9 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/ClassicCarsRestore/ClassicsChain/pkg/kratos"
+	"github.com/ClassicCarsRestore/ClassicsChain/user_invitation"
 	"github.com/google/uuid"
-	"github.com/s1moe2/classics-chain/pkg/kratos"
-	"github.com/s1moe2/classics-chain/user_invitation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -15,10 +15,10 @@ import (
 // --- Mocks ---
 
 type mockRepo struct {
-	getByIDFunc                func(ctx context.Context, id uuid.UUID) (*User, error)
-	createFunc                 func(ctx context.Context, user *User) error
+	getByIDFunc                  func(ctx context.Context, id uuid.UUID) (*User, error)
+	createFunc                   func(ctx context.Context, user *User) error
 	getUserEntityMembershipsFunc func(ctx context.Context, userID uuid.UUID) ([]EntityMembership, error)
-	getUserEntityRoleFunc      func(ctx context.Context, userID, entityID uuid.UUID) (string, error)
+	getUserEntityRoleFunc        func(ctx context.Context, userID, entityID uuid.UUID) (string, error)
 }
 
 func (m *mockRepo) GetByID(ctx context.Context, id uuid.UUID) (*User, error) {
@@ -622,8 +622,8 @@ func TestService_GetUserProfile_InvalidInvitationFormat(t *testing.T) {
 		getPendingFunc: func(_ context.Context, _ string) ([]interface{}, error) {
 			return []interface{}{
 				"not a map",
-				map[string]interface{}{},                     // no vehicle_id
-				map[string]interface{}{"vehicle_id": 12345},  // wrong type
+				map[string]interface{}{}, // no vehicle_id
+				map[string]interface{}{"vehicle_id": 12345},   // wrong type
 				map[string]interface{}{"vehicle_id": "bad!!"}, // unparseable string
 			}, nil
 		},

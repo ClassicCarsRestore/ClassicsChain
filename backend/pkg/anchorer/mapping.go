@@ -3,9 +3,9 @@ package anchorer
 import (
 	"time"
 
+	"github.com/ClassicCarsRestore/ClassicsChain/event"
+	"github.com/ClassicCarsRestore/ClassicsChain/vehicles"
 	"github.com/google/uuid"
-	"github.com/s1moe2/classics-chain/event"
-	"github.com/s1moe2/classics-chain/vehicles"
 )
 
 // VehicleRecord represents the structure of a vehicle stored in IPFS

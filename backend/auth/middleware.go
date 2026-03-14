@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/ClassicCarsRestore/ClassicsChain/pkg/hydra"
+	"github.com/ClassicCarsRestore/ClassicsChain/pkg/kratos"
+	"github.com/ClassicCarsRestore/ClassicsChain/user"
 	"github.com/google/uuid"
-	"github.com/s1moe2/classics-chain/pkg/hydra"
-	"github.com/s1moe2/classics-chain/pkg/kratos"
-	"github.com/s1moe2/classics-chain/user"
 )
 
 type contextKey string

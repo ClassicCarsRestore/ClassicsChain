@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/ClassicCarsRestore/ClassicsChain/auth"
 	openapi_types "github.com/oapi-codegen/runtime/types"
-	"github.com/s1moe2/classics-chain/auth"
 )
 
 // GetAdminUsers lists all admin users

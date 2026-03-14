@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/s1moe2/classics-chain/documents"
+	"github.com/ClassicCarsRestore/ClassicsChain/documents"
 )
 
 func (a apiServer) GetVehicleDocuments(ctx context.Context, request GetVehicleDocumentsRequestObject) (GetVehicleDocumentsResponseObject, error) {

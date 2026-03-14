@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/ClassicCarsRestore/ClassicsChain/auth"
+	"github.com/ClassicCarsRestore/ClassicsChain/vehicles"
 	"github.com/google/uuid"
-	"github.com/s1moe2/classics-chain/auth"
-	"github.com/s1moe2/classics-chain/vehicles"
 )
 
 var (

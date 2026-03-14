@@ -3,9 +3,9 @@ package http
 import (
 	"context"
 
-	"github.com/s1moe2/classics-chain/auth"
-	"github.com/s1moe2/classics-chain/entity"
-	"github.com/s1moe2/classics-chain/pkg/hydra"
+	"github.com/ClassicCarsRestore/ClassicsChain/auth"
+	"github.com/ClassicCarsRestore/ClassicsChain/entity"
+	"github.com/ClassicCarsRestore/ClassicsChain/pkg/hydra"
 )
 
 // ListEntityOAuth2Clients lists OAuth2 clients for an entity

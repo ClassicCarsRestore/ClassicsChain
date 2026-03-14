@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/ClassicCarsRestore/ClassicsChain/invitation"
 	"github.com/resend/resend-go/v3"
-	"github.com/s1moe2/classics-chain/invitation"
 )
 
 type Config struct {

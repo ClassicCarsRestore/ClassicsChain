@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/ClassicCarsRestore/ClassicsChain/vehicles"
 	"github.com/google/uuid"
-	"github.com/s1moe2/classics-chain/vehicles"
 )
 
 // Repository defines the data access interface for events
@@ -141,4 +141,3 @@ func (s *Service) Update(ctx context.Context, id uuid.UUID, params UpdateEventPa
 func (s *Service) Delete(ctx context.Context, id uuid.UUID) error {
 	return s.repo.Delete(ctx, id)
 }
-

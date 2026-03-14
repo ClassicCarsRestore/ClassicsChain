@@ -4,11 +4,11 @@ import (
 	"context"
 	"time"
 
+	"github.com/ClassicCarsRestore/ClassicsChain/pkg/postgres"
+	"github.com/ClassicCarsRestore/ClassicsChain/pkg/postgres/db"
+	"github.com/ClassicCarsRestore/ClassicsChain/vehicleshare"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/s1moe2/classics-chain/pkg/postgres"
-	"github.com/s1moe2/classics-chain/pkg/postgres/db"
-	"github.com/s1moe2/classics-chain/vehicleshare"
 )
 
 type ShareLinkRepository struct {

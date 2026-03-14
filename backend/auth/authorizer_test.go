@@ -7,11 +7,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ClassicCarsRestore/ClassicsChain/pkg/hydra"
+	"github.com/ClassicCarsRestore/ClassicsChain/pkg/kratos"
+	"github.com/ClassicCarsRestore/ClassicsChain/user"
 	"github.com/casbin/casbin/v2"
 	"github.com/google/uuid"
-	"github.com/s1moe2/classics-chain/pkg/hydra"
-	"github.com/s1moe2/classics-chain/pkg/kratos"
-	"github.com/s1moe2/classics-chain/user"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -19,7 +19,7 @@ import (
 // --- Mocks ---
 
 type mockUserService struct {
-	getUserEntityRoleFunc       func(ctx context.Context, userID, entityID uuid.UUID) (string, error)
+	getUserEntityRoleFunc        func(ctx context.Context, userID, entityID uuid.UUID) (string, error)
 	getUserEntityMembershipsFunc func(ctx context.Context, userID uuid.UUID) ([]user.EntityMembership, error)
 }
 
@@ -659,4 +659,3 @@ func TestExtractBearerToken(t *testing.T) {
 		})
 	}
 }
-

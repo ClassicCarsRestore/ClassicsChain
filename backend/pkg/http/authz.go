@@ -3,8 +3,8 @@ package http
 import (
 	"context"
 
-	"github.com/s1moe2/classics-chain/auth"
-	"github.com/s1moe2/classics-chain/vehicles"
+	"github.com/ClassicCarsRestore/ClassicsChain/auth"
+	"github.com/ClassicCarsRestore/ClassicsChain/vehicles"
 )
 
 // Authorization resource names

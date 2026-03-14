@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 
+	"github.com/ClassicCarsRestore/ClassicsChain/auth"
+	"github.com/ClassicCarsRestore/ClassicsChain/event"
+	"github.com/ClassicCarsRestore/ClassicsChain/eventimages"
 	openapi_types "github.com/oapi-codegen/runtime/types"
-	"github.com/s1moe2/classics-chain/auth"
-	"github.com/s1moe2/classics-chain/event"
-	"github.com/s1moe2/classics-chain/eventimages"
 )
 
 func (a apiServer) GetVehicleEvents(ctx context.Context, request GetVehicleEventsRequestObject) (GetVehicleEventsResponseObject, error) {

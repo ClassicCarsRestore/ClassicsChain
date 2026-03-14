@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/ClassicCarsRestore/ClassicsChain/pkg/storage"
 	"github.com/google/uuid"
-	"github.com/s1moe2/classics-chain/pkg/storage"
 )
 
 // Storage defines the interface for object storage operations

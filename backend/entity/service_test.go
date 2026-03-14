@@ -8,12 +8,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ClassicCarsRestore/ClassicsChain/auth"
+	"github.com/ClassicCarsRestore/ClassicsChain/pkg/hydra"
+	"github.com/ClassicCarsRestore/ClassicsChain/pkg/kratos"
+	"github.com/ClassicCarsRestore/ClassicsChain/user"
+	"github.com/ClassicCarsRestore/ClassicsChain/user_invitation"
 	"github.com/google/uuid"
-	"github.com/s1moe2/classics-chain/auth"
-	"github.com/s1moe2/classics-chain/pkg/hydra"
-	"github.com/s1moe2/classics-chain/pkg/kratos"
-	"github.com/s1moe2/classics-chain/user"
-	"github.com/s1moe2/classics-chain/user_invitation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

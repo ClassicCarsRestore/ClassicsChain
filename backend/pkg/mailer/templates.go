@@ -3,7 +3,7 @@ package mailer
 import (
 	"fmt"
 
-	"github.com/s1moe2/classics-chain/invitation"
+	"github.com/ClassicCarsRestore/ClassicsChain/invitation"
 )
 
 func RenderAdminInvitationTemplate(name, invitationURL string) string {

@@ -8,10 +8,10 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ClassicCarsRestore/ClassicsChain/event"
+	"github.com/ClassicCarsRestore/ClassicsChain/pkg/algorand"
+	"github.com/ClassicCarsRestore/ClassicsChain/vehicles"
 	"github.com/google/uuid"
-	"github.com/s1moe2/classics-chain/event"
-	"github.com/s1moe2/classics-chain/pkg/algorand"
-	"github.com/s1moe2/classics-chain/vehicles"
 )
 
 const (

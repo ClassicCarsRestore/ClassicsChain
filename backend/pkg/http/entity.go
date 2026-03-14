@@ -5,11 +5,11 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/ClassicCarsRestore/ClassicsChain/auth"
+	"github.com/ClassicCarsRestore/ClassicsChain/documents"
+	"github.com/ClassicCarsRestore/ClassicsChain/entity"
 	"github.com/google/uuid"
 	openapi_types "github.com/oapi-codegen/runtime/types"
-	"github.com/s1moe2/classics-chain/auth"
-	"github.com/s1moe2/classics-chain/documents"
-	"github.com/s1moe2/classics-chain/entity"
 )
 
 // authorizeEntityMemberAccess checks if user can access/manage members of an entity.

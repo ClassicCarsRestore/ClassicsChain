@@ -7,9 +7,9 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/s1moe2/classics-chain/entity"
-	"github.com/s1moe2/classics-chain/pkg/postgres"
-	"github.com/s1moe2/classics-chain/pkg/postgres/db"
+	"github.com/ClassicCarsRestore/ClassicsChain/entity"
+	"github.com/ClassicCarsRestore/ClassicsChain/pkg/postgres"
+	"github.com/ClassicCarsRestore/ClassicsChain/pkg/postgres/db"
 )
 
 type EntityRepository struct {

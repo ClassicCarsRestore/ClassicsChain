@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/s1moe2/classics-chain/pkg/kratos"
-	"github.com/s1moe2/classics-chain/pkg/postgres/db"
+	"github.com/ClassicCarsRestore/ClassicsChain/pkg/kratos"
+	"github.com/ClassicCarsRestore/ClassicsChain/pkg/postgres/db"
 )
 
 type AdminUserConfig struct {
