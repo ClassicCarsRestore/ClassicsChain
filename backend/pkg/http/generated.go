@@ -195,15 +195,6 @@ type ClaimInvitationsResponse struct {
 	Count int `json:"count"`
 }
 
-// ClaimVehicleRequest Request to claim ownership of an unclaimed vehicle
-type ClaimVehicleRequest struct {
-	// ChassisNumber Chassis number (optional, used for matching)
-	ChassisNumber *string `json:"chassisNumber,omitempty"`
-
-	// LicensePlate License plate (optional, used for matching)
-	LicensePlate *string `json:"licensePlate,omitempty"`
-}
-
 // CreateAdminUserRequest defines model for CreateAdminUserRequest.
 type CreateAdminUserRequest struct {
 	// Email Email address for the new admin user. A recovery link will be sent to this email.
@@ -1108,9 +1099,6 @@ type CreateVehicleJSONRequestBody = CreateVehicleRequest
 // UpdateVehicleJSONRequestBody defines body for UpdateVehicle for application/json ContentType.
 type UpdateVehicleJSONRequestBody = UpdateVehicleRequest
 
-// ClaimVehicleJSONRequestBody defines body for ClaimVehicle for application/json ContentType.
-type ClaimVehicleJSONRequestBody = ClaimVehicleRequest
-
 // GenerateDocumentUploadUrlJSONRequestBody defines body for GenerateDocumentUploadUrl for application/json ContentType.
 type GenerateDocumentUploadUrlJSONRequestBody = GenerateDocumentUploadUrlRequest
 
@@ -1248,9 +1236,6 @@ type ServerInterface interface {
 	// Update vehicle
 	// (PUT /vehicles/{vehicleId})
 	UpdateVehicle(w http.ResponseWriter, r *http.Request, vehicleId VehicleIdParam)
-	// Claim ownership of an unclaimed vehicle
-	// (POST /vehicles/{vehicleId}/claim)
-	ClaimVehicle(w http.ResponseWriter, r *http.Request, vehicleId VehicleIdParam)
 	// Get vehicle documents
 	// (GET /vehicles/{vehicleId}/documents)
 	GetVehicleDocuments(w http.ResponseWriter, r *http.Request, vehicleId VehicleIdParam)
@@ -2559,37 +2544,6 @@ func (siw *ServerInterfaceWrapper) UpdateVehicle(w http.ResponseWriter, r *http.
 	handler.ServeHTTP(w, r)
 }
 
-// ClaimVehicle operation middleware
-func (siw *ServerInterfaceWrapper) ClaimVehicle(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// ------------- Path parameter "vehicleId" -------------
-	var vehicleId VehicleIdParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "vehicleId", r.PathValue("vehicleId"), &vehicleId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "vehicleId", Err: err})
-		return
-	}
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.ClaimVehicle(w, r, vehicleId)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
 // GetVehicleDocuments operation middleware
 func (siw *ServerInterfaceWrapper) GetVehicleDocuments(w http.ResponseWriter, r *http.Request) {
 
@@ -3218,7 +3172,6 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("POST "+options.BaseURL+"/vehicles", wrapper.CreateVehicle)
 	m.HandleFunc("GET "+options.BaseURL+"/vehicles/{vehicleId}", wrapper.GetVehicle)
 	m.HandleFunc("PUT "+options.BaseURL+"/vehicles/{vehicleId}", wrapper.UpdateVehicle)
-	m.HandleFunc("POST "+options.BaseURL+"/vehicles/{vehicleId}/claim", wrapper.ClaimVehicle)
 	m.HandleFunc("GET "+options.BaseURL+"/vehicles/{vehicleId}/documents", wrapper.GetVehicleDocuments)
 	m.HandleFunc("POST "+options.BaseURL+"/vehicles/{vehicleId}/documents/upload-url", wrapper.GenerateDocumentUploadUrl)
 	m.HandleFunc("DELETE "+options.BaseURL+"/vehicles/{vehicleId}/documents/{documentId}", wrapper.DeleteVehicleDocument)
@@ -4893,60 +4846,6 @@ func (response UpdateVehicle404JSONResponse) VisitUpdateVehicleResponse(w http.R
 	return json.NewEncoder(w).Encode(response)
 }
 
-type ClaimVehicleRequestObject struct {
-	VehicleId VehicleIdParam `json:"vehicleId"`
-	Body      *ClaimVehicleJSONRequestBody
-}
-
-type ClaimVehicleResponseObject interface {
-	VisitClaimVehicleResponse(w http.ResponseWriter) error
-}
-
-type ClaimVehicle200JSONResponse Vehicle
-
-func (response ClaimVehicle200JSONResponse) VisitClaimVehicleResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ClaimVehicle400JSONResponse struct{ BadRequestJSONResponse }
-
-func (response ClaimVehicle400JSONResponse) VisitClaimVehicleResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(400)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ClaimVehicle401JSONResponse struct{ UnauthorizedJSONResponse }
-
-func (response ClaimVehicle401JSONResponse) VisitClaimVehicleResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(401)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ClaimVehicle403JSONResponse struct{ ForbiddenJSONResponse }
-
-func (response ClaimVehicle403JSONResponse) VisitClaimVehicleResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(403)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ClaimVehicle404JSONResponse struct{ NotFoundJSONResponse }
-
-func (response ClaimVehicle404JSONResponse) VisitClaimVehicleResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(404)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
 type GetVehicleDocumentsRequestObject struct {
 	VehicleId VehicleIdParam `json:"vehicleId"`
 }
@@ -5714,9 +5613,6 @@ type StrictServerInterface interface {
 	// Update vehicle
 	// (PUT /vehicles/{vehicleId})
 	UpdateVehicle(ctx context.Context, request UpdateVehicleRequestObject) (UpdateVehicleResponseObject, error)
-	// Claim ownership of an unclaimed vehicle
-	// (POST /vehicles/{vehicleId}/claim)
-	ClaimVehicle(ctx context.Context, request ClaimVehicleRequestObject) (ClaimVehicleResponseObject, error)
 	// Get vehicle documents
 	// (GET /vehicles/{vehicleId}/documents)
 	GetVehicleDocuments(ctx context.Context, request GetVehicleDocumentsRequestObject) (GetVehicleDocumentsResponseObject, error)
@@ -6931,39 +6827,6 @@ func (sh *strictHandler) UpdateVehicle(w http.ResponseWriter, r *http.Request, v
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(UpdateVehicleResponseObject); ok {
 		if err := validResponse.VisitUpdateVehicleResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// ClaimVehicle operation middleware
-func (sh *strictHandler) ClaimVehicle(w http.ResponseWriter, r *http.Request, vehicleId VehicleIdParam) {
-	var request ClaimVehicleRequestObject
-
-	request.VehicleId = vehicleId
-
-	var body ClaimVehicleJSONRequestBody
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
-		return
-	}
-	request.Body = &body
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.ClaimVehicle(ctx, request.(ClaimVehicleRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ClaimVehicle")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(ClaimVehicleResponseObject); ok {
-		if err := validResponse.VisitClaimVehicleResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

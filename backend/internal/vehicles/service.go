@@ -166,29 +166,6 @@ func (s *Service) Delete(ctx context.Context, id uuid.UUID) error {
 	return s.repo.Delete(ctx, id)
 }
 
-// ClaimVehicleOwnership allows a user to claim an ownerless vehicle
-func (s *Service) ClaimVehicleOwnership(ctx context.Context, claimerID uuid.UUID, vehicleID uuid.UUID) (*Vehicle, error) {
-	vehicle, err := s.repo.GetByID(ctx, vehicleID)
-	if err != nil {
-		return nil, err
-	}
-
-	// Vehicle must be ownerless to be claimed
-	if vehicle.OwnerID != nil {
-		return nil, nil
-	}
-
-	// Update vehicle ownership
-	vehicle.OwnerID = &claimerID
-	vehicle.UpdatedAt = time.Now()
-
-	if err := s.repo.Update(ctx, vehicle); err != nil {
-		return nil, err
-	}
-
-	return vehicle, nil
-}
-
 // FindOrCreateVehicle searches for a vehicle by chassis number (priority) or license plate
 // If not found, creates a new unclaimed vehicle with minimal information
 // Prioritizes chassis number if both are provided and match different vehicles

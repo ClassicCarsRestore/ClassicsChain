@@ -793,37 +793,6 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /vehicles/{vehicleId}/claim:
-    post:
-      operationId: claimVehicle
-      summary: Claim ownership of an unclaimed vehicle
-      description: Allow a user to claim ownership of an unclaimed vehicle by matching identifiers (chassis number, license plate)
-      tags:
-        - Vehicles
-      parameters:
-        - $ref: '#/components/parameters/VehicleIdParam'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ClaimVehicleRequest'
-      responses:
-        '200':
-          description: Vehicle claimed successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Vehicle'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
   /vehicles/{vehicleId}/photos:
     get:
       operationId: getVehiclePhotos
@@ -2284,20 +2253,6 @@ components:
           type: string
           format: email
           description: Optional email to assign ownership. Only allowed for unclaimed vehicles. If user exists, assigns directly. If not, sends invitation.
-
-    ClaimVehicleRequest:
-      type: object
-      description: Request to claim ownership of an unclaimed vehicle
-      properties:
-        chassisNumber:
-          type: string
-          description: Chassis number (optional, used for matching)
-        licensePlate:
-          type: string
-          description: License plate (optional, used for matching)
-      minProperties: 1
-      example:
-        chassisNumber: "WBADT43452G123456"
 
     VehicleListResponse:
       type: object

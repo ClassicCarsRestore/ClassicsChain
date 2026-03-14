@@ -18,7 +18,6 @@ type Querier interface {
 	ClaimInvitation(ctx context.Context, id uuid.UUID) (ClaimInvitationRow, error)
 	ClaimInvitationsByEmail(ctx context.Context, email string) error
 	ClaimUserInvitation(ctx context.Context, token string) error
-	ClaimVehicle(ctx context.Context, arg ClaimVehicleParams) (Vehicle, error)
 	ClearEntityLogo(ctx context.Context, id uuid.UUID) (Entity, error)
 	ConfirmDocumentUpload(ctx context.Context, id uuid.UUID) (VehicleDocument, error)
 	ConfirmEventImageUpload(ctx context.Context, arg ConfirmEventImageUploadParams) (EventImage, error)

@@ -138,40 +138,6 @@ func TestService_FindOrCreateVehicle_NilInputsCreatesNew(t *testing.T) {
 	assert.Equal(t, "Unknown", result.Make)
 }
 
-func TestService_ClaimVehicleOwnership_Success(t *testing.T) {
-	vehicleID := uuid.New()
-	vehicle := &Vehicle{ID: vehicleID, OwnerID: nil}
-
-	svc := NewService(&mockRepo{
-		getByIDFunc: func(_ context.Context, _ uuid.UUID) (*Vehicle, error) {
-			return vehicle, nil
-		},
-	}, &mockAnchorer{})
-
-	claimerID := uuid.New()
-	result, err := svc.ClaimVehicleOwnership(context.Background(), claimerID, vehicleID)
-
-	require.NoError(t, err)
-	require.NotNil(t, result)
-	assert.Equal(t, &claimerID, result.OwnerID)
-}
-
-func TestService_ClaimVehicleOwnership_AlreadyOwned(t *testing.T) {
-	ownerID := uuid.New()
-	vehicle := &Vehicle{ID: uuid.New(), OwnerID: &ownerID}
-
-	svc := NewService(&mockRepo{
-		getByIDFunc: func(_ context.Context, _ uuid.UUID) (*Vehicle, error) {
-			return vehicle, nil
-		},
-	}, &mockAnchorer{})
-
-	result, err := svc.ClaimVehicleOwnership(context.Background(), uuid.New(), vehicle.ID)
-
-	require.NoError(t, err)
-	assert.Nil(t, result)
-}
-
 func TestService_Create_WithoutAnchoring(t *testing.T) {
 	svc := NewService(&mockRepo{}, &mockAnchorer{})
 
@@ -433,31 +399,6 @@ func TestService_Create_RepoError(t *testing.T) {
 	}, &mockAnchorer{})
 
 	_, err := svc.Create(context.Background(), CreateVehicleParams{Make: "X", Model: "Y"})
-	assert.Error(t, err)
-}
-
-func TestService_ClaimVehicleOwnership_GetError(t *testing.T) {
-	svc := NewService(&mockRepo{
-		getByIDFunc: func(_ context.Context, _ uuid.UUID) (*Vehicle, error) {
-			return nil, errors.New("db error")
-		},
-	}, &mockAnchorer{})
-
-	_, err := svc.ClaimVehicleOwnership(context.Background(), uuid.New(), uuid.New())
-	assert.Error(t, err)
-}
-
-func TestService_ClaimVehicleOwnership_UpdateError(t *testing.T) {
-	svc := NewService(&mockRepo{
-		getByIDFunc: func(_ context.Context, _ uuid.UUID) (*Vehicle, error) {
-			return &Vehicle{ID: uuid.New(), OwnerID: nil}, nil
-		},
-		updateFunc: func(_ context.Context, _ *Vehicle) error {
-			return errors.New("update error")
-		},
-	}, &mockAnchorer{})
-
-	_, err := svc.ClaimVehicleOwnership(context.Background(), uuid.New(), uuid.New())
 	assert.Error(t, err)
 }
 

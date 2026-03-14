@@ -451,68 +451,6 @@ func (a apiServer) UpdateCertifierVehicle(ctx context.Context, request UpdateCer
 	return UpdateCertifierVehicle200JSONResponse(httpVehicle), nil
 }
 
-func (a apiServer) ClaimVehicle(ctx context.Context, request ClaimVehicleRequestObject) (ClaimVehicleResponseObject, error) {
-	vehicle, err := a.vehicleService.GetByID(ctx, request.VehicleId)
-	if err != nil {
-		return nil, err
-	}
-
-	if vehicle == nil {
-		return ClaimVehicle404JSONResponse{
-			NotFoundJSONResponse: NotFoundJSONResponse{
-				Error: "vehicle not found",
-			},
-		}, nil
-	}
-
-	// Vehicle must be unclaimed to claim
-	if vehicle.OwnerID != nil {
-		return ClaimVehicle403JSONResponse{
-			ForbiddenJSONResponse: ForbiddenJSONResponse{
-				Error: "forbidden: vehicle already has an owner",
-			},
-		}, nil
-	}
-
-	// Verify match criteria (at least one identifier must match)
-	var matchFound bool
-	if request.Body.ChassisNumber != nil && vehicle.ChassisNumber != nil && *request.Body.ChassisNumber == *vehicle.ChassisNumber {
-		matchFound = true
-	}
-	if request.Body.LicensePlate != nil && vehicle.LicensePlate != nil && *request.Body.LicensePlate == *vehicle.LicensePlate {
-		matchFound = true
-	}
-
-	if !matchFound {
-		return ClaimVehicle400JSONResponse{
-			BadRequestJSONResponse: BadRequestJSONResponse{
-				Error: "provided identifiers do not match the vehicle",
-			},
-		}, nil
-	}
-
-	userID, ok := auth.GetIdentityID(ctx)
-	if !ok {
-		return nil, fmt.Errorf("unauthorized: must be logged in to claim vehicle")
-	}
-
-	claimedVehicle, err := a.vehicleService.ClaimVehicleOwnership(ctx, userID, request.VehicleId)
-	if err != nil {
-		return nil, err
-	}
-
-	if claimedVehicle == nil {
-		return ClaimVehicle404JSONResponse{
-			NotFoundJSONResponse: NotFoundJSONResponse{
-				Error: "vehicle not found or already claimed",
-			},
-		}, nil
-	}
-
-	httpVehicle := domainToHTTPVehicle(*claimedVehicle)
-	return ClaimVehicle200JSONResponse(httpVehicle), nil
-}
-
 func (a apiServer) GetCertifierVehicleInvitation(ctx context.Context, request GetCertifierVehicleInvitationRequestObject) (GetCertifierVehicleInvitationResponseObject, error) {
 	if err := a.authorizer.Authorize(ctx, ResourceVehicles, ActionRead); err != nil {
 		return GetCertifierVehicleInvitation403JSONResponse{

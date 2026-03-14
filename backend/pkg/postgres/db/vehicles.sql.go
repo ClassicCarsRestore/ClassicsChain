@@ -12,50 +12,6 @@ import (
 	"github.com/google/uuid"
 )
 
-const claimVehicle = `-- name: ClaimVehicle :one
-UPDATE vehicles
-SET owner_id = $2, updated_at = NOW()
-WHERE id = $1 AND owner_id IS NULL
-RETURNING id, owner_id, chassis_number, license_plate, engine_number, transmission_number, make, model, year, color, body_type, drive_type, gear_type, suspension_type, cid, cid_source_json, cid_source_cbor_b64, blockchain_asset_id, created_at, updated_at, fuel, engine_cc, engine_cylinders, engine_power_hp
-`
-
-type ClaimVehicleParams struct {
-	ID      uuid.UUID
-	OwnerID *uuid.UUID
-}
-
-func (q *Queries) ClaimVehicle(ctx context.Context, arg ClaimVehicleParams) (Vehicle, error) {
-	row := q.db.QueryRow(ctx, claimVehicle, arg.ID, arg.OwnerID)
-	var i Vehicle
-	err := row.Scan(
-		&i.ID,
-		&i.OwnerID,
-		&i.ChassisNumber,
-		&i.LicensePlate,
-		&i.EngineNumber,
-		&i.TransmissionNumber,
-		&i.Make,
-		&i.Model,
-		&i.Year,
-		&i.Color,
-		&i.BodyType,
-		&i.DriveType,
-		&i.GearType,
-		&i.SuspensionType,
-		&i.Cid,
-		&i.CidSourceJson,
-		&i.CidSourceCborB64,
-		&i.BlockchainAssetID,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.Fuel,
-		&i.EngineCc,
-		&i.EngineCylinders,
-		&i.EnginePowerHp,
-	)
-	return i, err
-}
-
 const countVehicles = `-- name: CountVehicles :one
 SELECT COUNT(*) FROM vehicles
 `

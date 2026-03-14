@@ -75,12 +75,6 @@ RETURNING *;
 DELETE FROM vehicles
 WHERE id = $1;
 
--- name: ClaimVehicle :one
-UPDATE vehicles
-SET owner_id = $2, updated_at = NOW()
-WHERE id = $1 AND owner_id IS NULL
-RETURNING *;
-
 -- name: GetVehicleByChassisNumber :one
 SELECT * FROM vehicles
 WHERE chassis_number = $1 LIMIT 1;
