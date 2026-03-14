@@ -8,9 +8,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ClassicCarsRestore/ClassicsChain/event"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/event"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/vehicles"
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/algorand"
-	"github.com/ClassicCarsRestore/ClassicsChain/vehicles"
 	"github.com/google/uuid"
 )
 

@@ -5,8 +5,8 @@ import (
 	"errors"
 
 	"github.com/ClassicCarsRestore/ClassicsChain/auth"
-	"github.com/ClassicCarsRestore/ClassicsChain/event"
-	"github.com/ClassicCarsRestore/ClassicsChain/eventimages"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/event"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/eventimages"
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 

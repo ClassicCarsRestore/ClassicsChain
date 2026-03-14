@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/ClassicCarsRestore/ClassicsChain/invitation"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/invitation"
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/postgres"
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/postgres/db"
 	"github.com/google/uuid"

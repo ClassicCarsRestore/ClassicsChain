@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ClassicCarsRestore/ClassicsChain/vehicles"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/vehicles"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

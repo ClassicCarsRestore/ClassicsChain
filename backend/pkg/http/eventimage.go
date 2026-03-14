@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/ClassicCarsRestore/ClassicsChain/eventimages"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/eventimages"
 )
 
 func (a apiServer) CreateEventImageUploadSession(ctx context.Context, _ CreateEventImageUploadSessionRequestObject) (CreateEventImageUploadSessionResponseObject, error) {

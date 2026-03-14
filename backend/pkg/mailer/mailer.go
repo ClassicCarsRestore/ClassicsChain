@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/ClassicCarsRestore/ClassicsChain/invitation"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/invitation"
 	"github.com/resend/resend-go/v3"
 )
 

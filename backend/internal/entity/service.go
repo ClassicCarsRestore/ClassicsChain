@@ -7,11 +7,11 @@ import (
 	"time"
 
 	"github.com/ClassicCarsRestore/ClassicsChain/auth"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/user"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/user_invitation"
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/hydra"
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/kratos"
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/storage"
-	"github.com/ClassicCarsRestore/ClassicsChain/user"
-	"github.com/ClassicCarsRestore/ClassicsChain/user_invitation"
 	"github.com/google/uuid"
 )
 

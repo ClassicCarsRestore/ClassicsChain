@@ -6,9 +6,9 @@ import (
 	"fmt"
 
 	"github.com/ClassicCarsRestore/ClassicsChain/auth"
-	"github.com/ClassicCarsRestore/ClassicsChain/invitation"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/invitation"
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/kratos"
-	"github.com/ClassicCarsRestore/ClassicsChain/user_invitation"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/user_invitation"
 	"github.com/google/uuid"
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )

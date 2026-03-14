@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/ClassicCarsRestore/ClassicsChain/auth"
-	"github.com/ClassicCarsRestore/ClassicsChain/vehicles"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/vehicles"
 )
 
 // Authorization resource names

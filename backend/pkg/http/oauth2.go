@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/ClassicCarsRestore/ClassicsChain/auth"
-	"github.com/ClassicCarsRestore/ClassicsChain/entity"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/entity"
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/hydra"
 )
 

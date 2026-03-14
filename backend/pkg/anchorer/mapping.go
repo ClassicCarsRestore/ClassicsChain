@@ -3,8 +3,8 @@ package anchorer
 import (
 	"time"
 
-	"github.com/ClassicCarsRestore/ClassicsChain/event"
-	"github.com/ClassicCarsRestore/ClassicsChain/vehicles"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/event"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/vehicles"
 	"github.com/google/uuid"
 )
 

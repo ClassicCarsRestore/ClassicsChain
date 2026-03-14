@@ -7,7 +7,7 @@ import (
 
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/postgres"
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/postgres/db"
-	"github.com/ClassicCarsRestore/ClassicsChain/user"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/user"
 )
 
 type UserRepository struct {

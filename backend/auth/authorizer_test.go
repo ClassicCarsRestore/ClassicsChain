@@ -9,7 +9,7 @@ import (
 
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/hydra"
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/kratos"
-	"github.com/ClassicCarsRestore/ClassicsChain/user"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/user"
 	"github.com/casbin/casbin/v2"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"

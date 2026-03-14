@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/user"
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/hydra"
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/kratos"
-	"github.com/ClassicCarsRestore/ClassicsChain/user"
 	"github.com/google/uuid"
 )
 

@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/kratos"
-	"github.com/ClassicCarsRestore/ClassicsChain/user_invitation"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/user_invitation"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

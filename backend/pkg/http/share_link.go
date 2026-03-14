@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/ClassicCarsRestore/ClassicsChain/vehicleshare"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/vehicleshare"
 )
 
 func (a apiServer) GetVehicleShareLinks(ctx context.Context, request GetVehicleShareLinksRequestObject) (GetVehicleShareLinksResponseObject, error) {

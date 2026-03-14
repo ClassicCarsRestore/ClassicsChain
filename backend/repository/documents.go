@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/ClassicCarsRestore/ClassicsChain/documents"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/documents"
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/postgres"
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/postgres/db"
 )

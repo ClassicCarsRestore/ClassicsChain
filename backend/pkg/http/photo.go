@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/ClassicCarsRestore/ClassicsChain/photos"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/photos"
 )
 
 func (a apiServer) GetVehiclePhotos(ctx context.Context, request GetVehiclePhotosRequestObject) (GetVehiclePhotosResponseObject, error) {

@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/ClassicCarsRestore/ClassicsChain/auth"
-	"github.com/ClassicCarsRestore/ClassicsChain/documents"
-	"github.com/ClassicCarsRestore/ClassicsChain/entity"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/documents"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/entity"
 	"github.com/google/uuid"
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )

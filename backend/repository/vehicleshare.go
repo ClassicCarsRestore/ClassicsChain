@@ -6,7 +6,7 @@ import (
 
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/postgres"
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/postgres/db"
-	"github.com/ClassicCarsRestore/ClassicsChain/vehicleshare"
+	"github.com/ClassicCarsRestore/ClassicsChain/internal/vehicleshare"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
