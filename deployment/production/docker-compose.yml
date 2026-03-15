@@ -80,7 +80,7 @@ services:
       LOG_LEVEL: ${KRATOS_LOG_LEVEL:-info}
     volumes:
       - ./configs/kratos:/etc/config/kratos:ro
-    command: serve -c /etc/config/kratos/kratos.yaml
+    command: serve -c /etc/config/kratos/kratos.yaml --watch-courier
     depends_on:
       kratos-migrate:
         condition: service_completed_successfully
