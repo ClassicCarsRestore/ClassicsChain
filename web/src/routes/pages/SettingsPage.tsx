@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import type { SettingsFlow, UpdateSettingsFlowBody } from '@ory/client';
 import { kratos } from '@/lib/kratos';
 import { useAuth } from '@/contexts/AuthContext';
-import { ArrowLeft, Shield } from 'lucide-react';
+import { ArrowLeft, Mail, Shield } from 'lucide-react';
 import { TotpSetup } from '@/components/MfaSettings/TotpSetup';
 
 export function SettingsPage() {
@@ -13,7 +13,8 @@ export function SettingsPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { isAuthenticated, refreshSession, hasMFA } = useAuth();
+  const { isAuthenticated, session, refreshSession, hasMFA } = useAuth();
+  const userEmail = session?.identity?.traits?.email as string | undefined;
   const [activeTab, setActiveTab] = useState<'password' | 'mfa'>('password');
   const [showTotpSetup, setShowTotpSetup] = useState(false);
 
@@ -189,6 +190,14 @@ export function SettingsPage() {
         <h1 className="text-3xl font-bold text-foreground">Account Settings</h1>
         <p className="mt-2 text-muted-foreground">Manage your account preferences and security</p>
       </div>
+
+      {/* Account Info */}
+      {userEmail && (
+        <div className="mb-6 flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-3">
+          <Mail className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm text-muted-foreground">{userEmail}</span>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="mb-6 flex gap-4 border-b border-border">

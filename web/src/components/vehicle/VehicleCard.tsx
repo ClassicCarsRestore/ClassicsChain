@@ -67,9 +67,6 @@ export function VehicleCard({ vehicle }: VehicleCardProps) {
               {vehicle.make} {vehicle.model}
             </h3>
             <p className="text-sm text-muted-foreground">{vehicle.year}</p>
-            {vehicle.color && (
-              <p className="mt-1 text-xs text-muted-foreground">{vehicle.color}</p>
-            )}
           </div>
           {hasVerifiedEvents && (
             <VerificationBadge isVerified={true} size="sm" showLabel={false} />

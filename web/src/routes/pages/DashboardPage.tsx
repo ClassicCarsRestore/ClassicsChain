@@ -17,11 +17,8 @@ export function DashboardPage() {
   const [isClaimingInvitations, setIsClaimingInvitations] = useState(false);
   const [claimedVehicles, setClaimedVehicles] = useState<InvitationVehicle[]>([]);
 
-  const userEmail = session?.identity?.traits?.email as string | undefined;
   const nameObj = session?.identity?.traits?.name as { first?: string; last?: string } | undefined;
-  const userName = nameObj?.first
-    ? `${nameObj.first}${nameObj.last ? ` ${nameObj.last}` : ''}`
-    : undefined;
+  const firstName = nameObj?.first;
 
   useEffect(() => {
     const fetchVehicles = async () => {
@@ -72,11 +69,34 @@ export function DashboardPage() {
   return (
     <div className="mx-auto max-w-7xl">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground">
-          {userName ? t('welcomeWithName', { name: userName }) : t('welcome')}
-        </h1>
-        <p className="mt-2 text-muted-foreground">{userEmail}</p>
+      <div className="mb-10">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="mb-1 text-xs font-medium uppercase tracking-[0.2em] text-primary">
+              {t('header.label')}
+            </p>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">
+              {firstName ? t('header.titleWithName', { name: firstName }) : t('header.title')}
+            </h1>
+            {!isLoading && (
+              <p className="mt-1 text-sm text-muted-foreground">
+                {vehicles.length > 0
+                  ? t('header.vehicleCount', { count: vehicles.length })
+                  : t('header.noVehicles')}
+              </p>
+            )}
+          </div>
+
+          <button
+            onClick={() => navigate('/vehicles/new')}
+            className="flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 cursor-pointer whitespace-nowrap"
+          >
+            <Plus className="h-4 w-4" />
+            {t('actions.addVehicle')}
+          </button>
+        </div>
+
+        <div className="mt-6 h-px bg-gradient-to-r from-primary/40 via-border to-transparent" />
       </div>
 
       {/* Pending Invitations CTA */}
@@ -120,28 +140,8 @@ export function DashboardPage() {
         </div>
       )}
 
-      {/* Quick Actions */}
-      <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <button
-          onClick={() => navigate('/vehicles/new')}
-          className="flex items-center gap-4 rounded-lg border border-border bg-card p-6 text-left transition-colors hover:bg-accent cursor-pointer"
-        >
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-            <Plus className="h-6 w-6 text-primary" />
-          </div>
-          <div>
-            <h3 className="font-semibold text-foreground">{t('actions.addVehicle')}</h3>
-            <p className="text-sm text-muted-foreground">{t('actions.addVehicleDescription')}</p>
-          </div>
-        </button>
-      </div>
-
-      {/* Vehicles Section */}
-      <div className="rounded-lg border border-border bg-card p-6">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-foreground">{t('vehicles.title')}</h2>
-        </div>
-
+      {/* Vehicles */}
+      <div>
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <p className="text-muted-foreground">Loading vehicles...</p>

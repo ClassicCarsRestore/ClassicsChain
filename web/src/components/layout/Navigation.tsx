@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { LogOut, Shield, Settings, ChevronDown, Menu, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -9,12 +9,22 @@ import { Button } from '@/components/ui/button';
 
 export function Navigation() {
   const { t } = useTranslation('navigation');
-  const { isAuthenticated, logout, session, hasAdminAccess } = useAuth();
+  const { isAuthenticated, logout, hasAdminAccess } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMainMenuOpen, setIsMainMenuOpen] = useState(false);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const userEmail = session?.identity?.traits?.email as string | undefined;
+  useEffect(() => {
+    if (!isDropdownOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isDropdownOpen]);
 
   const handleMainMenuClose = () => {
     setIsMainMenuOpen(false);
@@ -81,21 +91,16 @@ export function Navigation() {
                 </Link>
               </>
             ) : (
-              <div className="relative">
+              <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:text-foreground hover:border-foreground/30 cursor-pointer"
                 >
-                  {userEmail && <span>{userEmail}</span>}
-                  <ChevronDown className="h-4 w-4" />
+                  <User className="h-4 w-4" />
                 </button>
 
                 {isDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-48 rounded-md border border-border bg-card shadow-lg z-50">
-                    <div className="p-4 border-b border-border">
-                      <p className="text-xs text-muted-foreground">{t('account')}</p>
-                      <p className="text-sm font-medium text-foreground">{userEmail}</p>
-                    </div>
                     <div className="py-1">
                       <Link
                         to="/settings"
@@ -210,11 +215,6 @@ export function Navigation() {
                     </div>
                   ) : (
                     <>
-                      <div className="pb-4 border-b border-border">
-                        <p className="text-xs text-muted-foreground">{t('account')}</p>
-                        <p className="text-sm font-medium text-foreground break-all">{userEmail}</p>
-                      </div>
-
                       <Link
                         to="/settings"
                         onClick={handleAccountMenuClose}

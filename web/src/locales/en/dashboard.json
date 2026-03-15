@@ -1,6 +1,13 @@
 {
-  "welcome": "Welcome to Your Dashboard",
-  "welcomeWithName": "Welcome, {{name}}",
+  "header": {
+    "label": "Your Garage",
+    "title": "My Garage",
+    "titleWithName": "Welcome back, {{name}}",
+    "vehicleCount_one": "{{count}} vehicle in your garage",
+    "vehicleCount_other": "{{count}} vehicles in your garage",
+    "vehicleCount": "{{count}} vehicle(s) in your garage",
+    "noVehicles": "No vehicles yet — add your first one"
+  },
   "actions": {
     "addVehicle": "Add Vehicle",
     "addVehicleDescription": "Register a new classic vehicle"

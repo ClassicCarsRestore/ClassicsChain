@@ -1,6 +1,13 @@
 {
-  "welcome": "Bem-vindo ao Seu Painel",
-  "welcomeWithName": "Bem-vindo, {{name}}",
+  "header": {
+    "label": "A Sua Garagem",
+    "title": "A Minha Garagem",
+    "titleWithName": "Bem-vindo, {{name}}",
+    "vehicleCount_one": "{{count}} veículo na sua garagem",
+    "vehicleCount_other": "{{count}} veículos na sua garagem",
+    "vehicleCount": "{{count}} veículo(s) na sua garagem",
+    "noVehicles": "Ainda sem veículos — adicione o primeiro"
+  },
   "actions": {
     "addVehicle": "Adicionar Veículo",
     "addVehicleDescription": "Registar um novo veículo clássico"
