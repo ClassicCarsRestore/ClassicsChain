@@ -125,45 +125,43 @@ export function OAuth2ClientsList({ entityId }: OAuth2ClientsListProps) {
                 key={client.clientId}
                 className="p-4 border border-gray-200 rounded"
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <p className="font-semibold">{client.description}</p>
-                    <div className="mt-2">
-                      <p className="text-sm text-gray-600 mb-1">{t('fields.clientId')}:</p>
-                      <CopyableCode value={client.clientId} />
-                    </div>
-                    {hasSecret && (
-                      <div className="mt-3">
-                        <p className="text-sm text-gray-600 mb-1">{t('fields.clientSecret')}:</p>
-                        <CopyableCode value={clientSecretMap[client.clientId]} bgColor="bg-yellow-100" borderColor="border-yellow-300" />
-                        <p className="text-sm text-yellow-800 mt-2 flex items-center gap-1">
-                          <span>⚠️</span>
-                          {t('save')}
-                        </p>
-                      </div>
-                    )}
-                    <div className="mt-3">
-                      <p className="text-sm text-gray-600 mb-1">{t('fields.scopes')}:</p>
-                      <div className="flex flex-wrap gap-2">
-                        {client.scopes.map((scope: string) => (
-                          <span
-                            key={scope}
-                            className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded"
-                            title={getScopeDescription(scope)}
-                          >
-                            {scope}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    <p className="text-xs text-gray-500 mt-2">
-                      {t('fields.createdAt')}: {new Date(client.createdAt).toLocaleDateString()}
+                <p className="font-semibold">{client.description}</p>
+                <div className="mt-2">
+                  <p className="text-sm text-gray-600 mb-1">{t('fields.clientId')}:</p>
+                  <CopyableCode value={client.clientId} />
+                </div>
+                {hasSecret && (
+                  <div className="mt-3">
+                    <p className="text-sm text-gray-600 mb-1">{t('fields.clientSecret')}:</p>
+                    <CopyableCode value={clientSecretMap[client.clientId]} bgColor="bg-yellow-100" borderColor="border-yellow-300" />
+                    <p className="text-sm text-yellow-800 mt-2 flex items-center gap-1">
+                      <span>⚠️</span>
+                      {t('save')}
                     </p>
                   </div>
+                )}
+                <div className="mt-3">
+                  <p className="text-sm text-gray-600 mb-1">{t('fields.scopes')}:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {client.scopes.map((scope: string) => (
+                      <span
+                        key={scope}
+                        className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded"
+                        title={getScopeDescription(scope)}
+                      >
+                        {scope}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center justify-between">
+                  <p className="text-xs text-gray-500">
+                    {t('fields.createdAt')}: {new Date(client.createdAt).toLocaleDateString()}
+                  </p>
                   <button
                     onClick={() => handleDelete(client.clientId)}
                     disabled={isDeleting}
-                    className="px-3 py-1 text-red-600 border border-red-600 rounded hover:bg-red-50 disabled:opacity-50"
+                    className="px-3 py-1 text-sm text-red-600 border border-red-600 rounded hover:bg-red-50 disabled:opacity-50"
                   >
                     {t('delete')}
                   </button>
