@@ -54,7 +54,13 @@ export function LoginPage() {
         setFlow(data);
         navigate(`/login?flow=${data.id}`, { replace: true });
       })
-      .catch((err) => {
+      .catch(async (err) => {
+        // If user already has a session (e.g. from recovery flow), refresh and redirect
+        if (err.response?.data?.error?.id === 'session_already_available') {
+          await refreshSession();
+          navigate('/dashboard', { replace: true });
+          return;
+        }
         console.error('Error creating login flow:', err);
         setError('Failed to initialize login. Please try again.');
       });

@@ -27,14 +27,20 @@ export function SettingsPage() {
       kratos
         .getSettingsFlow({ id: flowId })
         .then(({ data }) => setFlow(data))
-        .catch((err) => {
+        .catch(async (err) => {
           console.error('Error fetching settings flow:', err);
-          // If flow fetch fails and not authenticated, redirect to login
           if (!isAuthenticated) {
-            navigate('/login', { replace: true });
-          } else {
-            createNewFlow();
+            // Session may exist from recovery flow but AuthContext hasn't refreshed yet.
+            // Try to detect it before giving up.
+            try {
+              await kratos.toSession();
+              await refreshSession();
+            } catch {
+              navigate('/login', { replace: true });
+              return;
+            }
           }
+          createNewFlow();
         });
     } else if (!isAuthenticated) {
       // Only redirect to login if no flow ID and not authenticated
