@@ -477,7 +477,7 @@ function CertificationsTab({ vehicleId, entities, events, isLoading, onCertCreat
                       <div className="text-xs">
                         <span className="text-muted-foreground">{t('certification.section.documentation')}:</span>
                         <div className="mt-1 space-y-1">
-                          {cert.metadata.documentationReferences.map((ref: string, i: number) => (
+                          {cert.metadata?.documentationReferences.map((ref: string, i: number) => (
                             <code key={i} className="block text-xs bg-background px-2 py-1 rounded border border-border">{ref}</code>
                           ))}
                         </div>
