@@ -24,6 +24,7 @@ import {
   ExternalLink,
   Search,
   ImageIcon,
+  FileText,
 } from 'lucide-react';
 import type { Event, EventType } from '@/types/vehicle';
 import { VerificationModal } from './VerificationModal';
@@ -34,6 +35,58 @@ interface EventCardProps {
   event: Event;
   isCertified: boolean;
   entityName?: string;
+}
+
+function CertificationMetadata({ metadata }: { metadata: NonNullable<Event['metadata']> }) {
+  const { t } = useTranslation('vehicle');
+  const [showCondition, setShowCondition] = useState(false);
+
+  const validityEndDate = metadata.validityEndDate;
+  const isExpired = validityEndDate && new Date(validityEndDate) < new Date();
+  const certNumber = metadata.certificateNumber;
+  const conditionAssessment = metadata.conditionAssessment;
+
+  return (
+    <div className="mb-3 flex flex-wrap items-center gap-2 text-xs">
+      {certNumber && (
+        <span className="inline-flex items-center gap-1 rounded bg-muted px-2 py-1 font-mono">
+          #{certNumber}
+        </span>
+      )}
+      {validityEndDate ? (
+        isExpired ? (
+          <span className="inline-flex items-center gap-1 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-2 py-0.5 font-medium">
+            {t('vehicle:certifications.expired', 'Expired')}
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 font-medium">
+            {t('vehicle:certifications.validUntil', 'Valid until')} {new Date(validityEndDate).toLocaleDateString()}
+          </span>
+        )
+      ) : (
+        <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-2 py-0.5 font-medium">
+          {t('vehicle:certifications.noExpiry', 'No expiry')}
+        </span>
+      )}
+      {conditionAssessment && (
+        <>
+          <button
+            type="button"
+            onClick={() => setShowCondition(!showCondition)}
+            className="inline-flex items-center gap-1 text-primary hover:text-primary/80 cursor-pointer transition-colors"
+          >
+            {t('vehicle:certifications.condition', 'Condition')}
+            <ChevronDown className={`h-3 w-3 transition-transform ${showCondition ? 'rotate-180' : ''}`} />
+          </button>
+          {showCondition && (
+            <p className="w-full text-sm text-muted-foreground mt-1 p-2 bg-muted rounded">
+              {conditionAssessment}
+            </p>
+          )}
+        </>
+      )}
+    </div>
+  );
 }
 
 export function EventCard({ event, isCertified, entityName }: EventCardProps) {
@@ -224,39 +277,69 @@ export function EventCard({ event, isCertified, entityName }: EventCardProps) {
               <p className="mb-3 text-sm text-foreground">{event.description}</p>
             )}
 
-            {/* Event Images */}
-            {event.images && event.images.length > 0 && (
-              <div className="mb-3">
-                <div className="flex items-center gap-1.5 mb-2 text-xs text-muted-foreground">
-                  <ImageIcon className="h-3 w-3" />
-                  <span>{event.images.length} {event.images.length === 1 ? 'image' : 'images'}</span>
-                </div>
-                <div className="grid grid-cols-4 gap-1.5">
-                  {event.images.slice(0, 4).map((image, index) => (
-                    <button
-                      key={image.id}
-                      type="button"
-                      onClick={() => {
-                        setSelectedImageIndex(index);
-                        setLightboxOpen(true);
-                      }}
-                      className="relative aspect-square overflow-hidden rounded-md border border-border bg-muted cursor-pointer group"
-                    >
-                      <img
-                        src={generateStorageUrl(image.objectKey)}
-                        alt=""
-                        className="h-full w-full object-cover transition-transform group-hover:scale-105"
-                      />
-                      {index === 3 && event.images!.length > 4 && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-white text-sm font-medium">
-                          +{event.images!.length - 4}
-                        </div>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </div>
+            {/* Certification metadata */}
+            {event.type === 'certification' && event.metadata && (
+              <CertificationMetadata metadata={event.metadata} />
             )}
+
+            {/* Event Images & Files */}
+            {event.images && event.images.length > 0 && (() => {
+              const imageFiles = event.images!.filter(img => !img.objectKey.toLowerCase().endsWith('.pdf'));
+              const pdfFiles = event.images!.filter(img => img.objectKey.toLowerCase().endsWith('.pdf'));
+              return (
+                <div className="mb-3 space-y-2">
+                  {imageFiles.length > 0 && (
+                    <>
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <ImageIcon className="h-3 w-3" />
+                        <span>{imageFiles.length} {imageFiles.length === 1 ? 'image' : 'images'}</span>
+                      </div>
+                      <div className="grid grid-cols-4 gap-1.5">
+                        {imageFiles.slice(0, 4).map((image, index) => (
+                          <button
+                            key={image.id}
+                            type="button"
+                            onClick={() => {
+                              setSelectedImageIndex(index);
+                              setLightboxOpen(true);
+                            }}
+                            className="relative aspect-square overflow-hidden rounded-md border border-border bg-muted cursor-pointer group"
+                          >
+                            <img
+                              src={generateStorageUrl(image.objectKey)}
+                              alt=""
+                              className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                            />
+                            {index === 3 && imageFiles.length > 4 && (
+                              <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-white text-sm font-medium">
+                                +{imageFiles.length - 4}
+                              </div>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                  {pdfFiles.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {pdfFiles.map(pdf => (
+                        <a
+                          key={pdf.id}
+                          href={generateStorageUrl(pdf.objectKey)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 rounded-md border border-border bg-muted/50 px-2.5 py-1.5 text-xs text-foreground hover:bg-muted transition-colors"
+                        >
+                          <FileText className="h-3.5 w-3.5 text-red-500" />
+                          <span>{pdf.objectKey.split('/').pop() || 'document.pdf'}</span>
+                          <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
             {/* Event details */}
             <div className="space-y-3 text-sm text-muted-foreground">
@@ -364,16 +447,20 @@ export function EventCard({ event, isCertified, entityName }: EventCardProps) {
         />
       )}
 
-      {event.images && event.images.length > 0 && (
-        <PhotoLightbox
-          isOpen={lightboxOpen}
-          photos={event.images}
-          selectedIndex={selectedImageIndex}
-          onClose={() => setLightboxOpen(false)}
-          onNext={() => setSelectedImageIndex((prev) => (prev + 1) % event.images!.length)}
-          onPrevious={() => setSelectedImageIndex((prev) => (prev - 1 + event.images!.length) % event.images!.length)}
-        />
-      )}
+      {event.images && event.images.length > 0 && (() => {
+        const imageOnly = event.images!.filter(img => !img.objectKey.toLowerCase().endsWith('.pdf'));
+        if (imageOnly.length === 0) return null;
+        return (
+          <PhotoLightbox
+            isOpen={lightboxOpen}
+            photos={imageOnly}
+            selectedIndex={selectedImageIndex}
+            onClose={() => setLightboxOpen(false)}
+            onNext={() => setSelectedImageIndex((prev) => (prev + 1) % imageOnly.length)}
+            onPrevious={() => setSelectedImageIndex((prev) => (prev - 1 + imageOnly.length) % imageOnly.length)}
+          />
+        );
+      })()}
     </>
   );
 }

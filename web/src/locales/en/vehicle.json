@@ -20,7 +20,18 @@
     "photos": "Photos",
     "documents": "Documents",
     "history": "History",
-    "shareLinks": "Share Links"
+    "shareLinks": "Share Links",
+    "certifications": "Certifications"
+  },
+  "certifications": {
+    "active": "active",
+    "total": "total",
+    "expired": "Expired",
+    "noExpiry": "No expiry",
+    "statusActive": "Active",
+    "validUntil": "Valid until",
+    "condition": "Condition",
+    "viewPdf": "View PDF"
   },
   "blockchain": {
     "title": "Blockchain Information",

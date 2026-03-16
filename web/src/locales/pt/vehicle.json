@@ -20,7 +20,18 @@
     "photos": "Fotos",
     "documents": "Documentos",
     "history": "Histórico",
-    "shareLinks": "Links de Partilha"
+    "shareLinks": "Links de Partilha",
+    "certifications": "Certificações"
+  },
+  "certifications": {
+    "active": "ativa(s)",
+    "total": "total",
+    "expired": "Expirada",
+    "noExpiry": "Sem validade",
+    "statusActive": "Ativa",
+    "validUntil": "Válida até",
+    "condition": "Condição",
+    "viewPdf": "Ver PDF"
   },
   "blockchain": {
     "title": "Informação Blockchain",

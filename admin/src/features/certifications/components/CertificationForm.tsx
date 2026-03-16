@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Plus, Trash2 } from 'lucide-react';
 import { useCreateEvent } from '../hooks/useVehicles';
+import { EventImageUploader } from './EventImageUploader';
+import type { EventImage } from '../api/eventImagesApi';
 import type { CertificationEventMetadata } from '../types';
 
 interface Entity {
@@ -39,6 +41,8 @@ export function CertificationForm({ vehicleId, entities, onSuccess }: Certificat
   const [newReference, setNewReference] = useState('');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [imageSessionId, setImageSessionId] = useState<string | null>(null);
+  const [images, setImages] = useState<EventImage[]>([]);
 
   // Auto-select entity if only one exists
   useEffect(() => {
@@ -98,10 +102,10 @@ export function CertificationForm({ vehicleId, entities, onSuccess }: Certificat
         description,
         type: 'certification',
         metadata: submissionMetadata,
+        imageSessionId: imageSessionId || undefined,
       },
       {
         onSuccess: () => {
-          // Reset form
           setTitle('');
           setDescription('');
           setMetadata({
@@ -112,7 +116,8 @@ export function CertificationForm({ vehicleId, entities, onSuccess }: Certificat
           setSetValidity(false);
           setDuration({ years: 1, months: 0, days: 0 });
           setNewReference('');
-          // Close modal
+          setImageSessionId(null);
+          setImages([]);
           onSuccess?.();
         },
       }
@@ -121,8 +126,7 @@ export function CertificationForm({ vehicleId, entities, onSuccess }: Certificat
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Entity Selection - Hidden temporarily, auto-selected */}
-      {false && (
+      {entities.length > 1 && (
         <div>
           <label className="block text-sm font-medium mb-2">
             {t('form.entity')} *
@@ -130,24 +134,16 @@ export function CertificationForm({ vehicleId, entities, onSuccess }: Certificat
           <select
             value={selectedEntity}
             onChange={(e) => setSelectedEntity(e.target.value)}
-            disabled={entities.length === 1}
-            className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground"
             required
           >
-            {entities.length > 1 && (
-              <option value="">Select an entity...</option>
-            )}
+            <option value="">{t('certification.fields.selectEntity', 'Select an entity...')}</option>
             {entities.map((entity) => (
               <option key={entity.id} value={entity.id}>
                 {entity.name}
               </option>
             ))}
           </select>
-          {entities.length === 1 && (
-            <p className="text-xs text-muted-foreground mt-1">
-              Automatically selected (only entity available)
-            </p>
-          )}
         </div>
       )}
 
@@ -361,6 +357,16 @@ export function CertificationForm({ vehicleId, entities, onSuccess }: Certificat
           )}
       </div>
 
+
+      {/* File Uploads */}
+      <EventImageUploader
+        sessionId={imageSessionId}
+        onSessionCreated={setImageSessionId}
+        images={images}
+        onImagesChange={setImages}
+        disabled={isPending}
+        accept="image/jpeg,image/png,image/webp,application/pdf"
+      />
 
       {/* Submit Button */}
       <div className="flex gap-2 pt-4 border-t border-border">

@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Plus, FileText, Share2, Clock, Eye, X, QrCode } from 'lucide-react';
+import { ArrowLeft, Plus, FileText, Share2, Clock, Eye, X, QrCode, Shield } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Vehicle, Event, EventListResponse, CreateOwnerEventRequest } from '@/types/vehicle';
@@ -220,6 +220,71 @@ export function VehicleDetailsPage() {
           earliestEventDate={vehicleStats.earliestEventDate}
         />
       )}
+
+      {/* Certifications Summary Section */}
+      {!isLoadingEvents && (() => {
+        const certs = events.filter(e => e.type === 'certification');
+        if (certs.length === 0) return null;
+        const activeCerts = certs.filter(c => {
+          if (!c.metadata?.validityEndDate) return true;
+          return new Date(c.metadata.validityEndDate) >= new Date();
+        });
+        return (
+          <div className="mb-8 rounded-lg border border-blue-500/20 bg-card p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="flex items-center gap-2 text-xl font-semibold text-foreground">
+                <Shield className="h-5 w-5 text-blue-500" />
+                {t('vehicle:sections.certifications', 'Certifications')}
+              </h2>
+              <span className="text-sm text-muted-foreground">
+                {activeCerts.length} {t('vehicle:certifications.active', 'active')} / {certs.length} {t('vehicle:certifications.total', 'total')}
+              </span>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {certs.map(cert => {
+                const isExpired = cert.metadata?.validityEndDate && new Date(cert.metadata.validityEndDate) < new Date();
+                const noExpiry = !cert.metadata?.validityEndDate;
+                return (
+                  <div key={cert.id} className="rounded-lg border border-border p-3 bg-muted/30">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <h4 className="font-medium text-sm truncate">{cert.title}</h4>
+                        {cert.entityName && (
+                          <p className="text-xs text-muted-foreground mt-0.5">{cert.entityName}</p>
+                        )}
+                      </div>
+                      {isExpired ? (
+                        <span className="flex-shrink-0 inline-block px-2 py-0.5 text-xs font-medium rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400">
+                          {t('vehicle:certifications.expired', 'Expired')}
+                        </span>
+                      ) : noExpiry ? (
+                        <span className="flex-shrink-0 inline-block px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400">
+                          {t('vehicle:certifications.noExpiry', 'No expiry')}
+                        </span>
+                      ) : (
+                        <span className="flex-shrink-0 inline-block px-2 py-0.5 text-xs font-medium rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">
+                          {t('vehicle:certifications.statusActive', 'Active')}
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
+                      {cert.metadata?.certificateNumber && (
+                        <code className="bg-background px-1.5 py-0.5 rounded border border-border">
+                          #{cert.metadata.certificateNumber}
+                        </code>
+                      )}
+                      <span>{new Date(cert.date).toLocaleDateString()}</span>
+                      {cert.metadata?.validityEndDate && !isExpired && (
+                        <span>→ {new Date(cert.metadata.validityEndDate).toLocaleDateString()}</span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Photos Section */}
       <div className="mb-8">

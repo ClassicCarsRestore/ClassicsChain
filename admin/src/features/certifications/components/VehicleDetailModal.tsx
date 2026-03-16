@@ -1,12 +1,13 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Calendar, MapPin, Award, ExternalLink, ImageIcon, Link } from 'lucide-react';
+import { X, Calendar, MapPin, Award, ExternalLink, ImageIcon, Link, ChevronDown, ChevronUp, Plus, Shield } from 'lucide-react';
 import { CertificationForm } from './CertificationForm';
 import { EventCertificateForm } from './EventCertificateForm';
 import { OwnerManagementSection } from './OwnerManagementSection';
 import { PhotoLightbox } from '@/components/common/PhotoLightbox';
 import { LazyImage } from '@/components/common/LazyImage';
 import { useVehicleEvents } from '../hooks/useVehicles';
+import { useQueryClient } from '@tanstack/react-query';
 import { generateStorageUrl } from '@/lib/storage';
 import { getAlgorandAssetUrl, getAlgorandTxUrl } from '@/lib/utils';
 import { BrandLogo } from '@/components/vehicle/BrandLogo';
@@ -364,6 +365,184 @@ function EventCard({ event, isLast }: EventCardProps) {
   );
 }
 
+function getCertificationStatus(metadata?: VehicleEvent['metadata']): 'active' | 'expired' | 'no-expiry' {
+  if (!metadata?.validityEndDate) return 'no-expiry';
+  return new Date(metadata.validityEndDate) >= new Date() ? 'active' : 'expired';
+}
+
+function CertificationStatusBadge({ status }: { status: 'active' | 'expired' | 'no-expiry' }) {
+  const { t } = useTranslation('vehicles');
+  const styles = {
+    active: 'bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300',
+    expired: 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300',
+    'no-expiry': 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400',
+  };
+  const labels = {
+    active: t('certification.status.active', 'Active'),
+    expired: t('certification.status.expired', 'Expired'),
+    'no-expiry': t('certification.status.noExpiry', 'No expiry'),
+  };
+  return (
+    <span className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full ${styles[status]}`}>
+      {labels[status]}
+    </span>
+  );
+}
+
+interface CertificationsTabProps {
+  vehicleId: string;
+  entities: Entity[];
+  events: VehicleEvent[];
+  isLoading: boolean;
+  onCertCreated: () => void;
+}
+
+function CertificationsTab({ vehicleId, entities, events, isLoading, onCertCreated }: CertificationsTabProps) {
+  const { t } = useTranslation('vehicles');
+  const [showForm, setShowForm] = useState(false);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const certifications = useMemo(
+    () => events
+      .filter(e => e.type === 'certification')
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+    [events]
+  );
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-muted-foreground">{t('certification.list.loading', 'Loading certifications...')}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Existing certifications list */}
+      {certifications.length > 0 ? (
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold text-muted-foreground">
+            {t('certification.list.title', 'Issued Certifications')} ({certifications.length})
+          </h3>
+          {certifications.map(cert => {
+            const status = getCertificationStatus(cert.metadata);
+            const isExpanded = expandedId === cert.id;
+            return (
+              <div key={cert.id} className="rounded-lg border border-border bg-muted/50 overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setExpandedId(isExpanded ? null : cert.id)}
+                  className="w-full flex items-center justify-between p-3 text-left cursor-pointer hover:bg-muted/80 transition-colors"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <Shield className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-medium text-sm truncate">{cert.title}</span>
+                        {cert.metadata?.certificateNumber && (
+                          <code className="text-xs bg-background px-1.5 py-0.5 rounded border border-border">
+                            #{cert.metadata.certificateNumber}
+                          </code>
+                        )}
+                        <CertificationStatusBadge status={status} />
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                        <span>{new Date(cert.date).toLocaleDateString()}</span>
+                        {cert.entityName && <span>· {cert.entityName}</span>}
+                      </div>
+                    </div>
+                  </div>
+                  {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground flex-shrink-0" /> : <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />}
+                </button>
+
+                {isExpanded && (
+                  <div className="px-3 pb-3 space-y-2 border-t border-border pt-2">
+                    {cert.description && (
+                      <p className="text-sm text-muted-foreground">{cert.description}</p>
+                    )}
+                    {cert.metadata?.validityEndDate && (
+                      <div className="text-xs">
+                        <span className="text-muted-foreground">{t('certification.fields.validityEndDate')}:</span>
+                        <span className="ml-1 font-medium">{cert.metadata.validityEndDate}</span>
+                      </div>
+                    )}
+                    {cert.metadata?.conditionAssessment && (
+                      <div className="text-xs">
+                        <span className="text-muted-foreground">{t('certification.fields.conditionAssessment')}:</span>
+                        <p className="mt-0.5 text-sm">{cert.metadata.conditionAssessment}</p>
+                      </div>
+                    )}
+                    {cert.metadata?.documentationReferences?.length > 0 && (
+                      <div className="text-xs">
+                        <span className="text-muted-foreground">{t('certification.section.documentation')}:</span>
+                        <div className="mt-1 space-y-1">
+                          {cert.metadata.documentationReferences.map((ref: string, i: number) => (
+                            <code key={i} className="block text-xs bg-background px-2 py-1 rounded border border-border">{ref}</code>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {cert.blockchainTxId && (
+                      <div className="flex items-center gap-1 text-xs">
+                        <ExternalLink className="h-3 w-3" />
+                        <a
+                          href={getAlgorandTxUrl(cert.blockchainTxId)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline"
+                        >
+                          {t('modal.sections.viewOnBlockchain', 'View on Explorer')}
+                        </a>
+                      </div>
+                    )}
+                    {/* Images */}
+                    {cert.images && cert.images.length > 0 && (
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <ImageIcon className="h-3 w-3" />
+                        <span>{cert.images.length} {cert.images.length === 1 ? 'file' : 'files'}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center py-8 text-center">
+          <Shield className="w-10 h-10 text-gray-300 mb-2" />
+          <p className="text-sm text-muted-foreground">{t('certification.list.empty', 'No certifications issued yet')}</p>
+        </div>
+      )}
+
+      {/* New Certification form (collapsible) */}
+      <div className="border-t border-border pt-4">
+        <button
+          type="button"
+          onClick={() => setShowForm(!showForm)}
+          className="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 cursor-pointer transition-colors"
+        >
+          {showForm ? <ChevronUp className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+          {t('certification.list.issueNew', 'Issue New Certification')}
+        </button>
+        {showForm && (
+          <div className="mt-4">
+            <CertificationForm
+              vehicleId={vehicleId}
+              entities={entities}
+              onSuccess={() => {
+                onCertCreated();
+                setShowForm(false);
+              }}
+            />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function VehicleDetailModal({
   vehicle,
   entities,
@@ -373,6 +552,7 @@ export function VehicleDetailModal({
 }: VehicleDetailModalProps) {
   const { t } = useTranslation('vehicles');
   const [activeTab, setActiveTab] = useState<Tab>(initialTab);
+  const queryClient = useQueryClient();
   const { data: events = [], isLoading: isLoadingEvents } = useVehicleEvents(vehicle.id);
 
   useEffect(() => {
@@ -650,10 +830,14 @@ export function VehicleDetailModal({
           )}
 
           {activeTab === 'certifications' && (
-            <CertificationForm
+            <CertificationsTab
               vehicleId={vehicle.id}
               entities={entities}
-              onSuccess={onClose}
+              events={events as VehicleEvent[]}
+              isLoading={isLoadingEvents}
+              onCertCreated={() => {
+                queryClient.invalidateQueries({ queryKey: ['events', 'byVehicle', vehicle.id] });
+              }}
             />
           )}
 
@@ -661,7 +845,9 @@ export function VehicleDetailModal({
             <EventCertificateForm
               vehicleId={vehicle.id}
               entities={entities}
-              onSuccess={onClose}
+              onSuccess={() => {
+                queryClient.invalidateQueries({ queryKey: ['events', 'byVehicle', vehicle.id] });
+              }}
             />
           )}
         </div>

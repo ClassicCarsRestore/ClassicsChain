@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { Upload, X, AlertCircle, Loader2 } from 'lucide-react';
+import { Upload, X, AlertCircle, Loader2, FileText } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
   createUploadSession,
@@ -10,17 +10,20 @@ import {
 } from '../api/eventImagesApi';
 import { generateStorageUrl } from '@/lib/storage';
 
+const DEFAULT_ACCEPT = 'image/jpeg,image/png,image/webp';
+const DEFAULT_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
 interface EventImageUploaderProps {
   sessionId: string | null;
   onSessionCreated: (sessionId: string) => void;
   images: EventImage[];
   onImagesChange: (images: EventImage[]) => void;
   disabled?: boolean;
+  accept?: string;
 }
 
 const MAX_IMAGES = 10;
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 export function EventImageUploader({
   sessionId,
@@ -28,11 +31,17 @@ export function EventImageUploader({
   images,
   onImagesChange,
   disabled = false,
+  accept,
 }: EventImageUploaderProps) {
   const { t } = useTranslation('vehicles');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [uploadingFiles, setUploadingFiles] = useState<Map<string, { name: string; progress: number }>>(new Map());
+
+  const resolvedAccept = accept || DEFAULT_ACCEPT;
+  const allowedMimeTypes = accept ? accept.split(',').map(s => s.trim()) : DEFAULT_MIME_TYPES;
+
+  const isPdf = (objectKey: string) => objectKey.toLowerCase().endsWith('.pdf');
 
   const validateFile = (file: File): boolean => {
     if (file.size > MAX_FILE_SIZE) {
@@ -40,13 +49,13 @@ export function EventImageUploader({
       return false;
     }
 
-    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
-      setError(t('eventImages.errors.invalidFileType', 'Invalid file type. Use JPEG, PNG, or WebP'));
+    if (!allowedMimeTypes.includes(file.type)) {
+      setError(t('eventImages.errors.invalidFileType', 'Invalid file type'));
       return false;
     }
 
     if (images.length >= MAX_IMAGES) {
-      setError(t('eventImages.errors.maxImagesExceeded', 'Maximum number of images reached (10)'));
+      setError(t('eventImages.errors.maxImagesExceeded', 'Maximum number of files reached (10)'));
       return false;
     }
 
@@ -158,7 +167,7 @@ export function EventImageUploader({
       if (disabled) return;
 
       setError(null);
-      const files = Array.from(e.dataTransfer.files).filter((f) => f.type.startsWith('image/'));
+      const files = Array.from(e.dataTransfer.files).filter((f) => allowedMimeTypes.includes(f.type));
 
       const remainingSlots = MAX_IMAGES - images.length;
       const filesToUpload = files.slice(0, remainingSlots);
@@ -205,11 +214,18 @@ export function EventImageUploader({
               key={image.id}
               className="relative aspect-square rounded-md border border-border overflow-hidden group"
             >
-              <img
-                src={generateStorageUrl(image.objectKey)}
-                alt=""
-                className="h-full w-full object-cover"
-              />
+              {isPdf(image.objectKey) ? (
+                <div className="h-full w-full flex flex-col items-center justify-center bg-muted gap-1">
+                  <FileText className="h-6 w-6 text-red-500" />
+                  <span className="text-[10px] text-muted-foreground">PDF</span>
+                </div>
+              ) : (
+                <img
+                  src={generateStorageUrl(image.objectKey)}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
+              )}
               <button
                 type="button"
                 onClick={() => handleRemoveImage(image.id)}
@@ -268,7 +284,7 @@ export function EventImageUploader({
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp"
+        accept={resolvedAccept}
         multiple
         onChange={handleFileSelect}
         className="hidden"

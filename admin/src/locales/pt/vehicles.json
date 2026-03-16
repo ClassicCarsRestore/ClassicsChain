@@ -146,7 +146,7 @@
       "details": "Detalhes",
       "history": "Histórico",
       "certifications": "Certificações",
-      "eventCertificates": "Certificados de Eventos"
+      "eventCertificates": "Eventos"
     },
     "sections": {
       "identification": "Identificação",
@@ -190,6 +190,17 @@
       "addReference": "Adicionar Referência",
       "create": "Criar Certificação",
       "creating": "Criando..."
+    },
+    "status": {
+      "active": "Ativa",
+      "expired": "Expirada",
+      "noExpiry": "Sem validade"
+    },
+    "list": {
+      "title": "Certificações Emitidas",
+      "empty": "Nenhuma certificação emitida ainda",
+      "issueNew": "Emitir Nova Certificação",
+      "loading": "A carregar certificações..."
     }
   },
   "eventCertificate": {
@@ -258,7 +269,9 @@
     "title": "Imagens do Evento",
     "uploading": "A carregar...",
     "dropzone": "Clique ou arraste imagens aqui",
+    "titleWithDocs": "Ficheiros",
     "formats": "JPEG, PNG, WebP (máx. 10MB cada)",
+    "formatsWithPdf": "JPEG, PNG, WebP, PDF (máx. 10MB cada)",
     "help": "As imagens serão incluídas nos dados do evento ancorados na blockchain. Os CIDs são calculados no upload.",
     "errors": {
       "fileTooLarge": "Ficheiro demasiado grande (máx. 10MB)",
