@@ -84,6 +84,11 @@ func New(cfg Config, entityService *entity.Service, eventService *event.Service,
 	// Create strict handler with custom error handler
 	errorHandler := createResponseErrorHandler()
 	strictHandlerOpts := StrictHTTPServerOptions{
+		RequestErrorHandlerFunc: func(w http.ResponseWriter, r *http.Request, err error) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(APIErrorResponse{Error: err.Error()})
+		},
 		ResponseErrorHandlerFunc: errorHandler,
 	}
 

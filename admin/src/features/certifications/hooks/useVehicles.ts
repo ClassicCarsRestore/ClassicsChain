@@ -152,7 +152,7 @@ export function useCreateEvent() {
     }) => {
       const response = await api.post('/v1/events', {
         vehicleId,
-        entityId,
+        entityId: entityId || undefined,
         title,
         description,
         type,
