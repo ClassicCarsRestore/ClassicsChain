@@ -355,6 +355,13 @@ func (m *mockSessionValidator) ValidateSessionCookie(ctx context.Context, cookie
 	return nil, errors.New("invalid session")
 }
 
+func (m *mockSessionValidator) ValidateSessionToken(ctx context.Context, token string) (*kratos.Session, error) {
+	if m.validateFunc != nil {
+		return m.validateFunc(ctx, token)
+	}
+	return nil, errors.New("invalid session")
+}
+
 type mockOAuth2Validator struct {
 	introspectFunc func(ctx context.Context, token string) (*hydra.OAuth2TokenIntrospection, error)
 }
@@ -503,8 +510,8 @@ func TestMiddleware_Auth_InvalidSession(t *testing.T) {
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
 
-	// Handler still called (middleware doesn't block on invalid session, it just doesn't set context)
-	assert.True(t, called)
+	assert.False(t, called)
+	assert.Equal(t, http.StatusUnauthorized, rr.Code)
 }
 
 func TestMiddleware_Auth_InvalidIdentityID(t *testing.T) {

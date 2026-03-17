@@ -98,6 +98,23 @@ func (k *Client) ValidateSessionCookie(ctx context.Context, cookie string) (*Ses
 	return k.toSession(ksession), nil
 }
 
+// ValidateSessionToken validates a session from an X-Session-Token header value
+func (k *Client) ValidateSessionToken(ctx context.Context, token string) (*Session, error) {
+	ksession, resp, err := k.frontend.FrontendAPI.ToSession(ctx).
+		XSessionToken(token).
+		Execute()
+	if err != nil {
+		return nil, fmt.Errorf("validate session token: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if ksession.Active == nil || !*ksession.Active {
+		return nil, fmt.Errorf("session is not active")
+	}
+
+	return k.toSession(ksession), nil
+}
+
 // GetUser retrieves a user by ID
 func (k *Client) GetUser(ctx context.Context, userID string) (*UserIdentity, error) {
 	identity, resp, err := k.admin.IdentityAPI.GetIdentity(ctx, userID).Execute()

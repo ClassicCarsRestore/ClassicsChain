@@ -42,6 +42,7 @@ const (
 // SessionValidator defines the interface for validating user sessions
 type SessionValidator interface {
 	ValidateSessionCookie(ctx context.Context, cookie string) (*kratos.Session, error)
+	ValidateSessionToken(ctx context.Context, token string) (*kratos.Session, error)
 }
 
 // OAuth2Validator defines the interface for validating OAuth2 tokens
@@ -90,15 +91,26 @@ func (m *Middleware) Auth(next http.Handler) http.Handler {
 			}
 		}
 
-		// Fall back to session cookie
-		cookie, err := r.Cookie(KratosSessionCookieName)
-		if err != nil {
-			http.Error(w, "Unauthorized: missing authentication", http.StatusUnauthorized)
+		// Try X-Session-Token header, then fall back to session cookie
+		var session *kratos.Session
+		var sessionErr error
+		if token := r.Header.Get("X-Session-Token"); token != "" {
+			session, sessionErr = m.validator.ValidateSessionToken(r.Context(), token)
+		} else {
+			cookie, cookieErr := r.Cookie(KratosSessionCookieName)
+			if cookieErr != nil {
+				http.Error(w, "Unauthorized: missing authentication", http.StatusUnauthorized)
+				return
+			}
+			session, sessionErr = m.validator.ValidateSessionCookie(r.Context(), cookie.String())
+		}
+
+		if sessionErr != nil {
+			http.Error(w, "Unauthorized: invalid session", http.StatusUnauthorized)
 			return
 		}
 
-		session, err := m.validator.ValidateSessionCookie(r.Context(), cookie.String())
-		if err == nil && session.Active {
+		if session.Active {
 			identityID, err := uuid.Parse(session.IdentityID)
 			if err != nil {
 				http.Error(w, "Unauthorized: failed to parse identityID", http.StatusUnauthorized)

@@ -9,3 +9,7 @@ node_modules
 .mcp.json
 shared/package.json
 shared/package-lock.json
+
+# Benchmark results
+benchmark/results/*.json
+benchmark/results/report_*
