@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	nethttp "net/http"
 	"os/signal"
 	"syscall"
 	"time"
@@ -227,8 +228,19 @@ func main() {
 
 	server := http.New(httpCfg, entityService, eventService, vehicleService, photoService, documentService, shareLinksService, userService, invitationService, userInvitationService, eventImageService, kratosClient, authMiddleware, authorizer)
 
+	go func() {
+		<-ctx.Done()
+		log.Println("Shutting down HTTP server...")
+		shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer shutdownCancel()
+		if err := server.Shutdown(shutdownCtx); err != nil {
+			log.Printf("HTTP server shutdown error: %v", err)
+		}
+	}()
+
 	log.Printf("Starting HTTP server on port %d", httpCfg.Port)
-	if err := server.ListenAndServe(); err != nil {
+	if err := server.ListenAndServe(); err != nil && err != nethttp.ErrServerClosed {
 		log.Fatalf("Server failed to start: %v", err)
 	}
+	log.Println("Server stopped")
 }
