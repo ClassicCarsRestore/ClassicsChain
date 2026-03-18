@@ -227,8 +227,10 @@ func domainToHTTPEvent(domainEvent event.Event, images []event_images.EventImage
 		httpImages = &imgs
 	}
 
+	blockchainStatus := EventBlockchainStatus(domainEvent.BlockchainStatus)
 	return Event{
 		BlockchainTxId:      domainEvent.BlockchainTxID,
+		BlockchainStatus:    &blockchainStatus,
 		Cid:                 domainEvent.CID,
 		CidSourceCBOR:       domainEvent.CIDSourceCBOR,
 		CidSourceJSON:       domainEvent.CIDSourceJSON,

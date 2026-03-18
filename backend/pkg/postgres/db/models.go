@@ -40,6 +40,7 @@ type Event struct {
 	CidSourceCborB64 *string
 	BlockchainTxID   string
 	CreatedAt        pgtype.Timestamp
+	BlockchainStatus string
 }
 
 type EventImage struct {
@@ -104,6 +105,7 @@ type Vehicle struct {
 	EngineCc           *int32
 	EngineCylinders    *int32
 	EnginePowerHp      *int32
+	BlockchainStatus   string
 }
 
 type VehicleDocument struct {

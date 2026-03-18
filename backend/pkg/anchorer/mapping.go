@@ -61,6 +61,10 @@ func vehicleToVehicleRecord(v vehicles.Vehicle) VehicleRecord {
 	}
 }
 
+func EventRecordFromEvent(e *event.Event, imageCIDs []string) EventRecord {
+	return eventToEventRecord(*e, imageCIDs)
+}
+
 func eventToEventRecord(e event.Event, imageCIDs []string) EventRecord {
 	return EventRecord{
 		ID:          e.ID,

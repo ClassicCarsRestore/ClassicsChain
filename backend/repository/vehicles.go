@@ -195,6 +195,7 @@ func (r *VehicleRepository) Update(ctx context.Context, vehicle *vehicles.Vehicl
 		Cid:                vehicle.CID,
 		CidSourceJson:      vehicle.CIDSourceJSON,
 		CidSourceCborB64:   vehicle.CIDSourceCBOR,
+		BlockchainStatus:   vehicle.BlockchainStatus,
 	})
 	if err != nil {
 		return postgres.WrapError(err, "update vehicle")
@@ -255,6 +256,7 @@ func toVehicleDomain(v db.Vehicle) vehicles.Vehicle {
 		EnginePowerHp:      nullableToIntPtr(v.EnginePowerHp),
 		OwnerID:            v.OwnerID,
 		BlockchainAssetID:  nullableToStringPtr(v.BlockchainAssetID),
+		BlockchainStatus:   v.BlockchainStatus,
 		CID:                v.Cid,
 		CIDSourceJSON:      v.CidSourceJson,
 		CIDSourceCBOR:      v.CidSourceCborB64,
@@ -285,6 +287,7 @@ func toVehicleWithStatsDomainFromRow(v db.ListVehiclesWithStatsRow) vehicles.Veh
 			EnginePowerHp:      nullableToIntPtr(v.EnginePowerHp),
 			OwnerID:            v.OwnerID,
 			BlockchainAssetID:  nullableToStringPtr(v.BlockchainAssetID),
+			BlockchainStatus:   v.BlockchainStatus,
 			CID:                v.Cid,
 			CIDSourceJSON:      v.CidSourceJson,
 			CIDSourceCBOR:      v.CidSourceCborB64,
@@ -319,6 +322,7 @@ func toVehicleWithStatsDomain(v db.ListVehiclesByOwnerWithStatsRow) vehicles.Veh
 			EnginePowerHp:      nullableToIntPtr(v.EnginePowerHp),
 			OwnerID:            v.OwnerID,
 			BlockchainAssetID:  nullableToStringPtr(v.BlockchainAssetID),
+			BlockchainStatus:   v.BlockchainStatus,
 			CID:                v.Cid,
 			CIDSourceJSON:      v.CidSourceJson,
 			CIDSourceCBOR:      v.CidSourceCborB64,

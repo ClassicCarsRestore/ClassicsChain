@@ -25,6 +25,7 @@ type Event struct {
 	Location       *string                `json:"location,omitempty"`
 	Metadata       map[string]interface{} `json:"metadata,omitempty"`
 	BlockchainTxID *string                `json:"blockchainTxId,omitempty"`
+	BlockchainStatus string               `json:"blockchainStatus"`
 	CID            *string                `json:"cid,omitempty"`
 	CIDSourceJSON  *string                `json:"cidSourceJson,omitempty"`
 	CIDSourceCBOR  *string                `json:"cidSourceCbor,omitempty"`

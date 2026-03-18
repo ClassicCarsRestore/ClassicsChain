@@ -103,6 +103,7 @@ func (r *EventRepository) Update(ctx context.Context, evt event.Event) error {
 		CidSourceJson:    evt.CIDSourceJSON,
 		CidSourceCborB64: evt.CIDSourceCBOR,
 		BlockchainTxID:   blockchainTxID,
+		BlockchainStatus: evt.BlockchainStatus,
 	})
 	if err != nil {
 		return postgres.WrapError(err, "update event")
@@ -132,11 +133,12 @@ func toEventDomain(e db.Event) event.Event {
 		Date:           e.EventDate,
 		Location:       nullableToStringPtr(e.Location),
 		Metadata:       metadata,
-		BlockchainTxID: nullableToStringPtr(e.BlockchainTxID),
-		CID:            e.Cid,
-		CIDSourceJSON:  e.CidSourceJson,
-		CIDSourceCBOR:  e.CidSourceCborB64,
-		CreatedAt:      e.CreatedAt.Time,
+		BlockchainTxID:   nullableToStringPtr(e.BlockchainTxID),
+		BlockchainStatus: e.BlockchainStatus,
+		CID:              e.Cid,
+		CIDSourceJSON:    e.CidSourceJson,
+		CIDSourceCBOR:    e.CidSourceCborB64,
+		CreatedAt:        e.CreatedAt.Time,
 	}
 }
 
@@ -159,6 +161,7 @@ func toEventDomainWithEntity(e db.ListEventsByVehicleWithEntityRow) event.Event 
 		Location:            nullableToStringPtr(e.Location),
 		Metadata:            metadata,
 		BlockchainTxID:      nullableToStringPtr(e.BlockchainTxID),
+		BlockchainStatus:    e.BlockchainStatus,
 		CID:                 e.Cid,
 		CIDSourceJSON:       e.CidSourceJson,
 		CIDSourceCBOR:       e.CidSourceCborB64,

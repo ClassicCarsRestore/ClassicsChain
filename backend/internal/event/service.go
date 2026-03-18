@@ -2,11 +2,21 @@ package event
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
 	"github.com/ClassicCarsRestore/ClassicsChain/internal/vehicles"
+	cidpkg "github.com/ClassicCarsRestore/ClassicsChain/pkg/cid"
+	"github.com/ClassicCarsRestore/ClassicsChain/pkg/queue"
 	"github.com/google/uuid"
+)
+
+const (
+	SubjectEventAnchor = "anchor.event"
+
+	StatusNone    = "none"
+	StatusPending = "pending"
 )
 
 // Repository defines the data access interface for events
@@ -18,8 +28,8 @@ type Repository interface {
 	Delete(ctx context.Context, id uuid.UUID) error
 }
 
-type EventAnchorer interface {
-	AnchorEvent(ctx context.Context, vehicle vehicles.Vehicle, event Event, imageCIDs []string) error
+type CIDGenerator interface {
+	GenerateCID(data interface{}) (*cidpkg.CID, error)
 }
 
 type EventImageService interface {
@@ -27,18 +37,60 @@ type EventImageService interface {
 	AttachToEvent(ctx context.Context, sessionID, eventID uuid.UUID) error
 }
 
+type EventAnchorJob struct {
+	VehicleID     uuid.UUID `json:"vehicleId"`
+	EventID       uuid.UUID `json:"eventId"`
+	CID           string    `json:"cid"`
+	CIDSourceJSON string    `json:"cidSourceJson"`
+	CIDSourceCBOR string    `json:"cidSourceCbor"`
+	ImageCIDs     []string  `json:"imageCids,omitempty"`
+}
+
+// eventCIDRecord is the data structure hashed to produce the event CID.
+// Mirrors anchorer.EventRecord but avoids the import cycle.
+type eventCIDRecord struct {
+	ID          uuid.UUID              `json:"id"`
+	EntityID    *uuid.UUID             `json:"entityId,omitempty"`
+	Type        *string                `json:"type,omitempty"`
+	Title       *string                `json:"title,omitempty"`
+	Description *string                `json:"description,omitempty"`
+	Date        *time.Time             `json:"date,omitempty"`
+	Location    *string                `json:"location,omitempty"`
+	Metadata    map[string]interface{} `json:"metadata,omitempty"`
+	ImageCIDs   []string               `json:"imageCids,omitempty"`
+	CreatedAt   time.Time              `json:"createdAt,omitempty"`
+}
+
+func newEventCIDRecord(e *Event, imageCIDs []string) eventCIDRecord {
+	eventType := string(e.Type)
+	return eventCIDRecord{
+		ID:          e.ID,
+		EntityID:    e.EntityID,
+		Type:        &eventType,
+		Title:       &e.Title,
+		Description: e.Description,
+		Date:        &e.Date,
+		Location:    e.Location,
+		Metadata:    e.Metadata,
+		ImageCIDs:   imageCIDs,
+		CreatedAt:   e.CreatedAt,
+	}
+}
+
 // Service handles business logic for event management
 type Service struct {
 	repo              Repository
-	anchorer          EventAnchorer
+	publisher         queue.Publisher
+	cidGenerator      CIDGenerator
 	eventImageService EventImageService
 }
 
 // NewService creates a new event service with all dependencies
-func NewService(repo Repository, anchorer EventAnchorer) *Service {
+func NewService(repo Repository, publisher queue.Publisher, cidGenerator CIDGenerator) *Service {
 	return &Service{
-		repo:     repo,
-		anchorer: anchorer,
+		repo:         repo,
+		publisher:    publisher,
+		cidGenerator: cidGenerator,
 	}
 }
 
@@ -57,7 +109,7 @@ func (s *Service) GetByID(ctx context.Context, id uuid.UUID) (*Event, error) {
 	return s.repo.GetByID(ctx, id)
 }
 
-// Create creates a new event
+// Create creates a new event and optionally enqueues it for blockchain anchoring
 func (s *Service) Create(ctx context.Context, vehicle vehicles.Vehicle, params CreateEventParams) (*Event, error) {
 	var imageCIDs []string
 
@@ -74,18 +126,19 @@ func (s *Service) Create(ctx context.Context, vehicle vehicles.Vehicle, params C
 		eventDate = *params.Date
 	}
 
-	event := Event{
-		VehicleID:   params.VehicleID,
-		EntityID:    params.EntityID,
-		Type:        params.Type,
-		Title:       params.Title,
-		Description: params.Description,
-		Date:        eventDate,
-		Location:    params.Location,
-		Metadata:    params.Metadata,
+	evt := Event{
+		VehicleID:        params.VehicleID,
+		EntityID:         params.EntityID,
+		Type:             params.Type,
+		Title:            params.Title,
+		Description:      params.Description,
+		Date:             eventDate,
+		Location:         params.Location,
+		Metadata:         params.Metadata,
+		BlockchainStatus: StatusNone,
 	}
 
-	created, err := s.repo.Create(ctx, event)
+	created, err := s.repo.Create(ctx, evt)
 	if err != nil {
 		return nil, err
 	}
@@ -97,44 +150,69 @@ func (s *Service) Create(ctx context.Context, vehicle vehicles.Vehicle, params C
 	}
 
 	if params.ShouldAnchor {
-		if err := s.anchorer.AnchorEvent(ctx, vehicle, *created, imageCIDs); err != nil {
-			return nil, err
+		record := newEventCIDRecord(created, imageCIDs)
+		cidData, err := s.cidGenerator.GenerateCID(record)
+		if err != nil {
+			return nil, fmt.Errorf("generate event CID: %w", err)
+		}
+
+		created.CID = &cidData.CID
+		created.CIDSourceJSON = &cidData.SourceJSON
+		created.CIDSourceCBOR = &cidData.SourceCBOR
+		created.BlockchainStatus = StatusPending
+
+		if err := s.repo.Update(ctx, *created); err != nil {
+			return nil, fmt.Errorf("update event with CID: %w", err)
+		}
+
+		jobData, err := json.Marshal(EventAnchorJob{
+			VehicleID:     vehicle.ID,
+			EventID:       created.ID,
+			CID:           cidData.CID,
+			CIDSourceJSON: cidData.SourceJSON,
+			CIDSourceCBOR: cidData.SourceCBOR,
+			ImageCIDs:     imageCIDs,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("marshal anchor job: %w", err)
+		}
+		if err := s.publisher.Publish(ctx, SubjectEventAnchor, jobData); err != nil {
+			return nil, fmt.Errorf("enqueue anchor job: %w", err)
 		}
 	}
 
-	evt, err := s.repo.GetByID(ctx, created.ID)
-
-	return evt, err
+	result, err := s.repo.GetByID(ctx, created.ID)
+	return result, err
 }
 
 // Update updates an existing event
 func (s *Service) Update(ctx context.Context, id uuid.UUID, params UpdateEventParams) (*Event, error) {
-	event, err := s.repo.GetByID(ctx, id)
+	evt, err := s.repo.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
 	if params.Title != nil {
-		event.Title = *params.Title
+		evt.Title = *params.Title
 	}
 	if params.Description != nil {
-		event.Description = params.Description
+		evt.Description = params.Description
 	}
 	if params.EventDate != nil {
-		event.Date = *params.EventDate
+		evt.Date = *params.EventDate
 	}
 	if params.Location != nil {
-		event.Location = params.Location
+		evt.Location = params.Location
 	}
 	if params.Metadata != nil {
-		event.Metadata = params.Metadata
+		evt.Metadata = params.Metadata
 	}
 
-	if err := s.repo.Update(ctx, *event); err != nil {
+	if err := s.repo.Update(ctx, *evt); err != nil {
 		return nil, err
 	}
 
-	return event, nil
+	return evt, nil
 }
 
 // Delete deletes an event

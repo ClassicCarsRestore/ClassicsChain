@@ -2052,6 +2052,10 @@ components:
         blockchainAssetId:
           type: string
           description: Algorand blockchain address for this vehicle
+        blockchainStatus:
+          type: string
+          enum: [none, pending, anchored, failed]
+          description: Status of blockchain anchoring
         cid:
           type: string
           description: Content Identifier (CID)
@@ -2303,6 +2307,10 @@ components:
         blockchainTxId:
           type: string
           description: Algorand transaction ID
+        blockchainStatus:
+          type: string
+          enum: [none, pending, anchored, failed]
+          description: Status of blockchain anchoring
         cid:
           type: string
           description: Content Identifier (CID)

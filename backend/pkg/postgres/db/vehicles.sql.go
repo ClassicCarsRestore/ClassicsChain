@@ -73,7 +73,7 @@ $15,
 $16,
 $17
 )
-RETURNING id, owner_id, chassis_number, license_plate, engine_number, transmission_number, make, model, year, color, body_type, drive_type, gear_type, suspension_type, cid, cid_source_json, cid_source_cbor_b64, blockchain_asset_id, created_at, updated_at, fuel, engine_cc, engine_cylinders, engine_power_hp
+RETURNING id, owner_id, chassis_number, license_plate, engine_number, transmission_number, make, model, year, color, body_type, drive_type, gear_type, suspension_type, cid, cid_source_json, cid_source_cbor_b64, blockchain_asset_id, created_at, updated_at, fuel, engine_cc, engine_cylinders, engine_power_hp, blockchain_status
 `
 
 type CreateVehicleParams struct {
@@ -142,6 +142,7 @@ func (q *Queries) CreateVehicle(ctx context.Context, arg CreateVehicleParams) (V
 		&i.EngineCc,
 		&i.EngineCylinders,
 		&i.EnginePowerHp,
+		&i.BlockchainStatus,
 	)
 	return i, err
 }
@@ -157,7 +158,7 @@ func (q *Queries) DeleteVehicle(ctx context.Context, id uuid.UUID) error {
 }
 
 const getVehicle = `-- name: GetVehicle :one
-SELECT id, owner_id, chassis_number, license_plate, engine_number, transmission_number, make, model, year, color, body_type, drive_type, gear_type, suspension_type, cid, cid_source_json, cid_source_cbor_b64, blockchain_asset_id, created_at, updated_at, fuel, engine_cc, engine_cylinders, engine_power_hp FROM vehicles
+SELECT id, owner_id, chassis_number, license_plate, engine_number, transmission_number, make, model, year, color, body_type, drive_type, gear_type, suspension_type, cid, cid_source_json, cid_source_cbor_b64, blockchain_asset_id, created_at, updated_at, fuel, engine_cc, engine_cylinders, engine_power_hp, blockchain_status FROM vehicles
 WHERE id = $1 LIMIT 1
 `
 
@@ -189,12 +190,13 @@ func (q *Queries) GetVehicle(ctx context.Context, id uuid.UUID) (Vehicle, error)
 		&i.EngineCc,
 		&i.EngineCylinders,
 		&i.EnginePowerHp,
+		&i.BlockchainStatus,
 	)
 	return i, err
 }
 
 const getVehicleByChassisNumber = `-- name: GetVehicleByChassisNumber :one
-SELECT id, owner_id, chassis_number, license_plate, engine_number, transmission_number, make, model, year, color, body_type, drive_type, gear_type, suspension_type, cid, cid_source_json, cid_source_cbor_b64, blockchain_asset_id, created_at, updated_at, fuel, engine_cc, engine_cylinders, engine_power_hp FROM vehicles
+SELECT id, owner_id, chassis_number, license_plate, engine_number, transmission_number, make, model, year, color, body_type, drive_type, gear_type, suspension_type, cid, cid_source_json, cid_source_cbor_b64, blockchain_asset_id, created_at, updated_at, fuel, engine_cc, engine_cylinders, engine_power_hp, blockchain_status FROM vehicles
 WHERE chassis_number = $1 LIMIT 1
 `
 
@@ -226,12 +228,13 @@ func (q *Queries) GetVehicleByChassisNumber(ctx context.Context, chassisNumber s
 		&i.EngineCc,
 		&i.EngineCylinders,
 		&i.EnginePowerHp,
+		&i.BlockchainStatus,
 	)
 	return i, err
 }
 
 const getVehicleByLicensePlate = `-- name: GetVehicleByLicensePlate :one
-SELECT id, owner_id, chassis_number, license_plate, engine_number, transmission_number, make, model, year, color, body_type, drive_type, gear_type, suspension_type, cid, cid_source_json, cid_source_cbor_b64, blockchain_asset_id, created_at, updated_at, fuel, engine_cc, engine_cylinders, engine_power_hp FROM vehicles
+SELECT id, owner_id, chassis_number, license_plate, engine_number, transmission_number, make, model, year, color, body_type, drive_type, gear_type, suspension_type, cid, cid_source_json, cid_source_cbor_b64, blockchain_asset_id, created_at, updated_at, fuel, engine_cc, engine_cylinders, engine_power_hp, blockchain_status FROM vehicles
 WHERE license_plate = $1 LIMIT 1
 `
 
@@ -263,12 +266,13 @@ func (q *Queries) GetVehicleByLicensePlate(ctx context.Context, licensePlate str
 		&i.EngineCc,
 		&i.EngineCylinders,
 		&i.EnginePowerHp,
+		&i.BlockchainStatus,
 	)
 	return i, err
 }
 
 const listVehicles = `-- name: ListVehicles :many
-SELECT id, owner_id, chassis_number, license_plate, engine_number, transmission_number, make, model, year, color, body_type, drive_type, gear_type, suspension_type, cid, cid_source_json, cid_source_cbor_b64, blockchain_asset_id, created_at, updated_at, fuel, engine_cc, engine_cylinders, engine_power_hp FROM vehicles
+SELECT id, owner_id, chassis_number, license_plate, engine_number, transmission_number, make, model, year, color, body_type, drive_type, gear_type, suspension_type, cid, cid_source_json, cid_source_cbor_b64, blockchain_asset_id, created_at, updated_at, fuel, engine_cc, engine_cylinders, engine_power_hp, blockchain_status FROM vehicles
 ORDER BY created_at DESC
 LIMIT $1 OFFSET $2
 `
@@ -312,6 +316,7 @@ func (q *Queries) ListVehicles(ctx context.Context, arg ListVehiclesParams) ([]V
 			&i.EngineCc,
 			&i.EngineCylinders,
 			&i.EnginePowerHp,
+			&i.BlockchainStatus,
 		); err != nil {
 			return nil, err
 		}
@@ -324,7 +329,7 @@ func (q *Queries) ListVehicles(ctx context.Context, arg ListVehiclesParams) ([]V
 }
 
 const listVehiclesByOwner = `-- name: ListVehiclesByOwner :many
-SELECT id, owner_id, chassis_number, license_plate, engine_number, transmission_number, make, model, year, color, body_type, drive_type, gear_type, suspension_type, cid, cid_source_json, cid_source_cbor_b64, blockchain_asset_id, created_at, updated_at, fuel, engine_cc, engine_cylinders, engine_power_hp FROM vehicles
+SELECT id, owner_id, chassis_number, license_plate, engine_number, transmission_number, make, model, year, color, body_type, drive_type, gear_type, suspension_type, cid, cid_source_json, cid_source_cbor_b64, blockchain_asset_id, created_at, updated_at, fuel, engine_cc, engine_cylinders, engine_power_hp, blockchain_status FROM vehicles
 WHERE owner_id = $1
 ORDER BY created_at DESC
 LIMIT $2 OFFSET $3
@@ -370,6 +375,7 @@ func (q *Queries) ListVehiclesByOwner(ctx context.Context, arg ListVehiclesByOwn
 			&i.EngineCc,
 			&i.EngineCylinders,
 			&i.EnginePowerHp,
+			&i.BlockchainStatus,
 		); err != nil {
 			return nil, err
 		}
@@ -383,7 +389,7 @@ func (q *Queries) ListVehiclesByOwner(ctx context.Context, arg ListVehiclesByOwn
 
 const listVehiclesByOwnerWithStats = `-- name: ListVehiclesByOwnerWithStats :many
 SELECT
-    v.id, v.owner_id, v.chassis_number, v.license_plate, v.engine_number, v.transmission_number, v.make, v.model, v.year, v.color, v.body_type, v.drive_type, v.gear_type, v.suspension_type, v.cid, v.cid_source_json, v.cid_source_cbor_b64, v.blockchain_asset_id, v.created_at, v.updated_at, v.fuel, v.engine_cc, v.engine_cylinders, v.engine_power_hp,
+    v.id, v.owner_id, v.chassis_number, v.license_plate, v.engine_number, v.transmission_number, v.make, v.model, v.year, v.color, v.body_type, v.drive_type, v.gear_type, v.suspension_type, v.cid, v.cid_source_json, v.cid_source_cbor_b64, v.blockchain_asset_id, v.created_at, v.updated_at, v.fuel, v.engine_cc, v.engine_cylinders, v.engine_power_hp, v.blockchain_status,
     COALESCE(stats.certified_events_count, 0)::bigint AS certified_events_count,
     COALESCE(stats.owner_events_count, 0)::bigint AS owner_events_count,
     COALESCE(stats.active_certifications_count, 0)::bigint AS active_certifications_count
@@ -439,6 +445,7 @@ type ListVehiclesByOwnerWithStatsRow struct {
 	EngineCc                  *int32
 	EngineCylinders           *int32
 	EnginePowerHp             *int32
+	BlockchainStatus          string
 	CertifiedEventsCount      int64
 	OwnerEventsCount          int64
 	ActiveCertificationsCount int64
@@ -478,6 +485,7 @@ func (q *Queries) ListVehiclesByOwnerWithStats(ctx context.Context, arg ListVehi
 			&i.EngineCc,
 			&i.EngineCylinders,
 			&i.EnginePowerHp,
+			&i.BlockchainStatus,
 			&i.CertifiedEventsCount,
 			&i.OwnerEventsCount,
 			&i.ActiveCertificationsCount,
@@ -494,7 +502,7 @@ func (q *Queries) ListVehiclesByOwnerWithStats(ctx context.Context, arg ListVehi
 
 const listVehiclesWithStats = `-- name: ListVehiclesWithStats :many
 SELECT
-    v.id, v.owner_id, v.chassis_number, v.license_plate, v.engine_number, v.transmission_number, v.make, v.model, v.year, v.color, v.body_type, v.drive_type, v.gear_type, v.suspension_type, v.cid, v.cid_source_json, v.cid_source_cbor_b64, v.blockchain_asset_id, v.created_at, v.updated_at, v.fuel, v.engine_cc, v.engine_cylinders, v.engine_power_hp,
+    v.id, v.owner_id, v.chassis_number, v.license_plate, v.engine_number, v.transmission_number, v.make, v.model, v.year, v.color, v.body_type, v.drive_type, v.gear_type, v.suspension_type, v.cid, v.cid_source_json, v.cid_source_cbor_b64, v.blockchain_asset_id, v.created_at, v.updated_at, v.fuel, v.engine_cc, v.engine_cylinders, v.engine_power_hp, v.blockchain_status,
     COALESCE(stats.certified_events_count, 0)::bigint AS certified_events_count,
     COALESCE(stats.owner_events_count, 0)::bigint AS owner_events_count,
     COALESCE(stats.active_certifications_count, 0)::bigint AS active_certifications_count
@@ -548,6 +556,7 @@ type ListVehiclesWithStatsRow struct {
 	EngineCc                  *int32
 	EngineCylinders           *int32
 	EnginePowerHp             *int32
+	BlockchainStatus          string
 	CertifiedEventsCount      int64
 	OwnerEventsCount          int64
 	ActiveCertificationsCount int64
@@ -587,6 +596,7 @@ func (q *Queries) ListVehiclesWithStats(ctx context.Context, arg ListVehiclesWit
 			&i.EngineCc,
 			&i.EngineCylinders,
 			&i.EnginePowerHp,
+			&i.BlockchainStatus,
 			&i.CertifiedEventsCount,
 			&i.OwnerEventsCount,
 			&i.ActiveCertificationsCount,
@@ -608,9 +618,10 @@ SET license_plate = $2, chassis_number = $3, make = $4, model = $5,
     body_type = $10, drive_type = $11, gear_type = $12, suspension_type = $13,
     fuel = $14, engine_cc = $15, engine_cylinders = $16, engine_power_hp = $17,
     owner_id = $18, blockchain_asset_id = $19, cid = $20, cid_source_json = $21, cid_source_cbor_b64 = $22,
+    blockchain_status = $23,
     updated_at = NOW()
 WHERE id = $1
-RETURNING id, owner_id, chassis_number, license_plate, engine_number, transmission_number, make, model, year, color, body_type, drive_type, gear_type, suspension_type, cid, cid_source_json, cid_source_cbor_b64, blockchain_asset_id, created_at, updated_at, fuel, engine_cc, engine_cylinders, engine_power_hp
+RETURNING id, owner_id, chassis_number, license_plate, engine_number, transmission_number, make, model, year, color, body_type, drive_type, gear_type, suspension_type, cid, cid_source_json, cid_source_cbor_b64, blockchain_asset_id, created_at, updated_at, fuel, engine_cc, engine_cylinders, engine_power_hp, blockchain_status
 `
 
 type UpdateVehicleParams struct {
@@ -636,6 +647,7 @@ type UpdateVehicleParams struct {
 	Cid                *string
 	CidSourceJson      *string
 	CidSourceCborB64   *string
+	BlockchainStatus   string
 }
 
 func (q *Queries) UpdateVehicle(ctx context.Context, arg UpdateVehicleParams) (Vehicle, error) {
@@ -662,6 +674,7 @@ func (q *Queries) UpdateVehicle(ctx context.Context, arg UpdateVehicleParams) (V
 		arg.Cid,
 		arg.CidSourceJson,
 		arg.CidSourceCborB64,
+		arg.BlockchainStatus,
 	)
 	var i Vehicle
 	err := row.Scan(
@@ -689,6 +702,7 @@ func (q *Queries) UpdateVehicle(ctx context.Context, arg UpdateVehicleParams) (V
 		&i.EngineCc,
 		&i.EngineCylinders,
 		&i.EnginePowerHp,
+		&i.BlockchainStatus,
 	)
 	return i, err
 }

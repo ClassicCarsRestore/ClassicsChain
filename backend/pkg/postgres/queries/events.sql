@@ -54,7 +54,8 @@ SET title = $2,
     cid = $7,
     cid_source_json = $8,
     cid_source_cbor_b64 = $9,
-    blockchain_tx_id = $10
+    blockchain_tx_id = $10,
+    blockchain_status = $11
 WHERE id = $1
 RETURNING *;
 

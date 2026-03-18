@@ -11,6 +11,7 @@ import (
 	"github.com/ClassicCarsRestore/ClassicsChain/internal/event"
 	"github.com/ClassicCarsRestore/ClassicsChain/internal/vehicles"
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/algorand"
+	cidpkg "github.com/ClassicCarsRestore/ClassicsChain/pkg/cid"
 	"github.com/google/uuid"
 )
 
@@ -53,7 +54,7 @@ func New(ac AssetManager, vehicleRepo VehicleRepository, eventRepo EventReposito
 // VehicleGenesis generates a deterministic CID for the vehicle and anchors it on the blockchain.
 // The CID is stored in the Algorand asset's note field for verification purposes.
 func (a *Anchorer) VehicleGenesis(ctx context.Context, vehicle vehicles.Vehicle) (*string, error) {
-	cidData, err := GenerateCID(vehicleToVehicleRecord(vehicle))
+	cidData, err := cidpkg.GenerateCID(vehicleToVehicleRecord(vehicle))
 	if err != nil {
 		return nil, fmt.Errorf("anchorer genesis failed to generate cid: %w", err)
 	}
@@ -107,7 +108,7 @@ func (a *Anchorer) AnchorEvent(ctx context.Context, vehicle vehicles.Vehicle, ev
 		}
 	}
 
-	cidData, err := GenerateCID(eventToEventRecord(event, imageCIDs))
+	cidData, err := cidpkg.GenerateCID(eventToEventRecord(event, imageCIDs))
 	if err != nil {
 		return fmt.Errorf("anchorer event update failed to generate cid: %w", err)
 	}

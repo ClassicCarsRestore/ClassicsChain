@@ -2,10 +2,20 @@ package vehicles
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 
+	"github.com/ClassicCarsRestore/ClassicsChain/pkg/queue"
 	"github.com/google/uuid"
+)
+
+const (
+	SubjectVehicleGenesis = "anchor.vehicle"
+
+	StatusNone    = "none"
+	StatusPending = "pending"
 )
 
 // Repository defines the data access interface for vehicles
@@ -21,19 +31,19 @@ type Repository interface {
 	Delete(ctx context.Context, id uuid.UUID) error
 }
 
-type VehicleAnchorer interface {
-	VehicleGenesis(ctx context.Context, vehicle Vehicle) (*string, error)
+type VehicleGenesisJob struct {
+	VehicleID uuid.UUID `json:"vehicleId"`
 }
 
 // Service handles business logic for vehicle management
 type Service struct {
-	repo     Repository
-	anchorer VehicleAnchorer
+	repo      Repository
+	publisher queue.Publisher
 }
 
 // NewService creates a new vehicle service
-func NewService(repo Repository, anchorer VehicleAnchorer) *Service {
-	return &Service{repo, anchorer}
+func NewService(repo Repository, publisher queue.Publisher) *Service {
+	return &Service{repo, publisher}
 }
 
 // GetAll retrieves paginated vehicles with optional owner filter
@@ -56,7 +66,7 @@ func (s *Service) GetByOwnerID(ctx context.Context, ownerID uuid.UUID, limit, of
 	return s.repo.GetByOwnerID(ctx, ownerID, limit, offset)
 }
 
-// Create creates a new vehicle
+// Create creates a new vehicle and optionally enqueues it for blockchain anchoring
 func (s *Service) Create(ctx context.Context, params CreateVehicleParams) (*Vehicle, error) {
 	vehicle := &Vehicle{
 		LicensePlate:       params.LicensePlate,
@@ -77,6 +87,7 @@ func (s *Service) Create(ctx context.Context, params CreateVehicleParams) (*Vehi
 		EnginePowerHp:      params.EnginePowerHp,
 		OwnerID:            params.OwnerID,
 		BlockchainAssetID:  params.BlockchainAssetID,
+		BlockchainStatus:   StatusNone,
 	}
 
 	created, err := s.repo.Create(ctx, vehicle)
@@ -85,8 +96,16 @@ func (s *Service) Create(ctx context.Context, params CreateVehicleParams) (*Vehi
 	}
 
 	if params.ShouldAnchor {
-		if _, err := s.anchorer.VehicleGenesis(ctx, *created); err != nil {
-			return nil, err
+		jobData, err := json.Marshal(VehicleGenesisJob{VehicleID: created.ID})
+		if err != nil {
+			return nil, fmt.Errorf("marshal anchor job: %w", err)
+		}
+		if err := s.publisher.Publish(ctx, SubjectVehicleGenesis, jobData); err != nil {
+			return nil, fmt.Errorf("enqueue anchor job: %w", err)
+		}
+		created.BlockchainStatus = StatusPending
+		if err := s.repo.Update(ctx, created); err != nil {
+			return nil, fmt.Errorf("update blockchain status: %w", err)
 		}
 	}
 
@@ -168,9 +187,7 @@ func (s *Service) Delete(ctx context.Context, id uuid.UUID) error {
 
 // FindOrCreateVehicle searches for a vehicle by chassis number (priority) or license plate
 // If not found, creates a new unclaimed vehicle with minimal information
-// Prioritizes chassis number if both are provided and match different vehicles
 func (s *Service) FindOrCreateVehicle(ctx context.Context, chassisNumber, licensePlate *string) (*Vehicle, error) {
-	// Try to find by chassis number first (has priority)
 	if chassisNumber != nil && *chassisNumber != "" {
 		vehicle, err := s.repo.GetByChassisNumber(ctx, *chassisNumber)
 		if err == nil {
@@ -181,7 +198,6 @@ func (s *Service) FindOrCreateVehicle(ctx context.Context, chassisNumber, licens
 		}
 	}
 
-	// Try to find by license plate
 	if licensePlate != nil && *licensePlate != "" {
 		vehicle, err := s.repo.GetByLicensePlate(ctx, *licensePlate)
 		if err == nil {
@@ -192,17 +208,17 @@ func (s *Service) FindOrCreateVehicle(ctx context.Context, chassisNumber, licens
 		}
 	}
 
-	// Vehicle not found, create a new unclaimed vehicle with minimal information
 	newVehicle := &Vehicle{
-		ID:            uuid.New(),
-		LicensePlate:  licensePlate,
-		ChassisNumber: chassisNumber,
-		Make:          "Unknown",
-		Model:         "Unknown",
-		Year:          0,
-		OwnerID:       nil, // Unclaimed
-		CreatedAt:     time.Now(),
-		UpdatedAt:     time.Now(),
+		ID:               uuid.New(),
+		LicensePlate:     licensePlate,
+		ChassisNumber:    chassisNumber,
+		Make:             "Unknown",
+		Model:            "Unknown",
+		Year:             0,
+		OwnerID:          nil,
+		BlockchainStatus: StatusNone,
+		CreatedAt:        time.Now(),
+		UpdatedAt:        time.Now(),
 	}
 
 	created, err := s.repo.Create(ctx, newVehicle)
@@ -214,7 +230,6 @@ func (s *Service) FindOrCreateVehicle(ctx context.Context, chassisNumber, licens
 }
 
 // AssignOwnership assigns ownership of a vehicle to a user
-// This is used when an invited user completes registration
 func (s *Service) AssignOwnership(ctx context.Context, vehicleID uuid.UUID, ownerID uuid.UUID) error {
 	vehicle, err := s.repo.GetByID(ctx, vehicleID)
 	if err != nil {

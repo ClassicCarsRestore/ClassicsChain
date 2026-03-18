@@ -1,4 +1,4 @@
-package anchorer
+package cid
 
 import (
 	"bytes"
@@ -11,6 +11,26 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+type testVehicleRecord struct {
+	ID                 uuid.UUID  `json:"id"`
+	LicensePlate       *string    `json:"licensePlate,omitempty"`
+	ChassisNumber      *string    `json:"chassisNumber,omitempty"`
+	Make               *string    `json:"make,omitempty"`
+	Model              *string    `json:"model,omitempty"`
+	Year               *int       `json:"year,omitempty"`
+	Color              *string    `json:"color,omitempty"`
+	EngineNumber       *string    `json:"engineNumber,omitempty"`
+	TransmissionNumber *string    `json:"transmissionNumber,omitempty"`
+	BodyType           *string    `json:"bodyType,omitempty"`
+	DriveType          *string    `json:"driveType,omitempty"`
+	GearType           *string    `json:"gearType,omitempty"`
+	SuspensionType     *string    `json:"suspensionType,omitempty"`
+	OwnerID            *uuid.UUID `json:"ownerId,omitempty"`
+	CreatedAt          time.Time  `json:"createdAt,omitempty"`
+}
+
+func ptr[T any](v T) *T { return &v }
 
 func TestGenerateCID_SimpleString(t *testing.T) {
 	data := "hello"
@@ -35,7 +55,7 @@ func TestGenerateCID_SimpleObject(t *testing.T) {
 
 func TestGenerateCID_VehicleRecord(t *testing.T) {
 	vehicleID := uuid.New()
-	record := VehicleRecord{
+	record := testVehicleRecord{
 		ID:    vehicleID,
 		Make:  ptr("Toyota"),
 		Model: ptr("Supra"),
@@ -53,7 +73,7 @@ func TestGenerateCID_Deterministic(t *testing.T) {
 	now := time.Now()
 	vehicleID := uuid.New()
 
-	record := VehicleRecord{
+	record := testVehicleRecord{
 		ID:            vehicleID,
 		LicensePlate:  ptr("XYZ789"),
 		ChassisNumber: ptr("VIN123456"),
@@ -76,7 +96,7 @@ func TestGenerateCID_Deterministic(t *testing.T) {
 func TestGenerateCID_DifferentData(t *testing.T) {
 	now := time.Now()
 
-	record1 := VehicleRecord{
+	record1 := testVehicleRecord{
 		ID:        uuid.New(),
 		Make:      ptr("Toyota"),
 		Model:     ptr("Corolla"),
@@ -84,7 +104,7 @@ func TestGenerateCID_DifferentData(t *testing.T) {
 		CreatedAt: now,
 	}
 
-	record2 := VehicleRecord{
+	record2 := testVehicleRecord{
 		ID:        uuid.New(),
 		Make:      ptr("Honda"),
 		Model:     ptr("Accord"),
@@ -102,12 +122,10 @@ func TestGenerateCID_DifferentData(t *testing.T) {
 }
 
 func TestGenerateCID_SimpleDeterminism(t *testing.T) {
-	// Test that field order doesn't matter - CBOR encoding should be deterministic
 	now := time.Now()
 	vehicleID := uuid.New()
 
-	// Create two records with same data but fields set in different order
-	record1 := VehicleRecord{
+	record1 := testVehicleRecord{
 		ID:        vehicleID,
 		Make:      ptr("Mazda"),
 		Model:     ptr("MX-5"),
@@ -115,7 +133,7 @@ func TestGenerateCID_SimpleDeterminism(t *testing.T) {
 		CreatedAt: now,
 	}
 
-	record2 := VehicleRecord{
+	record2 := testVehicleRecord{
 		CreatedAt: now,
 		Year:      ptr(1999),
 		Model:     ptr("MX-5"),
@@ -135,7 +153,7 @@ func TestGenerateCID_SimpleDeterminism(t *testing.T) {
 func TestGenerateCID_NestedStructures(t *testing.T) {
 	now := time.Now()
 
-	record := VehicleRecord{
+	record := testVehicleRecord{
 		ID:        uuid.New(),
 		Make:      ptr("Porsche"),
 		Model:     ptr("911"),
@@ -150,7 +168,7 @@ func TestGenerateCID_NestedStructures(t *testing.T) {
 }
 
 func TestGenerateCID_EmptyObject(t *testing.T) {
-	record := VehicleRecord{
+	record := testVehicleRecord{
 		ID:        uuid.New(),
 		CreatedAt: time.Now(),
 	}
@@ -221,7 +239,7 @@ func TestGenerateCID_ComplexVehicleRecord(t *testing.T) {
 	ownerID := uuid.New()
 	now := time.Now()
 
-	record := VehicleRecord{
+	record := testVehicleRecord{
 		ID:                 vehicleID,
 		LicensePlate:       ptr("ABC123"),
 		ChassisNumber:      ptr("12345ABCD"),
@@ -288,14 +306,11 @@ func TestGenerateCID_FormatsAsValidCIDv1(t *testing.T) {
 	cid, err := GenerateCID(data)
 
 	require.NoError(t, err)
-	// CIDv1 format typically starts with 'b' for base32 encoding
 	assert.True(t, len(cid.CID) > 0, "CID should not be empty")
-	// CIDv1 base32 encoded CIDs start with 'b'
 	assert.Equal(t, "b", string(cid.CID[0]), "CIDv1 should start with 'b' (base32)")
 }
 
 func TestGenerateCID_UnmarshalableType(t *testing.T) {
-	// chan types cannot be marshalled to JSON
 	data := make(chan int)
 
 	_, err := GenerateCID(data)
@@ -333,7 +348,6 @@ func TestGenerateCID_StructWithJSONTags(t *testing.T) {
 }
 
 func TestGenerateCID_FloatPrecision(t *testing.T) {
-	// Test that floating point representation is consistent
 	data := map[string]interface{}{
 		"pi": 3.14159265359,
 	}
@@ -365,9 +379,7 @@ func TestGenerateCID_WhitespaceVariations(t *testing.T) {
 }
 
 func TestGenerateCID_Reproducibility(t *testing.T) {
-	// This test ensures that the CID is reproducible across different systems
-	// (JSON marshaling with consistent ordering)
-	record := VehicleRecord{
+	record := testVehicleRecord{
 		ID:    uuid.New(),
 		Make:  ptr("BMW"),
 		Model: ptr("M5"),
@@ -387,7 +399,7 @@ func TestGenerateCID_Reproducibility(t *testing.T) {
 }
 
 func TestGenerateCID_SourceJSONKeyOrderMatchesCBOR(t *testing.T) {
-	record := VehicleRecord{
+	record := testVehicleRecord{
 		ID:            uuid.New(),
 		LicensePlate:  ptr("ABC123"),
 		ChassisNumber: ptr("VIN999"),
@@ -401,7 +413,6 @@ func TestGenerateCID_SourceJSONKeyOrderMatchesCBOR(t *testing.T) {
 	result, err := GenerateCID(record)
 	require.NoError(t, err)
 
-	// Decode the CBOR bytes back to an IPLD node and serialize to JSON
 	cborBytes, err := base64.StdEncoding.DecodeString(result.SourceCBOR)
 	require.NoError(t, err)
 
@@ -414,12 +425,9 @@ func TestGenerateCID_SourceJSONKeyOrderMatchesCBOR(t *testing.T) {
 	assert.Equal(t, string(derivedJSON), result.SourceJSON,
 		"SourceJSON key order should match CBOR-decoded key order")
 
-	// Verify it's valid JSON
 	var parsed interface{}
 	require.NoError(t, json.Unmarshal([]byte(result.SourceJSON), &parsed))
 
-	// Verify key order uses CBOR canonical ordering (length-first, then lexicographic)
-	// Extract top-level keys in order from the raw JSON
 	keys := extractJSONKeyOrder(t, result.SourceJSON)
 	require.True(t, len(keys) > 1, "should have multiple keys")
 
@@ -432,7 +440,6 @@ func TestGenerateCID_SourceJSONKeyOrderMatchesCBOR(t *testing.T) {
 	}
 }
 
-// extractJSONKeyOrder returns top-level keys from a JSON object in their appearance order.
 func extractJSONKeyOrder(t *testing.T, raw string) []string {
 	t.Helper()
 	dec := json.NewDecoder(bytes.NewReader([]byte(raw)))

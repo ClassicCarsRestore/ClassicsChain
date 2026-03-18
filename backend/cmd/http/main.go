@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"log"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/ClassicCarsRestore/ClassicsChain/auth"
@@ -16,14 +18,14 @@ import (
 	"github.com/ClassicCarsRestore/ClassicsChain/internal/user"
 	"github.com/ClassicCarsRestore/ClassicsChain/internal/user_invitation"
 	"github.com/ClassicCarsRestore/ClassicsChain/internal/vehicles"
-	"github.com/ClassicCarsRestore/ClassicsChain/pkg/algorand"
-	"github.com/ClassicCarsRestore/ClassicsChain/pkg/anchorer"
+	cidpkg "github.com/ClassicCarsRestore/ClassicsChain/pkg/cid"
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/http"
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/hydra"
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/kratos"
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/mailer"
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/postgres"
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/postgres/db"
+	natsqueue "github.com/ClassicCarsRestore/ClassicsChain/pkg/queue/nats"
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/seed"
 	"github.com/ClassicCarsRestore/ClassicsChain/pkg/storage"
 	"github.com/ClassicCarsRestore/ClassicsChain/repository"
@@ -48,19 +50,15 @@ type Config struct {
 		AdminURL  string `envconfig:"HYDRA_ADMIN_URL" default:"http://localhost:4445"`
 		PublicURL string `envconfig:"HYDRA_PUBLIC_URL" default:"http://localhost:4444"`
 	}
-	Algorand struct {
-		AlgodURL   string `envconfig:"ALGORAND_ALGOD_URL"`
-		AlgodToken string `envconfig:"ALGORAND_ALGOD_TOKEN"`
-		IndexerURL string `envconfig:"ALGORAND_INDEXER_URL"`
-		Mnemonic   string `envconfig:"ALGORAND_WALLET_MNEMONIC"`
-		Network    string `envconfig:"ALGORAND_NETWORK" default:"testnet"`
-	}
 	Storage struct {
 		Endpoint       string `envconfig:"STORAGE_ENDPOINT" default:"localhost:9000"`
 		PublicEndpoint string `envconfig:"STORAGE_PUBLIC_ENDPOINT"`
 		AccessKey      string `envconfig:"STORAGE_ACCESS_KEY" default:"garageuser"`
 		SecretKey      string `envconfig:"STORAGE_SECRET_KEY" default:"garagepassword"`
 		UseSSL         bool   `envconfig:"STORAGE_USE_SSL" default:"false"`
+	}
+	NATS struct {
+		URL string `envconfig:"NATS_URL" default:"nats://localhost:4222"`
 	}
 	HTTP struct {
 		Port           int `envconfig:"HTTP_PORT" default:"8080"`
@@ -92,48 +90,41 @@ type Config struct {
 }
 
 func main() {
-	ctx := context.Background()
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer cancel()
 
 	var cfg Config
 	if err := envconfig.Process("", &cfg); err != nil {
 		log.Fatalf("Failed to process environment variables: %v", err)
 	}
 
-	// Database configuration
-	dbCfg := postgres.Config{
+	// Database
+	pool, err := postgres.NewPool(ctx, postgres.Config{
 		Host:     cfg.Database.Host,
 		Port:     cfg.Database.Port,
 		User:     cfg.Database.User,
 		Password: cfg.Database.Password,
 		Database: cfg.Database.Database,
 		SSLMode:  cfg.Database.SSLMode,
-	}
-
-	// Initialize database connection pool
-	pool, err := postgres.NewPool(ctx, dbCfg)
+	})
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 	defer pool.Close()
-
 	log.Println("Database connection established")
 
 	querier := db.New(pool)
 
-	// Initialize Kratos client (needed for authentication)
+	// External clients
 	kratosClient := kratos.New(cfg.Kratos.PublicURL, cfg.Kratos.AdminURL)
-
-	// Initialize Hydra client (needed for OAuth2)
 	hydraClient := hydra.New(cfg.Hydra.AdminURL)
 
 	// Seed admin user if enabled
 	if cfg.Seed.Enabled {
 		log.Println("Admin seeding is enabled, creating admin user...")
-
 		if cfg.Seed.AdminEmail == "" || cfg.Seed.AdminPassword == "" {
 			log.Fatal("ADMIN_EMAIL and ADMIN_PASSWORD are required when SEED_ADMIN=true")
 		}
-
 		err = seed.SeedAdminUser(ctx, kratosClient, querier, seed.AdminUserConfig{
 			Email:    cfg.Seed.AdminEmail,
 			Password: cfg.Seed.AdminPassword,
@@ -144,7 +135,7 @@ func main() {
 		log.Printf("Admin user ready: %s", cfg.Seed.AdminEmail)
 	}
 
-	// Initialize repositories
+	// Repositories
 	entityRepo := repository.NewEntityRepository(querier)
 	eventRepo := repository.NewEventRepository(querier)
 	vehicleRepo := repository.NewVehicleRepository(querier)
@@ -156,7 +147,7 @@ func main() {
 	eventImageRepo := repository.NewEventImageRepository(querier)
 	userInvitationRepo := repository.NewUserInvitationRepository(querier)
 
-	// Initialize storage backend
+	// Storage
 	photoStorage, err := storage.New(storage.Config{
 		Endpoint:       cfg.Storage.Endpoint,
 		PublicEndpoint: cfg.Storage.PublicEndpoint,
@@ -170,24 +161,16 @@ func main() {
 	}
 	log.Println("Storage backend initialized: Garage")
 
-	// Initialize Algorand client
-	algorandClient, err := algorand.New(algorand.Config{
-		AlgodURL:   cfg.Algorand.AlgodURL,
-		AlgodToken: cfg.Algorand.AlgodToken,
-		IndexerURL: cfg.Algorand.IndexerURL,
-		Mnemonic:   cfg.Algorand.Mnemonic,
-	})
+	// NATS (message queue)
+	natsPublisher, err := natsqueue.NewPublisher(ctx, natsqueue.Config{URL: cfg.NATS.URL})
 	if err != nil {
-		log.Fatalf("Failed to initialize Algorand client: %v", err)
+		log.Fatalf("Failed to initialize NATS publisher: %v", err)
 	}
+	defer natsPublisher.Close()
 
-	if algorandClient.IsOnline(ctx) {
-		log.Printf("Algorand client connected (network: %s, address: %s)", cfg.Algorand.Network, algorandClient.Address())
-	} else {
-		log.Fatalf("Algorand client is offline")
-	}
+	log.Println("NATS JetStream connected")
 
-	// Initialize mailer
+	// Mailer
 	mailerClient := mailer.New(mailer.Config{
 		APIKey:     cfg.Mailer.ResendAPIKey,
 		FromEmail:  cfg.Mailer.FromEmail,
@@ -196,42 +179,36 @@ func main() {
 		WebBaseURL: cfg.Mailer.WebBaseURL,
 	})
 
-	// Initialize services
-	anchorerService := anchorer.New(algorandClient, vehicleRepo, eventRepo)
-	cidGenerator := anchorer.NewCIDGenerator()
-	vehicleService := vehicles.NewService(vehicleRepo, anchorerService)
+	// Services
+	cidGenerator := cidpkg.NewCIDGenerator()
+	vehicleService := vehicles.NewService(vehicleRepo, natsPublisher)
 	photoService := photos.NewService(photoRepo, photoStorage)
 	documentService := documents.NewService(documentRepo, photoStorage)
 	shareLinksService := share_links.NewService(shareLinkRepo)
 	invitationService := invitation.NewService(invitationRepo, vehicleService, mailerClient)
 	eventImageService := event_images.NewService(eventImageRepo, photoStorage, cidGenerator)
-	eventService := event.NewService(eventRepo, anchorerService)
+	eventService := event.NewService(eventRepo, natsPublisher, cidGenerator)
 	eventService.SetEventImageService(eventImageService)
 
-	// User invitation service
+	// User services
 	userInvitationService := user_invitation.NewService(userInvitationRepo, mailerClient)
-
-	// User service with dependencies
 	userService := user.New(userRepo, kratosClient)
 	userService.SetUserInvitationService(userInvitationService)
 
-	// Entity service with user invitation service
+	// Entity service
 	entityService := entity.New(entityRepo, userRepo, kratosClient, userService, hydraClient, userInvitationService, photoStorage)
 
-	// Initialize Casbin enforcer
+	// Authorization
 	enforcer, err := casbin.NewEnforcer("casbin_model.conf", "casbin_policy.csv")
 	if err != nil {
 		log.Fatalf("Failed to initialize Casbin enforcer: %v", err)
 	}
 	log.Println("Casbin enforcer initialized")
 
-	// Initialize authorization
 	authorizer := auth.NewAuthorizer(enforcer, userService)
-
-	// Initialize middleware with OAuth2 support
 	authMiddleware := auth.NewMiddlewareWithOAuth2(kratosClient, hydraClient, userService)
 
-	// HTTP server configuration
+	// HTTP server
 	httpCfg := http.Config{
 		Port:           cfg.HTTP.Port,
 		ReadTimeout:    time.Duration(cfg.HTTP.ReadTimeout) * time.Second,

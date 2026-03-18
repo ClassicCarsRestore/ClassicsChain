@@ -498,8 +498,10 @@ func (a apiServer) GetCertifierVehicleInvitation(ctx context.Context, request Ge
 
 // domainToHTTPVehicle converts a domain vehicle to HTTP vehicle
 func domainToHTTPVehicle(domainVehicle vehicles.Vehicle) Vehicle {
+	blockchainStatus := VehicleBlockchainStatus(domainVehicle.BlockchainStatus)
 	return Vehicle{
 		BlockchainAssetId:  domainVehicle.BlockchainAssetID,
+		BlockchainStatus:   &blockchainStatus,
 		BodyType:           domainVehicle.BodyType,
 		ChassisNumber:      domainVehicle.ChassisNumber,
 		Cid:                domainVehicle.CID,
@@ -530,9 +532,11 @@ func domainToHTTPVehicleWithStats(domainVehicle vehicles.VehicleWithStats) Vehic
 	certifiedEventsCount := domainVehicle.CertifiedEventsCount
 	ownerEventsCount := domainVehicle.OwnerEventsCount
 	activeCertificationsCount := domainVehicle.ActiveCertificationsCount
+	blockchainStatus := VehicleBlockchainStatus(domainVehicle.BlockchainStatus)
 
 	return Vehicle{
 		BlockchainAssetId:         domainVehicle.BlockchainAssetID,
+		BlockchainStatus:          &blockchainStatus,
 		BodyType:                  domainVehicle.BodyType,
 		ChassisNumber:             domainVehicle.ChassisNumber,
 		Cid:                       domainVehicle.CID,

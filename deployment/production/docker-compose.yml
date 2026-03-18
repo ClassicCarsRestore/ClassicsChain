@@ -142,6 +142,21 @@ services:
       timeout: 10s
       retries: 3
 
+  nats:
+    image: nats:2-alpine
+    container_name: cc-nats
+    restart: unless-stopped
+    command: ["--jetstream", "--store_dir=/data"]
+    volumes:
+      - nats_data:/data
+    networks:
+      - intranet
+    healthcheck:
+      test: ["CMD", "nats-server", "--signal", "ldm"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
   backend-migrate:
     image: ${BACKEND_IMAGE}:${BACKEND_IMAGE_TAG}
     container_name: cc-backend-migrate
@@ -200,11 +215,8 @@ services:
       STORAGE_PUBLIC_ENDPOINT: https://uploads.classicschain.com
       STORAGE_ACCESS_KEY: ${GARAGE_ACCESS_KEY}
       STORAGE_SECRET_KEY: ${GARAGE_SECRET_KEY}
-      # Algorand
-      ALGORAND_ALGOD_URL: ${ALGORAND_ALGOD_URL}
-      ALGORAND_INDEXER_URL: ${ALGORAND_INDEXER_URL}
-      ALGORAND_WALLET_MNEMONIC: ${ALGORAND_WALLET_MNEMONIC}
-      ALGORAND_NETWORK: ${ALGORAND_NETWORK}
+      # NATS Configuration
+      NATS_URL: nats://cc-nats:4222
       # Mailer Configuration
       RESEND_API_KEY: ${RESEND_API_KEY}
       MAILER_FROM_EMAIL: ${MAILER_FROM_EMAIL}
@@ -218,6 +230,8 @@ services:
         condition: service_started
       garage:
         condition: service_started
+      nats:
+        condition: service_healthy
     networks:
       - intranet
     healthcheck:
@@ -225,6 +239,33 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+
+  worker:
+    image: ${BACKEND_IMAGE}:${BACKEND_IMAGE_TAG}
+    container_name: cc-worker
+    restart: unless-stopped
+    entrypoint: ["/home/appuser/worker"]
+    environment:
+      # Database Configuration
+      DB_HOST: postgres-main
+      DB_PORT: 5432
+      DB_USER: ${POSTGRES_MAIN_USER}
+      DB_PASSWORD: ${POSTGRES_MAIN_PASSWORD}
+      DB_NAME: ${POSTGRES_MAIN_DB}
+      # Algorand
+      ALGORAND_ALGOD_URL: ${ALGORAND_ALGOD_URL}
+      ALGORAND_INDEXER_URL: ${ALGORAND_INDEXER_URL}
+      ALGORAND_WALLET_MNEMONIC: ${ALGORAND_WALLET_MNEMONIC}
+      ALGORAND_NETWORK: ${ALGORAND_NETWORK}
+      # NATS Configuration
+      NATS_URL: nats://cc-nats:4222
+    depends_on:
+      backend-migrate:
+        condition: service_completed_successfully
+      nats:
+        condition: service_healthy
+    networks:
+      - intranet
 
   caddy:
     build:
@@ -258,6 +299,7 @@ volumes:
   postgres_hydra_data:
   garage_data:
   garage_meta:
+  nats_data:
   caddy_data:
   caddy_config:
 

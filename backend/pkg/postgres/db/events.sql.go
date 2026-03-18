@@ -33,7 +33,7 @@ INSERT INTO events (
     $7,
     $8
 )
-RETURNING id, vehicle_id, entity_id, event_type, title, description, event_date, location, metadata, cid, cid_source_json, cid_source_cbor_b64, blockchain_tx_id, created_at
+RETURNING id, vehicle_id, entity_id, event_type, title, description, event_date, location, metadata, cid, cid_source_json, cid_source_cbor_b64, blockchain_tx_id, created_at, blockchain_status
 `
 
 type CreateEventParams struct {
@@ -74,6 +74,7 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) (Event
 		&i.CidSourceCborB64,
 		&i.BlockchainTxID,
 		&i.CreatedAt,
+		&i.BlockchainStatus,
 	)
 	return i, err
 }
@@ -89,7 +90,7 @@ func (q *Queries) DeleteEvent(ctx context.Context, id uuid.UUID) error {
 }
 
 const getEvent = `-- name: GetEvent :one
-SELECT id, vehicle_id, entity_id, event_type, title, description, event_date, location, metadata, cid, cid_source_json, cid_source_cbor_b64, blockchain_tx_id, created_at FROM events
+SELECT id, vehicle_id, entity_id, event_type, title, description, event_date, location, metadata, cid, cid_source_json, cid_source_cbor_b64, blockchain_tx_id, created_at, blockchain_status FROM events
 WHERE id = $1 LIMIT 1
 `
 
@@ -111,12 +112,13 @@ func (q *Queries) GetEvent(ctx context.Context, id uuid.UUID) (Event, error) {
 		&i.CidSourceCborB64,
 		&i.BlockchainTxID,
 		&i.CreatedAt,
+		&i.BlockchainStatus,
 	)
 	return i, err
 }
 
 const listEventsByEntity = `-- name: ListEventsByEntity :many
-SELECT id, vehicle_id, entity_id, event_type, title, description, event_date, location, metadata, cid, cid_source_json, cid_source_cbor_b64, blockchain_tx_id, created_at FROM events
+SELECT id, vehicle_id, entity_id, event_type, title, description, event_date, location, metadata, cid, cid_source_json, cid_source_cbor_b64, blockchain_tx_id, created_at, blockchain_status FROM events
 WHERE entity_id = $1
 ORDER BY event_date DESC
 `
@@ -145,6 +147,7 @@ func (q *Queries) ListEventsByEntity(ctx context.Context, entityID *uuid.UUID) (
 			&i.CidSourceCborB64,
 			&i.BlockchainTxID,
 			&i.CreatedAt,
+			&i.BlockchainStatus,
 		); err != nil {
 			return nil, err
 		}
@@ -157,7 +160,7 @@ func (q *Queries) ListEventsByEntity(ctx context.Context, entityID *uuid.UUID) (
 }
 
 const listEventsByVehicle = `-- name: ListEventsByVehicle :many
-SELECT id, vehicle_id, entity_id, event_type, title, description, event_date, location, metadata, cid, cid_source_json, cid_source_cbor_b64, blockchain_tx_id, created_at FROM events
+SELECT id, vehicle_id, entity_id, event_type, title, description, event_date, location, metadata, cid, cid_source_json, cid_source_cbor_b64, blockchain_tx_id, created_at, blockchain_status FROM events
 WHERE vehicle_id = $1
 ORDER BY event_date DESC
 `
@@ -186,6 +189,7 @@ func (q *Queries) ListEventsByVehicle(ctx context.Context, vehicleID uuid.UUID) 
 			&i.CidSourceCborB64,
 			&i.BlockchainTxID,
 			&i.CreatedAt,
+			&i.BlockchainStatus,
 		); err != nil {
 			return nil, err
 		}
@@ -199,7 +203,7 @@ func (q *Queries) ListEventsByVehicle(ctx context.Context, vehicleID uuid.UUID) 
 
 const listEventsByVehicleWithEntity = `-- name: ListEventsByVehicleWithEntity :many
 SELECT
-    e.id, e.vehicle_id, e.entity_id, e.event_type, e.title, e.description, e.event_date, e.location, e.metadata, e.cid, e.cid_source_json, e.cid_source_cbor_b64, e.blockchain_tx_id, e.created_at,
+    e.id, e.vehicle_id, e.entity_id, e.event_type, e.title, e.description, e.event_date, e.location, e.metadata, e.cid, e.cid_source_json, e.cid_source_cbor_b64, e.blockchain_tx_id, e.created_at, e.blockchain_status,
     ent.name AS entity_name,
     ent.logo_object_key AS entity_logo_object_key
 FROM events e
@@ -223,6 +227,7 @@ type ListEventsByVehicleWithEntityRow struct {
 	CidSourceCborB64    *string
 	BlockchainTxID      string
 	CreatedAt           pgtype.Timestamp
+	BlockchainStatus    string
 	EntityName          *string
 	EntityLogoObjectKey *string
 }
@@ -251,6 +256,7 @@ func (q *Queries) ListEventsByVehicleWithEntity(ctx context.Context, vehicleID u
 			&i.CidSourceCborB64,
 			&i.BlockchainTxID,
 			&i.CreatedAt,
+			&i.BlockchainStatus,
 			&i.EntityName,
 			&i.EntityLogoObjectKey,
 		); err != nil {
@@ -274,9 +280,10 @@ SET title = $2,
     cid = $7,
     cid_source_json = $8,
     cid_source_cbor_b64 = $9,
-    blockchain_tx_id = $10
+    blockchain_tx_id = $10,
+    blockchain_status = $11
 WHERE id = $1
-RETURNING id, vehicle_id, entity_id, event_type, title, description, event_date, location, metadata, cid, cid_source_json, cid_source_cbor_b64, blockchain_tx_id, created_at
+RETURNING id, vehicle_id, entity_id, event_type, title, description, event_date, location, metadata, cid, cid_source_json, cid_source_cbor_b64, blockchain_tx_id, created_at, blockchain_status
 `
 
 type UpdateEventParams struct {
@@ -290,6 +297,7 @@ type UpdateEventParams struct {
 	CidSourceJson    *string
 	CidSourceCborB64 *string
 	BlockchainTxID   string
+	BlockchainStatus string
 }
 
 func (q *Queries) UpdateEvent(ctx context.Context, arg UpdateEventParams) (Event, error) {
@@ -304,6 +312,7 @@ func (q *Queries) UpdateEvent(ctx context.Context, arg UpdateEventParams) (Event
 		arg.CidSourceJson,
 		arg.CidSourceCborB64,
 		arg.BlockchainTxID,
+		arg.BlockchainStatus,
 	)
 	var i Event
 	err := row.Scan(
@@ -321,6 +330,7 @@ func (q *Queries) UpdateEvent(ctx context.Context, arg UpdateEventParams) (Event
 		&i.CidSourceCborB64,
 		&i.BlockchainTxID,
 		&i.CreatedAt,
+		&i.BlockchainStatus,
 	)
 	return i, err
 }

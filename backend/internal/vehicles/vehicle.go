@@ -35,6 +35,7 @@ type Vehicle struct {
 	EngineCylinders    *int       `json:"engineCylinders,omitempty"`
 	EnginePowerHp      *int       `json:"enginePowerHp,omitempty"`
 	BlockchainAssetID  *string    `json:"blockchainAssetId,omitempty"`
+	BlockchainStatus   string     `json:"blockchainStatus"`
 	CID                *string    `json:"cid,omitempty"`
 	CIDSourceJSON      *string    `json:"cidSourceJson,omitempty"`
 	CIDSourceCBOR      *string    `json:"cidSourceCbor,omitempty"`

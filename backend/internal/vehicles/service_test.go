@@ -64,17 +64,19 @@ func (m *mockRepo) Delete(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
-type mockAnchorer struct {
-	vehicleGenesisFunc func(ctx context.Context, vehicle Vehicle) (*string, error)
+type mockPublisher struct {
+	publishFunc func(ctx context.Context, subject string, data []byte) error
+	published   [][]byte
 }
 
-func (m *mockAnchorer) VehicleGenesis(ctx context.Context, vehicle Vehicle) (*string, error) {
-	if m.vehicleGenesisFunc != nil {
-		return m.vehicleGenesisFunc(ctx, vehicle)
+func (m *mockPublisher) Publish(ctx context.Context, subject string, data []byte) error {
+	m.published = append(m.published, data)
+	if m.publishFunc != nil {
+		return m.publishFunc(ctx, subject, data)
 	}
-	txID := "mock-tx-id"
-	return &txID, nil
+	return nil
 }
+func (m *mockPublisher) Close() error { return nil }
 
 // --- Tests ---
 
@@ -86,7 +88,7 @@ func TestService_FindOrCreateVehicle_ChassisPriority(t *testing.T) {
 		getByChassisNumberFunc: func(_ context.Context, _ string) (*Vehicle, error) {
 			return existing, nil
 		},
-	}, &mockAnchorer{})
+	}, &mockPublisher{})
 
 	chassis := "WBA12345"
 	plate := "AA-00-BB"
@@ -105,7 +107,7 @@ func TestService_FindOrCreateVehicle_PlateFallback(t *testing.T) {
 		getByLicensePlateFunc: func(_ context.Context, _ string) (*Vehicle, error) {
 			return existing, nil
 		},
-	}, &mockAnchorer{})
+	}, &mockPublisher{})
 
 	chassis := "NONEXIST"
 	plate := "AA-00-BB"
@@ -116,7 +118,7 @@ func TestService_FindOrCreateVehicle_PlateFallback(t *testing.T) {
 }
 
 func TestService_FindOrCreateVehicle_CreatesNew(t *testing.T) {
-	svc := NewService(&mockRepo{}, &mockAnchorer{})
+	svc := NewService(&mockRepo{}, &mockPublisher{})
 
 	chassis := "NEW123"
 	plate := "NEW-PLATE"
@@ -130,7 +132,7 @@ func TestService_FindOrCreateVehicle_CreatesNew(t *testing.T) {
 }
 
 func TestService_FindOrCreateVehicle_NilInputsCreatesNew(t *testing.T) {
-	svc := NewService(&mockRepo{}, &mockAnchorer{})
+	svc := NewService(&mockRepo{}, &mockPublisher{})
 
 	result, err := svc.FindOrCreateVehicle(context.Background(), nil, nil)
 
@@ -139,7 +141,7 @@ func TestService_FindOrCreateVehicle_NilInputsCreatesNew(t *testing.T) {
 }
 
 func TestService_Create_WithoutAnchoring(t *testing.T) {
-	svc := NewService(&mockRepo{}, &mockAnchorer{})
+	svc := NewService(&mockRepo{}, &mockPublisher{})
 
 	params := CreateVehicleParams{
 		Make:  "BMW",
@@ -155,14 +157,8 @@ func TestService_Create_WithoutAnchoring(t *testing.T) {
 }
 
 func TestService_Create_WithAnchoring(t *testing.T) {
-	anchorerCalled := false
-	svc := NewService(&mockRepo{}, &mockAnchorer{
-		vehicleGenesisFunc: func(_ context.Context, _ Vehicle) (*string, error) {
-			anchorerCalled = true
-			txID := "tx-123"
-			return &txID, nil
-		},
-	})
+	pub := &mockPublisher{}
+	svc := NewService(&mockRepo{}, pub)
 
 	params := CreateVehicleParams{
 		Make:         "Alfa Romeo",
@@ -170,24 +166,26 @@ func TestService_Create_WithAnchoring(t *testing.T) {
 		Year:         1974,
 		ShouldAnchor: true,
 	}
-	_, err := svc.Create(context.Background(), params)
+	result, err := svc.Create(context.Background(), params)
 
 	require.NoError(t, err)
-	assert.True(t, anchorerCalled)
+	assert.Len(t, pub.published, 1)
+	assert.Equal(t, StatusPending, result.BlockchainStatus)
 }
 
-func TestService_Create_AnchoringError(t *testing.T) {
-	svc := NewService(&mockRepo{}, &mockAnchorer{
-		vehicleGenesisFunc: func(_ context.Context, _ Vehicle) (*string, error) {
-			return nil, errors.New("blockchain error")
+func TestService_Create_AnchoringPublishError(t *testing.T) {
+	pub := &mockPublisher{
+		publishFunc: func(_ context.Context, _ string, _ []byte) error {
+			return errors.New("nats error")
 		},
-	})
+	}
+	svc := NewService(&mockRepo{}, pub)
 
 	params := CreateVehicleParams{ShouldAnchor: true, Make: "Fiat", Model: "500", Year: 1965}
 	_, err := svc.Create(context.Background(), params)
 
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "blockchain error")
+	assert.Contains(t, err.Error(), "nats error")
 }
 
 func TestService_Update_PartialFields(t *testing.T) {
@@ -204,7 +202,7 @@ func TestService_Update_PartialFields(t *testing.T) {
 			copy := *original
 			return &copy, nil
 		},
-	}, &mockAnchorer{})
+	}, &mockPublisher{})
 
 	result, err := svc.Update(context.Background(), original.ID, UpdateVehicleParams{
 		Color: ptr("Blue"),
@@ -218,7 +216,7 @@ func TestService_Update_PartialFields(t *testing.T) {
 }
 
 func TestService_Update_NotFound(t *testing.T) {
-	svc := NewService(&mockRepo{}, &mockAnchorer{})
+	svc := NewService(&mockRepo{}, &mockPublisher{})
 
 	_, err := svc.Update(context.Background(), uuid.New(), UpdateVehicleParams{})
 
@@ -237,7 +235,7 @@ func TestService_AssignOwnership_Success(t *testing.T) {
 			updatedOwner = v.OwnerID
 			return nil
 		},
-	}, &mockAnchorer{})
+	}, &mockPublisher{})
 
 	ownerID := uuid.New()
 	err := svc.AssignOwnership(context.Background(), vehicle.ID, ownerID)
@@ -251,7 +249,7 @@ func TestService_AssignOwnership_NilVehicle(t *testing.T) {
 		getByIDFunc: func(_ context.Context, _ uuid.UUID) (*Vehicle, error) {
 			return nil, nil
 		},
-	}, &mockAnchorer{})
+	}, &mockPublisher{})
 
 	err := svc.AssignOwnership(context.Background(), uuid.New(), uuid.New())
 	assert.NoError(t, err)
@@ -262,14 +260,14 @@ func TestService_AssignOwnership_GetError(t *testing.T) {
 		getByIDFunc: func(_ context.Context, _ uuid.UUID) (*Vehicle, error) {
 			return nil, errors.New("db error")
 		},
-	}, &mockAnchorer{})
+	}, &mockPublisher{})
 
 	err := svc.AssignOwnership(context.Background(), uuid.New(), uuid.New())
 	assert.Error(t, err)
 }
 
 func TestService_GetAll(t *testing.T) {
-	svc := NewService(&mockRepo{}, &mockAnchorer{})
+	svc := NewService(&mockRepo{}, &mockPublisher{})
 
 	result, total, err := svc.GetAll(context.Background(), 10, 0, nil)
 	require.NoError(t, err)
@@ -278,7 +276,7 @@ func TestService_GetAll(t *testing.T) {
 }
 
 func TestService_GetAllWithStats(t *testing.T) {
-	svc := NewService(&mockRepo{}, &mockAnchorer{})
+	svc := NewService(&mockRepo{}, &mockPublisher{})
 
 	result, total, err := svc.GetAllWithStats(context.Background(), 10, 0, nil)
 	require.NoError(t, err)
@@ -294,7 +292,7 @@ func TestService_GetByID(t *testing.T) {
 		getByIDFunc: func(_ context.Context, _ uuid.UUID) (*Vehicle, error) {
 			return expected, nil
 		},
-	}, &mockAnchorer{})
+	}, &mockPublisher{})
 
 	result, err := svc.GetByID(context.Background(), vehicleID)
 	require.NoError(t, err)
@@ -302,7 +300,7 @@ func TestService_GetByID(t *testing.T) {
 }
 
 func TestService_GetByOwnerID(t *testing.T) {
-	svc := NewService(&mockRepo{}, &mockAnchorer{})
+	svc := NewService(&mockRepo{}, &mockPublisher{})
 
 	result, total, err := svc.GetByOwnerID(context.Background(), uuid.New(), 10, 0)
 	require.NoError(t, err)
@@ -311,7 +309,7 @@ func TestService_GetByOwnerID(t *testing.T) {
 }
 
 func TestService_Delete(t *testing.T) {
-	svc := NewService(&mockRepo{}, &mockAnchorer{})
+	svc := NewService(&mockRepo{}, &mockPublisher{})
 
 	err := svc.Delete(context.Background(), uuid.New())
 	assert.NoError(t, err)
@@ -335,7 +333,7 @@ func TestService_Update_AllFields(t *testing.T) {
 			updated = v
 			return nil
 		},
-	}, &mockAnchorer{})
+	}, &mockPublisher{})
 
 	result, err := svc.Update(context.Background(), original.ID, UpdateVehicleParams{
 		LicensePlate:       ptr("AA-00-BB"),
@@ -385,7 +383,7 @@ func TestService_Update_RepoError(t *testing.T) {
 		updateFunc: func(_ context.Context, _ *Vehicle) error {
 			return errors.New("db error")
 		},
-	}, &mockAnchorer{})
+	}, &mockPublisher{})
 
 	_, err := svc.Update(context.Background(), uuid.New(), UpdateVehicleParams{Make: ptr("X")})
 	assert.Error(t, err)
@@ -396,7 +394,7 @@ func TestService_Create_RepoError(t *testing.T) {
 		createFunc: func(_ context.Context, _ *Vehicle) (*Vehicle, error) {
 			return nil, errors.New("db error")
 		},
-	}, &mockAnchorer{})
+	}, &mockPublisher{})
 
 	_, err := svc.Create(context.Background(), CreateVehicleParams{Make: "X", Model: "Y"})
 	assert.Error(t, err)
@@ -407,7 +405,7 @@ func TestService_FindOrCreateVehicle_ChassisRepoError(t *testing.T) {
 		getByChassisNumberFunc: func(_ context.Context, _ string) (*Vehicle, error) {
 			return nil, errors.New("db error")
 		},
-	}, &mockAnchorer{})
+	}, &mockPublisher{})
 
 	chassis := "WBA123"
 	_, err := svc.FindOrCreateVehicle(context.Background(), &chassis, nil)
@@ -419,7 +417,7 @@ func TestService_FindOrCreateVehicle_PlateRepoError(t *testing.T) {
 		getByLicensePlateFunc: func(_ context.Context, _ string) (*Vehicle, error) {
 			return nil, errors.New("db error")
 		},
-	}, &mockAnchorer{})
+	}, &mockPublisher{})
 
 	plate := "AA-00-BB"
 	_, err := svc.FindOrCreateVehicle(context.Background(), nil, &plate)
@@ -431,14 +429,14 @@ func TestService_FindOrCreateVehicle_CreateError(t *testing.T) {
 		createFunc: func(_ context.Context, _ *Vehicle) (*Vehicle, error) {
 			return nil, errors.New("create error")
 		},
-	}, &mockAnchorer{})
+	}, &mockPublisher{})
 
 	_, err := svc.FindOrCreateVehicle(context.Background(), nil, nil)
 	assert.Error(t, err)
 }
 
 func TestService_FindOrCreateVehicle_EmptyStrings(t *testing.T) {
-	svc := NewService(&mockRepo{}, &mockAnchorer{})
+	svc := NewService(&mockRepo{}, &mockPublisher{})
 
 	empty := ""
 	result, err := svc.FindOrCreateVehicle(context.Background(), &empty, &empty)

@@ -96,6 +96,18 @@ services:
     networks:
       - intranet
 
+  nats:
+    image: nats:2-alpine
+    container_name: cc-nats
+    command: ["--jetstream", "--store_dir=/data"]
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    volumes:
+      - nats_data:/data
+    networks:
+      - intranet
+
   garage:
     image: dxflrs/garage:v2.1.0
     container_name: cc-garage
@@ -147,11 +159,26 @@ services:
     networks:
       - intranet
 
+  # Anchor worker (optional — typically run via `go run ./cmd/worker/main.go`)
+  # worker:
+  #   build:
+  #     context: ../../backend
+  #     dockerfile: Dockerfile
+  #   container_name: cc-worker
+  #   entrypoint: ["/home/appuser/worker"]
+  #   env_file: ../../backend/.envrc
+  #   depends_on:
+  #     - postgres
+  #     - nats
+  #   networks:
+  #     - intranet
+
 volumes:
   app_postgres_data:
   ipfs_data:
   garage_data:
   garage_meta:
+  nats_data:
 
 networks:
   intranet:

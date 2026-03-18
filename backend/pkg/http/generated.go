@@ -59,6 +59,14 @@ const (
 	Partner   EntityType = "partner"
 )
 
+// Defines values for EventBlockchainStatus.
+const (
+	EventBlockchainStatusAnchored EventBlockchainStatus = "anchored"
+	EventBlockchainStatusFailed   EventBlockchainStatus = "failed"
+	EventBlockchainStatusNone     EventBlockchainStatus = "none"
+	EventBlockchainStatusPending  EventBlockchainStatus = "pending"
+)
+
 // Defines values for EventType.
 const (
 	Auction           EventType = "auction"
@@ -94,6 +102,14 @@ const (
 const (
 	UserEntityMembershipRoleAdmin  UserEntityMembershipRole = "admin"
 	UserEntityMembershipRoleMember UserEntityMembershipRole = "member"
+)
+
+// Defines values for VehicleBlockchainStatus.
+const (
+	VehicleBlockchainStatusAnchored VehicleBlockchainStatus = "anchored"
+	VehicleBlockchainStatusFailed   VehicleBlockchainStatus = "failed"
+	VehicleBlockchainStatusNone     VehicleBlockchainStatus = "none"
+	VehicleBlockchainStatusPending  VehicleBlockchainStatus = "pending"
 )
 
 // AddEntityMemberRequest defines model for AddEntityMemberRequest.
@@ -454,6 +470,9 @@ type ErrorResponse struct {
 
 // Event defines model for Event.
 type Event struct {
+	// BlockchainStatus Status of blockchain anchoring
+	BlockchainStatus *EventBlockchainStatus `json:"blockchainStatus,omitempty"`
+
 	// BlockchainTxId Algorand transaction ID
 	BlockchainTxId *string `json:"blockchainTxId,omitempty"`
 
@@ -487,6 +506,9 @@ type Event struct {
 	Type      EventType               `json:"type"`
 	VehicleId openapi_types.UUID      `json:"vehicleId"`
 }
+
+// EventBlockchainStatus Status of blockchain anchoring
+type EventBlockchainStatus string
 
 // EventImage defines model for EventImage.
 type EventImage struct {
@@ -852,6 +874,9 @@ type Vehicle struct {
 	// BlockchainAssetId Algorand blockchain address for this vehicle
 	BlockchainAssetId *string `json:"blockchainAssetId,omitempty"`
 
+	// BlockchainStatus Status of blockchain anchoring
+	BlockchainStatus *VehicleBlockchainStatus `json:"blockchainStatus,omitempty"`
+
 	// BodyType Body style (e.g., Sedan, Coupe, Convertible, Wagon)
 	BodyType *string `json:"bodyType,omitempty"`
 
@@ -912,6 +937,9 @@ type Vehicle struct {
 	TransmissionNumber *string `json:"transmissionNumber,omitempty"`
 	Year               int     `json:"year"`
 }
+
+// VehicleBlockchainStatus Status of blockchain anchoring
+type VehicleBlockchainStatus string
 
 // VehicleInvitationResponse defines model for VehicleInvitationResponse.
 type VehicleInvitationResponse struct {

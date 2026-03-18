@@ -1,4 +1,4 @@
-package anchorer
+package cid
 
 import (
 	"bytes"
@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/ipfs/go-cid"
+	ipfscid "github.com/ipfs/go-cid"
 	"github.com/ipld/go-ipld-prime/codec/dagcbor"
 	"github.com/ipld/go-ipld-prime/datamodel"
 	"github.com/ipld/go-ipld-prime/node/basicnode"
@@ -27,20 +27,17 @@ type CID struct {
 func GenerateCID(data interface{}) (*CID, error) {
 	result := &CID{}
 
-	// 1. Convert Go struct → IPLD node
 	node, err := goDataToIPLDNode(data)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert to IPLD node: %w", err)
 	}
 
-	// 2. Encode as DAG-CBOR (for CID generation)
 	var cborBuf bytes.Buffer
 	if err := dagcbor.Encode(node, &cborBuf); err != nil {
 		return nil, fmt.Errorf("failed to encode as DAG-CBOR: %w", err)
 	}
 	result.SourceCBOR = base64.StdEncoding.EncodeToString(cborBuf.Bytes())
 
-	// 3. Derive JSON from CBOR bytes so key order matches what CBOR decoders produce
 	cborNode, err := ipldDecode(cborBuf.Bytes())
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode DAG-CBOR for JSON derivation: %w", err)
@@ -51,17 +48,40 @@ func GenerateCID(data interface{}) (*CID, error) {
 	}
 	result.SourceJSON = string(jsonBytes)
 
-	// 4. (Multi)Hash CBOR and create CID
 	hash, err := mh.Sum(cborBuf.Bytes(), mh.SHA2_256, -1)
 	if err != nil {
 		return nil, fmt.Errorf("failed to hash: %w", err)
 	}
-	result.CID = cid.NewCidV1(cid.DagCBOR, hash).String()
+	result.CID = ipfscid.NewCidV1(ipfscid.DagCBOR, hash).String()
 
 	return result, nil
 }
 
-// goDataToIPLDNode converts Go data structures to IPLD datamodel.Node
+// GenerateFileCID generates a CIDv1 for raw file content using SHA-256.
+// This is used for binary files (images, documents) where the content is hashed directly.
+func GenerateFileCID(content []byte) (string, error) {
+	hash, err := mh.Sum(content, mh.SHA2_256, -1)
+	if err != nil {
+		return "", fmt.Errorf("failed to hash file content: %w", err)
+	}
+	return ipfscid.NewCidV1(ipfscid.Raw, hash).String(), nil
+}
+
+// CIDGenerator provides methods to generate CIDs for structured data and file content
+type CIDGenerator struct{}
+
+func (g *CIDGenerator) GenerateCID(data interface{}) (*CID, error) {
+	return GenerateCID(data)
+}
+
+func (g *CIDGenerator) GenerateFileCID(content []byte) (string, error) {
+	return GenerateFileCID(content)
+}
+
+func NewCIDGenerator() *CIDGenerator {
+	return &CIDGenerator{}
+}
+
 func goDataToIPLDNode(data interface{}) (datamodel.Node, error) {
 	jsonBytes, err := json.Marshal(data)
 	if err != nil {
@@ -76,30 +96,6 @@ func goDataToIPLDNode(data interface{}) (datamodel.Node, error) {
 	return convertToIPLDNode(intermediate)
 }
 
-// GenerateFileCID generates a CIDv1 for raw file content using SHA-256.
-// This is used for binary files (images, documents) where the content is hashed directly.
-func GenerateFileCID(content []byte) (string, error) {
-	hash, err := mh.Sum(content, mh.SHA2_256, -1)
-	if err != nil {
-		return "", fmt.Errorf("failed to hash file content: %w", err)
-	}
-	return cid.NewCidV1(cid.Raw, hash).String(), nil
-}
-
-// CIDGenerator provides a method to generate CIDs for file content
-type CIDGenerator struct{}
-
-// GenerateFileCID implements the CIDGenerator interface for event_images.Service
-func (g *CIDGenerator) GenerateFileCID(content []byte) (string, error) {
-	return GenerateFileCID(content)
-}
-
-// NewCIDGenerator creates a new CIDGenerator instance
-func NewCIDGenerator() *CIDGenerator {
-	return &CIDGenerator{}
-}
-
-// ipldDecode decodes DAG-CBOR bytes into an IPLD node.
 func ipldDecode(data []byte) (datamodel.Node, error) {
 	builder := basicnode.Prototype.Any.NewBuilder()
 	if err := dagcbor.Decode(builder, bytes.NewReader(data)); err != nil {
@@ -108,7 +104,6 @@ func ipldDecode(data []byte) (datamodel.Node, error) {
 	return builder.Build(), nil
 }
 
-// ipldNodeToJSON serializes an IPLD node to JSON, preserving the node's key iteration order.
 func ipldNodeToJSON(node datamodel.Node) ([]byte, error) {
 	var buf bytes.Buffer
 	if err := writeIPLDJSON(&buf, node); err != nil {
@@ -184,7 +179,6 @@ func writeIPLDJSON(buf *bytes.Buffer, node datamodel.Node) error {
 	return nil
 }
 
-// convertToIPLDNode recursively converts Go types to IPLD nodes
 func convertToIPLDNode(v interface{}) (datamodel.Node, error) {
 	switch val := v.(type) {
 	case nil:

@@ -67,6 +67,7 @@ SET license_plate = $2, chassis_number = $3, make = $4, model = $5,
     body_type = $10, drive_type = $11, gear_type = $12, suspension_type = $13,
     fuel = $14, engine_cc = $15, engine_cylinders = $16, engine_power_hp = $17,
     owner_id = $18, blockchain_asset_id = $19, cid = $20, cid_source_json = $21, cid_source_cbor_b64 = $22,
+    blockchain_status = $23,
     updated_at = NOW()
 WHERE id = $1
 RETURNING *;

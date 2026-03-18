@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/ClassicCarsRestore/ClassicsChain/internal/vehicles"
+	cidpkg "github.com/ClassicCarsRestore/ClassicsChain/pkg/cid"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -44,15 +45,24 @@ func (m *mockRepo) Update(ctx context.Context, event Event) error {
 }
 func (m *mockRepo) Delete(ctx context.Context, id uuid.UUID) error { return nil }
 
-type mockAnchorer struct {
-	anchorEventFunc func(ctx context.Context, vehicle vehicles.Vehicle, event Event, imageCIDs []string) error
+type mockPublisher struct {
+	publishFunc func(ctx context.Context, subject string, data []byte) error
+	published   [][]byte
 }
 
-func (m *mockAnchorer) AnchorEvent(ctx context.Context, vehicle vehicles.Vehicle, event Event, imageCIDs []string) error {
-	if m.anchorEventFunc != nil {
-		return m.anchorEventFunc(ctx, vehicle, event, imageCIDs)
+func (m *mockPublisher) Publish(ctx context.Context, subject string, data []byte) error {
+	m.published = append(m.published, data)
+	if m.publishFunc != nil {
+		return m.publishFunc(ctx, subject, data)
 	}
 	return nil
+}
+func (m *mockPublisher) Close() error { return nil }
+
+type mockCIDGen struct{}
+
+func (m *mockCIDGen) GenerateCID(data interface{}) (*cidpkg.CID, error) {
+	return &cidpkg.CID{CID: "mock-cid", SourceJSON: "{}", SourceCBOR: "AA=="}, nil
 }
 
 type mockImageService struct {
@@ -88,7 +98,7 @@ func TestService_Create_WithoutImages(t *testing.T) {
 			return &Event{ID: id, Title: "Car Show", Type: TypeCarShow}, nil
 		},
 	}
-	svc := NewService(repo, &mockAnchorer{})
+	svc := NewService(repo, &mockPublisher{}, &mockCIDGen{})
 
 	vehicle := vehicles.Vehicle{ID: uuid.New(), Make: "Porsche", Model: "911"}
 	result, err := svc.Create(context.Background(), vehicle, CreateEventParams{
@@ -115,7 +125,7 @@ func TestService_Create_DateDefaultsToNow(t *testing.T) {
 			return &createdEvent, nil
 		},
 	}
-	svc := NewService(repo, &mockAnchorer{})
+	svc := NewService(repo, &mockPublisher{}, &mockCIDGen{})
 
 	_, err := svc.Create(context.Background(), vehicles.Vehicle{}, CreateEventParams{
 		Title: "Test",
@@ -141,7 +151,7 @@ func TestService_Create_WithExplicitDate(t *testing.T) {
 			return &createdEvent, nil
 		},
 	}
-	svc := NewService(repo, &mockAnchorer{})
+	svc := NewService(repo, &mockPublisher{}, &mockCIDGen{})
 
 	_, err := svc.Create(context.Background(), vehicles.Vehicle{}, CreateEventParams{
 		Title: "Test",
@@ -154,9 +164,8 @@ func TestService_Create_WithExplicitDate(t *testing.T) {
 }
 
 func TestService_Create_WithImagesAndAnchoring(t *testing.T) {
-	anchorerCalled := false
 	attachCalled := false
-	var anchoredCIDs []string
+	pub := &mockPublisher{}
 
 	repo := &mockRepo{
 		createFunc: func(_ context.Context, e Event) (*Event, error) {
@@ -165,13 +174,6 @@ func TestService_Create_WithImagesAndAnchoring(t *testing.T) {
 		},
 		getByIDFunc: func(_ context.Context, id uuid.UUID) (*Event, error) {
 			return &Event{ID: id}, nil
-		},
-	}
-	anchorer := &mockAnchorer{
-		anchorEventFunc: func(_ context.Context, _ vehicles.Vehicle, _ Event, cids []string) error {
-			anchorerCalled = true
-			anchoredCIDs = cids
-			return nil
 		},
 	}
 	imgSvc := &mockImageService{
@@ -184,11 +186,11 @@ func TestService_Create_WithImagesAndAnchoring(t *testing.T) {
 		},
 	}
 
-	svc := NewService(repo, anchorer)
+	svc := NewService(repo, pub, &mockCIDGen{})
 	svc.SetEventImageService(imgSvc)
 
 	sessionID := uuid.New()
-	_, err := svc.Create(context.Background(), vehicles.Vehicle{}, CreateEventParams{
+	result, err := svc.Create(context.Background(), vehicles.Vehicle{}, CreateEventParams{
 		Title:          "With Images",
 		Type:           TypeCertification,
 		ShouldAnchor:   true,
@@ -196,13 +198,13 @@ func TestService_Create_WithImagesAndAnchoring(t *testing.T) {
 	})
 
 	require.NoError(t, err)
-	assert.True(t, anchorerCalled)
 	assert.True(t, attachCalled)
-	assert.Equal(t, []string{"cid1", "cid2"}, anchoredCIDs)
+	assert.Len(t, pub.published, 1)
+	assert.NotNil(t, result)
 }
 
 func TestService_Create_ImageValidationError(t *testing.T) {
-	svc := NewService(&mockRepo{}, &mockAnchorer{})
+	svc := NewService(&mockRepo{}, &mockPublisher{}, &mockCIDGen{})
 	svc.SetEventImageService(&mockImageService{
 		validateFunc: func(_ context.Context, _ uuid.UUID) ([]string, error) {
 			return nil, errors.New("unconfirmed images")
@@ -233,7 +235,7 @@ func TestService_Update_PartialFields(t *testing.T) {
 			return &copy, nil
 		},
 	}
-	svc := NewService(repo, &mockAnchorer{})
+	svc := NewService(repo, &mockPublisher{}, &mockCIDGen{})
 
 	newDate := time.Date(2025, 6, 15, 0, 0, 0, 0, time.UTC)
 	result, err := svc.Update(context.Background(), original.ID, UpdateEventParams{
@@ -248,7 +250,7 @@ func TestService_Update_PartialFields(t *testing.T) {
 }
 
 func TestService_Update_NotFound(t *testing.T) {
-	svc := NewService(&mockRepo{}, &mockAnchorer{})
+	svc := NewService(&mockRepo{}, &mockPublisher{}, &mockCIDGen{})
 
 	_, err := svc.Update(context.Background(), uuid.New(), UpdateEventParams{})
 	assert.ErrorIs(t, err, ErrEventNotFound)
@@ -271,7 +273,7 @@ func TestService_Update_AllFields(t *testing.T) {
 			return nil
 		},
 	}
-	svc := NewService(repo, &mockAnchorer{})
+	svc := NewService(repo, &mockPublisher{}, &mockCIDGen{})
 
 	meta := map[string]interface{}{"key": "value"}
 	newDate := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
@@ -300,7 +302,7 @@ func TestService_Update_RepoError(t *testing.T) {
 			return errors.New("db error")
 		},
 	}
-	svc := NewService(repo, &mockAnchorer{})
+	svc := NewService(repo, &mockPublisher{}, &mockCIDGen{})
 
 	_, err := svc.Update(context.Background(), uuid.New(), UpdateEventParams{Title: ptr("X")})
 	assert.Error(t, err)
@@ -312,7 +314,7 @@ func TestService_GetByVehicle(t *testing.T) {
 
 	repo := &mockRepo{}
 	// Override the default by using a full mock repo with GetByVehicle
-	svc := NewService(&getByVehicleRepo{events: expected, total: 1}, &mockAnchorer{})
+	svc := NewService(&getByVehicleRepo{events: expected, total: 1}, &mockPublisher{}, &mockCIDGen{})
 
 	result, total, err := svc.GetByVehicle(context.Background(), vehicleID, 10, 0)
 	require.NoError(t, err)
@@ -331,7 +333,7 @@ func TestService_GetByID(t *testing.T) {
 			return expected, nil
 		},
 	}
-	svc := NewService(repo, &mockAnchorer{})
+	svc := NewService(repo, &mockPublisher{}, &mockCIDGen{})
 
 	result, err := svc.GetByID(context.Background(), eventID)
 	require.NoError(t, err)
@@ -346,7 +348,7 @@ func TestService_Delete(t *testing.T) {
 			return nil
 		},
 	}
-	svc := NewService(repo, &mockAnchorer{})
+	svc := NewService(repo, &mockPublisher{}, &mockCIDGen{})
 
 	eventID := uuid.New()
 	err := svc.Delete(context.Background(), eventID)
@@ -360,7 +362,7 @@ func TestService_Create_RepoError(t *testing.T) {
 			return nil, errors.New("db error")
 		},
 	}
-	svc := NewService(repo, &mockAnchorer{})
+	svc := NewService(repo, &mockPublisher{}, &mockCIDGen{})
 
 	_, err := svc.Create(context.Background(), vehicles.Vehicle{}, CreateEventParams{
 		Title: "Test", Type: TypeMaintenance,
@@ -368,7 +370,7 @@ func TestService_Create_RepoError(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestService_Create_AnchoringError(t *testing.T) {
+func TestService_Create_PublishError(t *testing.T) {
 	repo := &mockRepo{
 		createFunc: func(_ context.Context, e Event) (*Event, error) {
 			e.ID = uuid.New()
@@ -378,18 +380,18 @@ func TestService_Create_AnchoringError(t *testing.T) {
 			return &Event{ID: id}, nil
 		},
 	}
-	anchorer := &mockAnchorer{
-		anchorEventFunc: func(_ context.Context, _ vehicles.Vehicle, _ Event, _ []string) error {
-			return errors.New("blockchain error")
+	pub := &mockPublisher{
+		publishFunc: func(_ context.Context, _ string, _ []byte) error {
+			return errors.New("nats error")
 		},
 	}
-	svc := NewService(repo, anchorer)
+	svc := NewService(repo, pub, &mockCIDGen{})
 
 	_, err := svc.Create(context.Background(), vehicles.Vehicle{}, CreateEventParams{
 		Title: "Test", Type: TypeCertification, ShouldAnchor: true,
 	})
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "blockchain error")
+	assert.Contains(t, err.Error(), "nats error")
 }
 
 func TestService_Create_AttachError(t *testing.T) {
@@ -408,7 +410,7 @@ func TestService_Create_AttachError(t *testing.T) {
 		},
 	}
 
-	svc := NewService(repo, &mockAnchorer{})
+	svc := NewService(repo, &mockPublisher{}, &mockCIDGen{})
 	svc.SetEventImageService(imgSvc)
 
 	sessionID := uuid.New()
