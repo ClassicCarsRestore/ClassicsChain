@@ -1,8 +1,8 @@
 import http from "k6/http";
 import { check, sleep } from "k6";
 import { Trend } from "k6/metrics";
-import { BASE_URL } from "../../lib/config.js";
-import { setupAdminSession, setupOAuth2Token } from "../../lib/auth.js";
+import { BASE_URL, VERIFY_ANCHORING } from "../../lib/config.js";
+import { setupAuth } from "../../lib/auth.js";
 import {
   createCertifierVehicle,
   generateEventPayload,
@@ -28,21 +28,20 @@ export const options = {
 };
 
 export function setup() {
-  const adminAuth = setupAdminSession();
-  const oauth2 = setupOAuth2Token(adminAuth, "Benchmark Workshop");
+  const auth = setupAuth("Benchmark Workshop");
 
   const vehicles = [];
   for (let i = 0; i < 5; i++) {
-    vehicles.push(createCertifierVehicle(oauth2));
+    vehicles.push(createCertifierVehicle(auth));
   }
 
   // Create a small batch of tracked events for post-test anchoring verification
   const trackedEvents = [];
   for (let i = 0; i < 5; i++) {
     const vid = vehicles[i % vehicles.length].id;
-    const payload = generateEventPayload(vid, oauth2.entityId);
+    const payload = generateEventPayload(vid, auth.entityId);
     const res = http.post(`${BASE_URL}/v1/events`, JSON.stringify(payload), {
-      headers: oauth2.headers,
+      headers: auth.headers,
     });
     if (res.status === 201) {
       const evt = res.json();
@@ -54,7 +53,7 @@ export function setup() {
   }
 
   return {
-    oauth2,
+    auth,
     vehicleIds: vehicles.map((v) => v.id),
     trackedEvents,
   };
@@ -63,9 +62,9 @@ export function setup() {
 export default function (data) {
   const vid =
     data.vehicleIds[Math.floor(Math.random() * data.vehicleIds.length)];
-  const payload = generateEventPayload(vid, data.oauth2.entityId);
+  const payload = generateEventPayload(vid, data.auth.entityId);
   const res = http.post(`${BASE_URL}/v1/events`, JSON.stringify(payload), {
-    headers: data.oauth2.headers,
+    headers: data.auth.headers,
   });
   check(res, {
     "status 201": (r) => r.status === 201,
@@ -77,6 +76,9 @@ export default function (data) {
 }
 
 export function teardown(data) {
+  if (!VERIFY_ANCHORING) {
+    return;
+  }
   if (!data.trackedEvents || data.trackedEvents.length === 0) {
     console.warn("No tracked events to verify anchoring");
     return;
@@ -92,7 +94,7 @@ export function teardown(data) {
     allAnchored = true;
     for (const evt of data.trackedEvents) {
       const res = http.get(`${BASE_URL}/v1/events/${evt.id}`, {
-        headers: data.oauth2.headers,
+        headers: data.auth.headers,
       });
       if (res.status === 200) {
         const body = res.json();
@@ -120,7 +122,7 @@ export function teardown(data) {
   let pending = 0;
   for (const evt of data.trackedEvents) {
     const res = http.get(`${BASE_URL}/v1/events/${evt.id}`, {
-      headers: data.oauth2.headers,
+      headers: data.auth.headers,
     });
     if (res.status === 200) {
       const status = res.json().blockchainStatus;

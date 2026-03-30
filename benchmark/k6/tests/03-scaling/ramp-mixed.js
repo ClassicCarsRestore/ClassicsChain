@@ -1,7 +1,7 @@
 import http from "k6/http";
 import { check } from "k6";
 import { BASE_URL } from "../../lib/config.js";
-import { setupAdminSession, setupOAuth2Token } from "../../lib/auth.js";
+import { setupAuth } from "../../lib/auth.js";
 import {
   seedTestData,
   generateVehiclePayload,
@@ -27,12 +27,10 @@ export const options = {
 };
 
 export function setup() {
-  const adminAuth = setupAdminSession();
-  const oauth2 = setupOAuth2Token(adminAuth, "Seed Entity");
-  const vehicles = seedTestData(oauth2, 100, 3);
+  const auth = setupAuth("Seed Entity");
+  const vehicles = seedTestData(auth, 100, 3);
   return {
-    adminAuth,
-    oauth2,
+    auth,
     vehicleIds: vehicles.map((v) => v.id),
   };
 }
@@ -46,7 +44,7 @@ export default function (data) {
     const page = Math.floor(Math.random() * 5) + 1;
     const res = http.get(
       `${BASE_URL}/v1/vehicles?limit=20&page=${page}`,
-      { headers: data.adminAuth.headers }
+      { headers: data.auth.headers }
     );
     check(res, { "list 200": (r) => r.status === 200 });
   } else if (op < 0.6) {
@@ -54,7 +52,7 @@ export default function (data) {
     const vid =
       data.vehicleIds[Math.floor(Math.random() * data.vehicleIds.length)];
     const res = http.get(`${BASE_URL}/v1/vehicles/${vid}`, {
-      headers: data.adminAuth.headers,
+      headers: data.auth.headers,
     });
     check(res, { "get 200": (r) => r.status === 200 });
   } else if (op < 0.8) {
@@ -71,18 +69,18 @@ export default function (data) {
     const res = http.post(
       `${BASE_URL}/v1/certifiers/vehicles`,
       JSON.stringify(payload),
-      { headers: data.oauth2.headers }
+      { headers: data.auth.headers }
     );
     check(res, { "create vehicle 201": (r) => r.status === 201 });
   } else {
     // Write: create certified event
     const vid =
       data.vehicleIds[Math.floor(Math.random() * data.vehicleIds.length)];
-    const payload = generateEventPayload(vid, data.oauth2.entityId);
+    const payload = generateEventPayload(vid, data.auth.entityId);
     const res = http.post(
       `${BASE_URL}/v1/events`,
       JSON.stringify(payload),
-      { headers: data.oauth2.headers }
+      { headers: data.auth.headers }
     );
     check(res, { "create event 201": (r) => r.status === 201 });
   }

@@ -7,7 +7,6 @@ import {
   BASE_URL,
   ADMIN_EMAIL,
   ADMIN_PASSWORD,
-  SESSION_TOKEN,
   OAUTH2_TOKEN,
   ENTITY_ID,
 } from "./config.js";
@@ -39,27 +38,10 @@ function kratosLogin(email, password) {
   return loginRes.json().session_token;
 }
 
-function authHeaders(token) {
-  return {
-    "Content-Type": "application/json",
-    "X-Session-Token": token,
-  };
-}
-
-export function setupAdminSession() {
-  if (SESSION_TOKEN) {
-    console.log("[auth] using pre-configured SESSION_TOKEN");
-    return { headers: authHeaders(SESSION_TOKEN) };
-  }
-
-  const token = kratosLogin(ADMIN_EMAIL, ADMIN_PASSWORD);
-  if (!token) {
-    console.error("[auth] setupAdminSession FAILED: no token");
-  }
-  return { headers: authHeaders(token) };
-}
-
-export function setupOAuth2Token(adminAuth, entityName) {
+// setupAuth returns an OAuth2 auth object with { entityId, headers }.
+// If OAUTH2_TOKEN + ENTITY_ID env vars are set, uses those directly.
+// Otherwise, logs in via Kratos, creates an entity + OAuth2 client, and returns the token.
+export function setupAuth(entityName) {
   if (OAUTH2_TOKEN && ENTITY_ID) {
     console.log("[auth] using pre-configured OAUTH2_TOKEN + ENTITY_ID");
     return {
@@ -72,6 +54,16 @@ export function setupOAuth2Token(adminAuth, entityName) {
     };
   }
 
+  // Login via Kratos to bootstrap entity + OAuth2 client
+  const sessionToken = kratosLogin(ADMIN_EMAIL, ADMIN_PASSWORD);
+  if (!sessionToken) {
+    console.error("[auth] setupAuth FAILED: Kratos login returned no token");
+  }
+  const adminHeaders = {
+    "Content-Type": "application/json",
+    "X-Session-Token": sessionToken,
+  };
+
   const entityRes = http.post(
     `${BASE_URL}/v1/entities`,
     JSON.stringify({
@@ -79,7 +71,7 @@ export function setupOAuth2Token(adminAuth, entityName) {
       type: "certifier",
       contactEmail: "benchmark@classicschain.com",
     }),
-    { headers: adminAuth.headers }
+    { headers: adminHeaders }
   );
   if (entityRes.status !== 201) {
     console.error(`[auth] entity creation FAILED: status=${entityRes.status} body=${entityRes.body}`);
@@ -98,7 +90,7 @@ export function setupOAuth2Token(adminAuth, entityName) {
         "events:write",
       ],
     }),
-    { headers: adminAuth.headers }
+    { headers: adminHeaders }
   );
   if (clientRes.status !== 201) {
     console.error(`[auth] oauth2 client FAILED: status=${clientRes.status} body=${clientRes.body}`);

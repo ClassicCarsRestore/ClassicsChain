@@ -1,7 +1,7 @@
 import http from "k6/http";
 import { check } from "k6";
 import { BASE_URL } from "../../lib/config.js";
-import { setupAdminSession, setupOAuth2Token } from "../../lib/auth.js";
+import { setupAuth } from "../../lib/auth.js";
 import { seedTestData } from "../../lib/helpers.js";
 
 export const options = {
@@ -24,11 +24,10 @@ export const options = {
 };
 
 export function setup() {
-  const adminAuth = setupAdminSession();
-  const oauth2 = setupOAuth2Token(adminAuth, "Seed Entity");
-  const vehicles = seedTestData(oauth2, 100, 2);
+  const auth = setupAuth("Seed Entity");
+  const vehicles = seedTestData(auth, 100, 2);
   return {
-    adminAuth,
+    auth,
     vehicleIds: vehicles.map((v) => v.id),
   };
 }
@@ -39,7 +38,7 @@ export default function (data) {
   if (op < 0.5) {
     // List vehicles
     const res = http.get(`${BASE_URL}/v1/vehicles?limit=20`, {
-      headers: data.adminAuth.headers,
+      headers: data.auth.headers,
     });
     check(res, { "200": (r) => r.status === 200 });
   } else if (op < 0.8) {
@@ -47,7 +46,7 @@ export default function (data) {
     const vid =
       data.vehicleIds[Math.floor(Math.random() * data.vehicleIds.length)];
     const res = http.get(`${BASE_URL}/v1/vehicles/${vid}`, {
-      headers: data.adminAuth.headers,
+      headers: data.auth.headers,
     });
     check(res, { "200": (r) => r.status === 200 });
   } else {

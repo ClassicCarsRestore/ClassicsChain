@@ -1,7 +1,7 @@
 import http from "k6/http";
 import { check } from "k6";
 import { BASE_URL } from "../../lib/config.js";
-import { setupAdminSession, setupOAuth2Token } from "../../lib/auth.js";
+import { setupAuth } from "../../lib/auth.js";
 import { seedTestData } from "../../lib/helpers.js";
 
 export const options = {
@@ -22,15 +22,14 @@ export const options = {
 };
 
 export function setup() {
-  const adminAuth = setupAdminSession();
-  const oauth2 = setupOAuth2Token(adminAuth, "Seed Entity");
-  const vehicles = seedTestData(oauth2, 50, 0);
-  return { adminAuth, vehicleIds: vehicles.map((v) => v.id) };
+  const auth = setupAuth("Seed Entity");
+  const vehicles = seedTestData(auth, 50, 0);
+  return { auth, vehicleIds: vehicles.map((v) => v.id) };
 }
 
 export default function (data) {
   const res = http.get(`${BASE_URL}/v1/vehicles?limit=20&page=1`, {
-    headers: data.adminAuth.headers,
+    headers: data.auth.headers,
   });
   check(res, {
     "status 200": (r) => r.status === 200,

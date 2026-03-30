@@ -1,7 +1,7 @@
 import http from "k6/http";
 import { check } from "k6";
 import { BASE_URL } from "../../lib/config.js";
-import { setupAdminSession, setupOAuth2Token } from "../../lib/auth.js";
+import { setupAuth } from "../../lib/auth.js";
 import { generateVehiclePayload } from "../../lib/helpers.js";
 
 export const options = {
@@ -22,9 +22,8 @@ export const options = {
 };
 
 export function setup() {
-  const adminAuth = setupAdminSession();
-  const oauth2 = setupOAuth2Token(adminAuth, "Write Vehicle Test");
-  return { oauth2 };
+  const auth = setupAuth("Write Vehicle Test");
+  return { auth };
 }
 
 export default function (data) {
@@ -32,7 +31,7 @@ export default function (data) {
   const res = http.post(
     `${BASE_URL}/v1/certifiers/vehicles`,
     JSON.stringify(payload),
-    { headers: data.oauth2.headers }
+    { headers: data.auth.headers }
   );
   check(res, {
     "status 201": (r) => r.status === 201,

@@ -70,8 +70,21 @@ def extract_http_metrics(summary):
 # ── Table Generation ───────────────────────────────────────────
 
 
+def aggregate_metrics(summaries, prefix):
+    """Aggregate metrics across multiple runs matching a prefix, returning medians."""
+    matching = [s for name, s in summaries.items() if name.startswith(prefix)]
+    if not matching:
+        return None
+    if len(matching) == 1:
+        return extract_http_metrics(matching[0])
+
+    all_metrics = [extract_http_metrics(s) for s in matching]
+    keys = all_metrics[0].keys()
+    return {k: float(np.median([m[k] for m in all_metrics])) for k in keys}
+
+
 def generate_baseline_table(summaries, output_dir):
-    """Table 1: Baseline latency per endpoint."""
+    """Table 1: Baseline latency per endpoint (median across runs)."""
     rows = []
     endpoint_map = {
         "baseline_read_vehicles": ("GET /vehicles", "session"),
@@ -80,10 +93,9 @@ def generate_baseline_table(summaries, output_dir):
     }
 
     for key, (endpoint, auth) in endpoint_map.items():
-        matching = [s for name, s in summaries.items() if name.startswith(key)]
-        if not matching:
+        m = aggregate_metrics(summaries, key)
+        if m is None:
             continue
-        m = extract_http_metrics(matching[0])
         rows.append(
             [
                 endpoint,
@@ -106,7 +118,7 @@ def generate_baseline_table(summaries, output_dir):
 
 
 def chart_latency_boxplot(summaries, output_dir):
-    """Chart 1: Latency boxplot per endpoint category."""
+    """Chart 1: Latency boxplot per endpoint category (median across runs)."""
     categories = {
         "Read\nVehicles": "baseline_read_vehicles",
         "Write\nVehicle": "baseline_write_vehicle",
@@ -116,9 +128,8 @@ def chart_latency_boxplot(summaries, output_dir):
     data = []
     labels = []
     for label, prefix in categories.items():
-        matching = [s for n, s in summaries.items() if n.startswith(prefix)]
-        if matching:
-            m = extract_http_metrics(matching[0])
+        m = aggregate_metrics(summaries, prefix)
+        if m:
             data.append([m["min"], m["p50"], m["p50"], m["p95"], m["max"]])
             labels.append(label)
 
@@ -158,9 +169,8 @@ def chart_throughput_vs_vus(summaries, output_dir):
         ("Mixed (ramp)", "scaling_mixed", "#45B7D1"),
         ("Spike", "scaling_spike", "#FF6B6B"),
     ]:
-        matching = [s for n, s in summaries.items() if n.startswith(prefix)]
-        if matching:
-            m = extract_http_metrics(matching[0])
+        m = aggregate_metrics(summaries, prefix)
+        if m:
             ax.bar(label, m["req_per_sec"], color=color, alpha=0.8)
 
     ax.set_ylabel("Requests/second")
