@@ -15,6 +15,11 @@
     "yourEntities": "Your Entities",
     "viewDetails": "View Details"
   },
+  "vehicles": {
+    "title": "Vehicles",
+    "description": "Browse and manage registered vehicles and their certifications",
+    "goTo": "Go to Vehicles"
+  },
   "types": {
     "certifier": "Certifier",
     "partner": "Partner"

@@ -15,6 +15,11 @@
     "yourEntities": "As Suas Entidades",
     "viewDetails": "Ver Detalhes"
   },
+  "vehicles": {
+    "title": "Veículos",
+    "description": "Consultar e gerir veículos registados e as suas certificações",
+    "goTo": "Ir para Veículos"
+  },
   "types": {
     "certifier": "Certificador",
     "partner": "Parceiro"

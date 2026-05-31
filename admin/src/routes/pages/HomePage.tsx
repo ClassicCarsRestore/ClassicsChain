@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
-import { Users, Building2, ArrowRight } from 'lucide-react';
+import { Users, Building2, Car, ArrowRight } from 'lucide-react';
 import { useEntity } from '@/features/entities/hooks/useEntities';
 import { EntityDetailsTab } from '@/features/entities/components/EntityDetailsTab';
 import { EntityMembersTab } from '@/features/entities/components/EntityMembersTab';
@@ -115,31 +115,65 @@ export function HomePage() {
               <ArrowRight className="ml-2 h-4 w-4" />
             </span>
           </button>
+
+          <button
+            onClick={() => navigate('/vehicles')}
+            className="flex flex-col items-start p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow text-left cursor-pointer"
+          >
+            <Car className="h-10 w-10 text-purple-600 mb-4" />
+            <h2 className="text-xl font-semibold mb-2">{t('vehicles.title')}</h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              {t('vehicles.description')}
+            </p>
+            <span className="flex items-center text-sm text-purple-600 font-medium">
+              {t('vehicles.goTo')}
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </span>
+          </button>
         </div>
       )}
 
       {/* Entity User Dashboard */}
       {!isGlobalAdmin() && userEntities.length > 0 && (
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold">{t('entities.yourEntities')}</h2>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {userEntities.map((entity) => (
-              <button
-                key={entity.entityId}
-                onClick={() => navigate(`/entities/${entity.entityId}`)}
-                className="flex flex-col items-start p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow text-left cursor-pointer"
-              >
-                <Building2 className="h-8 w-8 text-blue-600 mb-3" />
-                <h3 className="text-lg font-semibold mb-1">{entity.entityName}</h3>
-                <p className="text-sm text-muted-foreground mb-3">
-                  {t(`types.${entity.entityType}`)} • {t(`roles.${entity.role}`)}
-                </p>
-                <span className="flex items-center text-sm text-blue-600 font-medium">
-                  {t('entities.viewDetails')}
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </span>
-              </button>
-            ))}
+        <div className="space-y-8">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <button
+              onClick={() => navigate('/vehicles')}
+              className="flex flex-col items-start p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow text-left cursor-pointer"
+            >
+              <Car className="h-10 w-10 text-purple-600 mb-4" />
+              <h2 className="text-xl font-semibold mb-2">{t('vehicles.title')}</h2>
+              <p className="text-sm text-muted-foreground mb-4">
+                {t('vehicles.description')}
+              </p>
+              <span className="flex items-center text-sm text-purple-600 font-medium">
+                {t('vehicles.goTo')}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </span>
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold">{t('entities.yourEntities')}</h2>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {userEntities.map((entity) => (
+                <button
+                  key={entity.entityId}
+                  onClick={() => navigate(`/entities/${entity.entityId}`)}
+                  className="flex flex-col items-start p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow text-left cursor-pointer"
+                >
+                  <Building2 className="h-8 w-8 text-blue-600 mb-3" />
+                  <h3 className="text-lg font-semibold mb-1">{entity.entityName}</h3>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    {t(`types.${entity.entityType}`)} • {t(`roles.${entity.role}`)}
+                  </p>
+                  <span className="flex items-center text-sm text-blue-600 font-medium">
+                    {t('entities.viewDetails')}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}
