@@ -6,6 +6,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { PasswordInput } from '@/components/Auth/PasswordInput';
 import { api } from '@/lib/api';
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 interface InvitationData {
   email: string;
   vehicles: Array<{
@@ -103,6 +105,12 @@ export function RegistrationPage() {
     const formData = new FormData(e.currentTarget);
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
+
+    if (!EMAIL_REGEX.test(email.trim())) {
+      setError('Please enter a valid email address.');
+      setIsLoading(false);
+      return;
+    }
 
     const body: UpdateRegistrationFlowBody = {
       method: 'password',
